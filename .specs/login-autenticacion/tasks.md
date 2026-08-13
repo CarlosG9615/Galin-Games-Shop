@@ -12,27 +12,27 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [~] 1. Inicializar proyecto Node.js — `GalinGames_nodejs/`
+- [x] 1. Inicializar proyecto Node.js — `GalinGames_nodejs/`
   **Dependencias:** Ninguna
   **Requisitos:** Req 7.1, 7.4, 7.5
 
-  - [ ] 1.1 Ejecutar `npm init -y` en `GalinGames_nodejs/` y ajustar `package.json` (name, version, main: `server.js`, scripts: `start`, `dev` con nodemon)
+  - [x] 1.1 Ejecutar `npm init -y` en `GalinGames_nodejs/` y ajustar `package.json` (name, version, main: `server.js`, scripts: `start`, `dev` con nodemon)
     - Añadir dependencias de producción con versiones exactas: `express`, `mongoose`, `bcryptjs`, `jsonwebtoken`, `express-rate-limit`, `dotenv`, `cors`, `cookie-parser`
     - Añadir dependencias de desarrollo: `nodemon`, `vitest`, `@vitest/coverage-v8`, `fast-check`, `supertest`
     - _Requisitos: 7.1_
 
-  - [ ] 1.2 Crear `.gitignore` en `GalinGames_nodejs/` que incluya `node_modules/`, `.env` y `coverage/`
+  - [x] 1.2 Crear `.gitignore` en `GalinGames_nodejs/` que incluya `node_modules/`, `.env` y `coverage/`
     - _Requisitos: 7.5_
 
-  - [ ] 1.3 Crear `.env.example` en `GalinGames_nodejs/` con todas las variables requeridas asignadas a valores de ejemplo no secretos
+  - [x] 1.3 Crear `.env.example` en `GalinGames_nodejs/` con todas las variables requeridas asignadas a valores de ejemplo no secretos
     - Variables: `JWT_SECRET`, `JWT_EXPIRES_IN`, `REFRESH_TOKEN_SECRET`, `REFRESH_TOKEN_EXPIRES_DAYS`, `MONGODB_URI`, `PORT`, `NODE_ENV`, `ALLOWED_ORIGINS`
     - _Requisitos: 7.4_
 
-  - [ ] 1.4 Crear `.env` en `GalinGames_nodejs/` con valores reales de desarrollo (no rastrear con git)
+  - [x] 1.4 Crear `.env` en `GalinGames_nodejs/` con valores reales de desarrollo (no rastrear con git)
     - Configurar `JWT_SECRET` (mínimo 32 caracteres), `REFRESH_TOKEN_SECRET` (mínimo 32 caracteres), `MONGODB_URI=mongodb://localhost:27017/GalinGames`, `PORT=3001`, `NODE_ENV=development`, `ALLOWED_ORIGINS=http://localhost:5173`
     - _Requisitos: 7.1, 7.2, 7.3_
 
-  - [ ] 1.5 Crear la estructura de directorios `src/config/`, `src/controllers/`, `src/middleware/`, `src/models/`, `src/routes/`, `src/services/`, `src/utils/`, `tests/unit/`, `tests/property/`
+  - [x] 1.5 Crear la estructura de directorios `src/config/`, `src/controllers/`, `src/middleware/`, `src/models/`, `src/routes/`, `src/services/`, `src/utils/`, `tests/unit/`, `tests/property/`
     - _Requisitos: (estructura del proyecto)_
 
 ---
