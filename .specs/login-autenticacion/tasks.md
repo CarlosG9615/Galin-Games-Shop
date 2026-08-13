@@ -37,11 +37,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 2. `src/config/env.js` — Validación de variables de entorno al arranque
+- [x] 2. `src/config/env.js` — Validación de variables de entorno al arranque
   **Dependencias:** Task 1
   **Requisitos:** Req 7.1, 7.2, 7.3, 7.6, 5.7
 
-  - [ ] 2.1 Implementar `src/config/env.js` que llame a `dotenv.config()` y valide las variables obligatorias `JWT_SECRET` y `MONGODB_URI`
+  - [x] 2.1 Implementar `src/config/env.js` que llame a `dotenv.config()` y valide las variables obligatorias `JWT_SECRET` y `MONGODB_URI`
     - Si `JWT_SECRET` está ausente, vacío o con longitud < 32: `console.error` + `process.exit(1)`
     - Si `MONGODB_URI` está ausente o vacío: `console.error` + `process.exit(1)`
     - Validar también `REFRESH_TOKEN_SECRET` (obligatorio, mínimo 32 caracteres)
@@ -49,7 +49,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - Exportar objeto `env` con todos los valores validados y el valor por defecto de `JWT_EXPIRES_IN` (3600) si no está definido
     - _Requisitos: 7.1, 7.2, 7.3, 7.6, 5.7_
 
-  - [ ]* 2.2 Escribir tests unitarios de `env.js`
+  - [x]* 2.2 Escribir tests unitarios de `env.js`
     - Verificar que el proceso termina con código 1 cuando falta `JWT_SECRET`
     - Verificar que el proceso termina con código 1 cuando `JWT_SECRET` tiene menos de 32 caracteres
     - Verificar que el proceso termina con código 1 cuando falta `MONGODB_URI`
