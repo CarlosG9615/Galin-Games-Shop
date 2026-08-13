@@ -12,7 +12,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 1. Inicializar proyecto Node.js — `GalinGames_nodejs/`
+- [~] 1. Inicializar proyecto Node.js — `GalinGames_nodejs/`
   **Dependencias:** Ninguna
   **Requisitos:** Req 7.1, 7.4, 7.5
 

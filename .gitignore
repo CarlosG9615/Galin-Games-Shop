@@ -1,0 +1,19 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Dependencias (red de seguridad a nivel raíz; cada subproyecto ya ignora la suya)
+node_modules/
+
+# Variables de entorno (red de seguridad a nivel raíz)
+.env
+.env.local
+.env.*.local
+
+# Claude Code — configuración/permisos locales de esta máquina, no se comparte
+.claude/settings.local.json
