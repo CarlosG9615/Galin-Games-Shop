@@ -58,17 +58,17 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 3. `src/config/db.js` — Conexión Mongoose a MongoDB GalinGames
+- [x] 3. `src/config/db.js` — Conexión Mongoose a MongoDB GalinGames
   **Dependencias:** Task 2
   **Requisitos:** Req 9.2, 9.3, 9.4
 
-  - [ ] 3.1 Implementar `src/config/db.js` que exporte la función `async connectDB()`
+  - [x] 3.1 Implementar `src/config/db.js` que exporte la función `async connectDB()`
     - Llamar a `mongoose.connect(env.MONGODB_URI)` con la base de datos `GalinGames`
     - En caso de éxito emitir `console.log('[DB] Conexión a MongoDB establecida')`
     - En caso de error emitir `console.error('[DB] Error de conexión:', err.message)` (sin exponer credenciales) y llamar a `process.exit(1)`
     - _Requisitos: 9.2, 9.3, 9.4_
 
-  - [ ]* 3.2 Escribir test de humo para `db.js`
+  - [x]* 3.2 Escribir test de humo para `db.js`
     - Verificar que `connectDB` rechaza cuando `MONGODB_URI` es inválida y llama a `process.exit(1)`
     - _Requisitos: 9.4_
 
