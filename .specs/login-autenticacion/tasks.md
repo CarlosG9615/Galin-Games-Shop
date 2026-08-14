@@ -74,11 +74,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 4. `src/models/User.js` — Modelo Mongoose UserSchema
+- [x] 4. `src/models/User.js` — Modelo Mongoose UserSchema
   **Dependencias:** Task 3
   **Requisitos:** Req 9.1, 9.5, 9.6, 4.1
 
-  - [ ] 4.1 Definir `UserSchema` en `src/models/User.js` con los campos:
+  - [x] 4.1 Definir `UserSchema` en `src/models/User.js` con los campos:
     - `username`: String, required, unique, trim, minlength 3, maxlength 50
     - `nombre`: String, required, trim, maxlength 100
     - `apellidos`: String, required, trim, maxlength 150
@@ -88,34 +88,34 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - `refreshTokenHash`: String, default null, `select: false`
     - _Requisitos: 9.1, 4.1_
 
-  - [ ] 4.2 Añadir índices explícitos `username: 1` y `email: 1` con `{ unique: true }` al schema
+  - [x] 4.2 Añadir índices explícitos `username: 1` y `email: 1` con `{ unique: true }` al schema
     - _Requisitos: 9.5_
 
-  - [ ]* 4.3 Escribir tests unitarios del schema
+  - [x]* 4.3 Escribir tests unitarios del schema
     - Verificar que un documento sin `username` falla la validación de Mongoose
     - Verificar que los campos `password` y `refreshTokenHash` no aparecen en una consulta `.find()` estándar (sin `.select('+password')`)
     - _Requisitos: 9.1, 4.4_
 
 ---
 
-- [ ] 5. `src/utils/nullGuard.js` — Defensive guards
+- [x] 5. `src/utils/nullGuard.js` — Defensive guards
   **Dependencias:** Task 1
   **Requisitos:** Req 16.1, 16.2, 16.4
 
-  - [ ] 5.1 Implementar y exportar `requireField(value, fieldName)`
+  - [x] 5.1 Implementar y exportar `requireField(value, fieldName)`
     - Si `value` es `undefined`, `null` o cadena vacía tras trim: lanzar un `AppError` con `status: 400` y mensaje `"Campo requerido ausente: {fieldName}"`
     - Definir clase `AppError` (o exportarla desde `utils/AppError.js` si se prefiere separar)
     - _Requisitos: 16.1, 16.2_
 
-  - [ ] 5.2 Implementar y exportar `isEmpty(value)`
+  - [x] 5.2 Implementar y exportar `isEmpty(value)`
     - Devolver `true` si `value` es `null`, `undefined`, o string vacío tras trim; `false` en caso contrario
     - _Requisitos: 16.1_
 
-  - [ ] 5.3 Implementar y exportar `sanitizeResponse(obj)`
+  - [x] 5.3 Implementar y exportar `sanitizeResponse(obj)`
     - Devolver copia del objeto sin claves cuyo valor sea `undefined`
     - _Requisitos: 16.4_
 
-  - [ ]* 5.4 Escribir tests unitarios de `nullGuard.js`
+  - [x]* 5.4 Escribir tests unitarios de `nullGuard.js`
     - `requireField(null, 'x')` lanza `AppError` con status 400
     - `requireField(undefined, 'x')` lanza `AppError` con status 400
     - `requireField('  ', 'x')` lanza `AppError` con status 400
@@ -126,11 +126,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 6. `src/middleware/validator.js` — Validación y sanitización de entradas
+- [x] 6. `src/middleware/validator.js` — Validación y sanitización de entradas
   **Dependencias:** Task 5
   **Requisitos:** Req 3.1, 3.2, 3.3, 3.4, 3.6, 3.7, 11.2, 11.3, 11.4, 16.1
 
-  - [ ] 6.1 Implementar middleware `validateLoginInput(req, res, next)`
+  - [x] 6.1 Implementar middleware `validateLoginInput(req, res, next)`
     - Rechazar con HTTP 400 si existen campos distintos a `username` y `password` (incluir lista de campos no permitidos en `errors`)
     - Rechazar con HTTP 400 si `username` está ausente, vacío tras trim, supera 50 caracteres o contiene caracteres de control (ASCII < 32)
     - Rechazar con HTTP 400 si `password` está ausente, vacío o supera 128 caracteres o contiene caracteres de control
@@ -138,7 +138,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - El objeto de respuesta de error debe seguir el formato `{ errors: [{ field, rule }] }` sin incluir el valor recibido
     - _Requisitos: 3.1, 3.2, 3.3, 3.4, 3.6, 3.7_
 
-  - [ ] 6.2 Implementar middleware `validateRegisterInput(req, res, next)`
+  - [x] 6.2 Implementar middleware `validateRegisterInput(req, res, next)`
     - Aplicar whitelist: `username`, `nombre`, `apellidos`, `email`, `password`, `repetirPassword`; rechazar campos extra con HTTP 400
     - Verificar presencia, no vacío (trim) y longitud máxima 255 en todos los campos
     - Verificar que `password` tiene entre 8 y 72 caracteres
@@ -147,7 +147,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - Formato de error: `{ errors: [{ field, rule, message }] }`
     - _Requisitos: 11.2, 11.3, 11.4, 3.6, 3.7_
 
-  - [ ]* 6.3 Escribir tests unitarios de `validator.js`
+  - [x]* 6.3 Escribir tests unitarios de `validator.js`
     - `validateLoginInput` rechaza con 400 cuando `username` supera 50 caracteres
     - `validateLoginInput` rechaza con 400 cuando hay un campo extra
     - `validateLoginInput` rechaza con 400 cuando `username` contiene `\x01`
@@ -158,46 +158,46 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 7. `src/middleware/rateLimiter.js` — Rate limiting por IP
+- [x] 7. `src/middleware/rateLimiter.js` — Rate limiting por IP
   **Dependencias:** Task 1
   **Requisitos:** Req 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 11.10, 14.5
 
-  - [ ] 7.1 Implementar y exportar `loginLimiter` usando `express-rate-limit`
+  - [x] 7.1 Implementar y exportar `loginLimiter` usando `express-rate-limit`
     - Ventana: 15 minutos, máximo 10 peticiones por IP
     - `standardHeaders: true` para enviar `Retry-After` y `X-RateLimit-Remaining`
     - `keyGenerator`: en producción usa primera entrada de `X-Forwarded-For`; si está ausente, retornar `null` para activar respuesta 503; en desarrollo usa `req.ip`
     - `handler`: responder con HTTP 429 y `{ message, retryAfter }` calculado desde `req.rateLimit.resetTime`
     - _Requisitos: 6.1, 6.2, 6.3, 6.4, 6.6_
 
-  - [ ] 7.2 Implementar y exportar `registerLimiter`
+  - [x] 7.2 Implementar y exportar `registerLimiter`
     - Ventana: 15 minutos, máximo 5 peticiones por IP
     - Misma lógica de `keyGenerator` y `handler` que `loginLimiter`
     - _Requisitos: 11.10_
 
-  - [ ] 7.3 Implementar y exportar `refreshLimiter`
+  - [x] 7.3 Implementar y exportar `refreshLimiter`
     - Ventana: 15 minutos, máximo 20 peticiones por IP
     - _Requisitos: 14.5_
 
 ---
 
-- [ ] 8. `src/services/tokenService.js` — Access token JWT
+- [x] 8. `src/services/tokenService.js` — Access token JWT
   **Dependencias:** Task 2, Task 5
   **Requisitos:** Req 5.1, 5.2, 5.3, 5.6, 5.7
 
-  - [ ] 8.1 Implementar y exportar `generateToken(userId, username)`
+  - [x] 8.1 Implementar y exportar `generateToken(userId, username)`
     - Llamar a `requireField` sobre `userId` y `username` antes de llamar a `jwt.sign`
     - Firmar con algoritmo HS256 usando `env.JWT_SECRET`
     - Payload: `{ userId, username }` — sin datos sensibles; `iat` se añade automáticamente por `jsonwebtoken`
     - `expiresIn`: usar `env.JWT_EXPIRES_IN` (entero en segundos, valor por defecto 3600, máx. 86400)
     - _Requisitos: 5.1, 5.2, 5.3, 5.6_
 
-  - [ ] 8.2 Implementar y exportar `verifyToken(token)`
+  - [x] 8.2 Implementar y exportar `verifyToken(token)`
     - Llamar a `requireField` sobre `token` antes de llamar a `jwt.verify`
     - Verificar con `env.JWT_SECRET`; dejar que propague `JsonWebTokenError` y `TokenExpiredError` para que el `globalErrorHandler` los capture
     - Devolver el payload decodificado `{ userId, username, iat, exp }`
     - _Requisitos: 5.4, 5.5_
 
-  - [ ]* 8.3 Escribir tests unitarios de `tokenService.js`
+  - [x]* 8.3 Escribir tests unitarios de `tokenService.js`
     - `generateToken` produce un string con tres partes separadas por `.`
     - El payload decodificado contiene exactamente `userId`, `username` e `iat` (más `exp`)
     - Dos tokens generados para el mismo `userId` en instantes distintos producen valores `iat` distintos
@@ -207,23 +207,23 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 9. `src/services/refreshTokenService.js` — Refresh token opaco
+- [x] 9. `src/services/refreshTokenService.js` — Refresh token opaco
   **Dependencias:** Task 5
   **Requisitos:** Req 13.1, 13.2, 13.3, 13.4, 13.5
 
-  - [ ] 9.1 Implementar y exportar `generateRefreshToken()`
+  - [x] 9.1 Implementar y exportar `generateRefreshToken()`
     - Generar token opaco con `crypto.randomBytes(64).toString('base64url')` (Node built-in)
     - Calcular hash SHA-256 del token con `crypto.createHash('sha256').update(token).digest('hex')`
     - Devolver objeto `{ token, hash }`
     - _Requisitos: 13.1, 13.3_
 
-  - [ ] 9.2 Implementar y exportar `verifyRefreshToken(tokenRecibido, hashAlmacenado)`
+  - [x] 9.2 Implementar y exportar `verifyRefreshToken(tokenRecibido, hashAlmacenado)`
     - Calcular SHA-256 de `tokenRecibido` y comparar con `hashAlmacenado`
     - Devolver `true` si coinciden, `false` en caso contrario
     - Llamar a `requireField` sobre ambos argumentos antes de operar
     - _Requisitos: 13.5_
 
-  - [ ]* 9.3 Escribir tests unitarios de `refreshTokenService.js`
+  - [x]* 9.3 Escribir tests unitarios de `refreshTokenService.js`
     - `generateRefreshToken()` devuelve objetos con `token` y `hash` distintos entre sí
     - `verifyRefreshToken(token, hash)` devuelve `true` cuando el hash es correcto
     - `verifyRefreshToken(token, hashDiferente)` devuelve `false`
@@ -232,11 +232,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 10. `src/middleware/authMiddleware.js` — Verificación JWT para rutas protegidas
+- [x] 10. `src/middleware/authMiddleware.js` — Verificación JWT para rutas protegidas
   **Dependencias:** Task 8
   **Requisitos:** Req 5.4, 5.5
 
-  - [ ] 10.1 Implementar y exportar middleware `requireAuth(req, res, next)`
+  - [x] 10.1 Implementar y exportar middleware `requireAuth(req, res, next)`
     - Leer el JWT desde `req.cookies.token`
     - Si la cookie está ausente: responder con HTTP 401 `{ code: 401, message: "No autorizado" }`
     - Llamar a `tokenService.verifyToken(token)` y adjuntar el payload a `req.user`
