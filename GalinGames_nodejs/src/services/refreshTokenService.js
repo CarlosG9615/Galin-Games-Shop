@@ -18,4 +18,4 @@ function verifyRefreshToken(tokenRecibido, hashAlmacenado) {
   return hashToken(tokenRecibido) === hashAlmacenado;
 }
 
-module.exports = { generateRefreshToken, verifyRefreshToken };
+module.exports = { generateRefreshToken, verifyRefreshToken, hashRefreshToken: hashToken };
