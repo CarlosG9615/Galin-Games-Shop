@@ -23,6 +23,14 @@ describe('src/utils/nullGuard.js', () => {
     expect(() => requireField('valor', 'x')).not.toThrow();
   });
 
+  it('requireField lanza AppError si el valor es un objeto (operador de inyección NoSQL, p.ej. { $ne: null })', () => {
+    expect(() => requireField({ $ne: null }, 'username')).toThrow(AppError);
+  });
+
+  it('requireField lanza AppError si el valor es un array', () => {
+    expect(() => requireField(['a', 'b'], 'username')).toThrow(AppError);
+  });
+
   it('isEmpty devuelve true para vacío y false para no vacío', () => {
     expect(isEmpty('')).toBe(true);
     expect(isEmpty('a')).toBe(false);

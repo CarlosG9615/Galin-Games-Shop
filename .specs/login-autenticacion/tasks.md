@@ -274,20 +274,20 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 12. `src/controllers/authController.js` — Lógica de autenticación
+- [x] 12. `src/controllers/authController.js` — Lógica de autenticación
   **Dependencias:** Task 4, Task 5, Task 8, Task 9
   **Requisitos:** Req 2.1–2.8, 4.2, 4.3, 11.5–11.11, 12.1–12.5, 13.1–13.6, 14.1–14.6
 
-  - [ ] 12.1 Implementar función auxiliar `uniformDelay()` (espera aleatoria 200–600 ms)
+  - [x] 12.1 Implementar función auxiliar `uniformDelay()` (espera aleatoria 200–600 ms)
     - Utilizar `setTimeout` envuelto en una promesa
     - _Requisitos: 2.4, 2.6, 4.5_
 
-  - [ ] 12.2 Implementar `Map` en memoria `failedAttempts` y funciones `isUsernameBlocked(username)` y `recordFailedAttempt(username)`
+  - [x] 12.2 Implementar `Map` en memoria `failedAttempts` y funciones `isUsernameBlocked(username)` y `recordFailedAttempt(username)`
     - Bloquear tras 5 intentos fallidos en ventana de 60 s; duración del bloqueo: 300 s
     - `isUsernameBlocked` resetea el registro si la ventana de 60 s ha expirado
     - _Requisitos: 2.7_
 
-  - [ ] 12.3 Implementar y exportar `login(req, res, next)`
+  - [x] 12.3 Implementar y exportar `login(req, res, next)`
     - Llamar a `requireField` para `username` y `password` (ya validados por `validateLoginInput`, como segunda línea de defensa)
     - Verificar si el username está bloqueado por `failedAttempts`; si lo está, responder HTTP 429 con `retryAfter`
     - Buscar usuario con `User.findOne({ username }).select('+password')`
@@ -300,7 +300,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - Responder HTTP 200 con `{ message, userId, username }`
     - _Requisitos: 2.1, 2.3, 2.4, 2.6, 2.7, 4.2, 4.3, 4.5, 13.1, 13.2, 13.3, 12.3, 12.5_
 
-  - [ ] 12.4 Implementar y exportar `register(req, res, next)`
+  - [x] 12.4 Implementar y exportar `register(req, res, next)`
     - Llamar a `requireField` para cada campo requerido
     - Comprobar si `username` ya existe en MongoDB; si sí, HTTP 409 con mensaje específico
     - Comprobar si `email` ya existe en MongoDB; si sí, HTTP 409 con mensaje específico
@@ -311,7 +311,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - Si MongoDB no está disponible: capturar `MongooseServerSelectionError` y responder HTTP 503
     - _Requisitos: 11.5, 11.6, 11.7, 11.8, 11.9, 11.11, 4.1, 12.1_
 
-  - [ ] 12.5 Implementar y exportar `refresh(req, res, next)`
+  - [x] 12.5 Implementar y exportar `refresh(req, res, next)`
     - Leer `refreshToken` desde `req.cookies.refreshToken`; si ausente → HTTP 401
     - Buscar usuario con `refreshTokenHash` no nulo; si no se encuentra → HTTP 401 + limpiar cookie + limpiar `refreshTokenHash`
     - Verificar con `refreshTokenService.verifyRefreshToken(tokenRecibido, user.refreshTokenHash)`
@@ -321,7 +321,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - Responder HTTP 200 con `{ userId, username }`
     - _Requisitos: 14.1, 14.2, 14.3, 14.4, 14.6, 13.4, 13.5_
 
-  - [ ] 12.6 Implementar y exportar `logout(req, res, next)`
+  - [x] 12.6 Implementar y exportar `logout(req, res, next)`
     - Leer `userId` desde `req.cookies.token` (decodificar sin verificar o usar `req.user` si está disponible)
     - Limpiar `refreshTokenHash` del usuario en MongoDB (solo si el usuario existe)
     - Eliminar cookie `token` con `Max-Age=0`
@@ -703,6 +703,8 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 - El campo `password` usa `select: false` en Mongoose — para el flujo de login, añadir `.select('+password')` explícitamente en la consulta del controlador.
 - El backend (`GalinGames_nodejs/`) parte desde cero; la Task 1 debe completarse antes que cualquier otra tarea del backend.
 - El refresh token usa `Path=/api/auth/refresh` en la cookie — el navegador solo lo envía a ese endpoint exacto.
+- **Decisión tomada en Task 12 (confirmada con el usuario):** `refreshTokenService.js` (Task 9) ahora exporta también `hashRefreshToken` (alias de la función interna de hash). `authController.refresh()` calcula el hash del token recibido y busca al usuario con `User.findOne({ refreshTokenHash: hash })` (búsqueda por igualdad exacta) en vez de `findOne({ refreshTokenHash: { $ne: null } })` tal como sugería literalmente esta task — la versión literal solo es correcta si nunca hay más de un usuario con sesión activa en toda la app, lo cual no es el caso (cada persona tiene su propia cuenta, aunque cada dispositivo mantenga solo una sesión). La rama "no coincide / reutilización detectada" de 12.5 queda como red de seguridad adicional aunque, con búsqueda por hash exacto, el caso real de token robado/rotado ya se cubre en la rama "no encontrado".
+- **Hallazgos de seguridad corregidos durante la implementación de Task 12:** (1) `recordFailedAttempt` ahora se llama también cuando el `username` no existe en `login()`, no solo cuando existe con password incorrecta — si no, el bloqueo por fuerza bruta se convertía en un canal de enumeración de usuarios. (2) `nullGuard.requireField` (Task 5) ahora rechaza también valores que no sean `string` (objetos/arrays), cerrando una inyección NoSQL vía body JSON tipo `{ "username": { "$ne": null } }`. (3) En `logout()`, el `userId` decodificado sin verificar del JWT se valida como `string` antes de usarse en `User.updateOne({ _id: userId }, ...)`, por el mismo motivo.
 
 ---
 

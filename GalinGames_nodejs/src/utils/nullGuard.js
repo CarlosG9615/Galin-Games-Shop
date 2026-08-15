@@ -5,7 +5,9 @@ function isEmpty(value) {
 }
 
 function requireField(value, fieldName) {
-  if (isEmpty(value)) {
+  // typeof !== 'string' también rechaza objetos/arrays (p.ej. operadores de
+  // inyección NoSQL como { $ne: null } enviados como body JSON).
+  if (isEmpty(value) || typeof value !== 'string') {
     throw new AppError(`Campo requerido ausente: ${fieldName}`, 400);
   }
 }
