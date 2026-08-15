@@ -331,11 +331,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 13. `src/routes/auth.routes.js` — Rutas de autenticación
+- [x] 13. `src/routes/auth.routes.js` — Rutas de autenticación
   **Dependencias:** Task 6, Task 7, Task 12
   **Requisitos:** Req 2.1, 11.1, 13.1, 14.1
 
-  - [ ] 13.1 Crear `src/routes/auth.routes.js` con un `Router` de Express y registrar:
+  - [x] 13.1 Crear `src/routes/auth.routes.js` con un `Router` de Express y registrar:
     - `POST /login` → `[loginLimiter, validateLoginInput, authController.login]`
     - `POST /register` → `[registerLimiter, validateRegisterInput, authController.register]`
     - `POST /refresh` → `[refreshLimiter, authController.refresh]`
