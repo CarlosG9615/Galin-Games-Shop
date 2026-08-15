@@ -344,34 +344,34 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 14. `server.js` — Entry point Express con todos los middlewares globales
+- [x] 14. `server.js` — Entry point Express con todos los middlewares globales
   **Dependencias:** Task 2, Task 3, Task 11, Task 13
   **Requisitos:** Req 2.8, 7.1, 8.1, 8.2, 8.3, 8.4, 9.2, 16.6
 
-  - [ ] 14.1 Crear `server.js` en la raíz de `GalinGames_nodejs/`
+  - [x] 14.1 Crear `server.js` en la raíz de `GalinGames_nodejs/`
     - Importar `env.js` como primera línea (antes de cualquier otro import, para que valide las variables antes de continuar)
     - Configurar `express()` con `express.json()` y `cookie-parser()`
     - _Requisitos: 7.1_
 
-  - [ ] 14.2 Configurar middleware CORS con la lista de orígenes de `env.ALLOWED_ORIGINS`
+  - [x] 14.2 Configurar middleware CORS con la lista de orígenes de `env.ALLOWED_ORIGINS`
     - `credentials: true`, `methods: ['GET', 'POST']`, `allowedHeaders: ['Content-Type']`
     - Orígenes no autorizados → Error CORS que el `globalErrorHandler` convierte en HTTP 403
     - _Requisitos: 2.8_
 
-  - [ ] 14.3 Añadir middleware de cabeceras de seguridad HTTP para todas las respuestas
+  - [x] 14.3 Añadir middleware de cabeceras de seguridad HTTP para todas las respuestas
     - Siempre: `X-Content-Type-Options: nosniff` y `X-Frame-Options: DENY`
     - Solo en producción: `Strict-Transport-Security: max-age=31536000; includeSubDomains`
     - Solo en producción: redirigir HTTP → HTTPS con HTTP 301
     - _Requisitos: 8.1, 8.2, 8.3, 8.4_
 
-  - [ ] 14.4 Registrar las rutas de autenticación bajo el prefijo `/api/auth`
+  - [x] 14.4 Registrar las rutas de autenticación bajo el prefijo `/api/auth`
     - _Requisitos: 2.1, 11.1_
 
-  - [ ] 14.5 Registrar `globalErrorHandler` como **último** `app.use` (después de todas las rutas)
+  - [x] 14.5 Registrar `globalErrorHandler` como **último** `app.use` (después de todas las rutas)
     - Llamar a `connectDB()` antes de `app.listen`; iniciar el servidor solo si la conexión a MongoDB tiene éxito
     - _Requisitos: 9.2, 16.6_
 
-  - [ ] 14.6 Checkpoint — Verificar que el servidor arranca y los endpoints responden
+  - [x] 14.6 Checkpoint — Verificar que el servidor arranca y los endpoints responden
     - Ejecutar `npm run dev` y comprobar que `POST /api/auth/login` con body `{}` responde con HTTP 400
     - Comprobar que `POST /api/auth/register` con body `{}` responde con HTTP 400
     - Asegurarse de que todos los tests unitarios existentes pasan con `npx vitest --run`
@@ -704,6 +704,8 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 - El backend (`GalinGames_nodejs/`) parte desde cero; la Task 1 debe completarse antes que cualquier otra tarea del backend.
 - El refresh token usa `Path=/api/auth/refresh` en la cookie — el navegador solo lo envía a ese endpoint exacto.
 - **Decisión tomada en Task 12 (confirmada con el usuario):** `refreshTokenService.js` (Task 9) ahora exporta también `hashRefreshToken` (alias de la función interna de hash). `authController.refresh()` calcula el hash del token recibido y busca al usuario con `User.findOne({ refreshTokenHash: hash })` (búsqueda por igualdad exacta) en vez de `findOne({ refreshTokenHash: { $ne: null } })` tal como sugería literalmente esta task — la versión literal solo es correcta si nunca hay más de un usuario con sesión activa en toda la app, lo cual no es el caso (cada persona tiene su propia cuenta, aunque cada dispositivo mantenga solo una sesión). La rama "no coincide / reutilización detectada" de 12.5 queda como red de seguridad adicional aunque, con búsqueda por hash exacto, el caso real de token robado/rotado ya se cubre en la rama "no encontrado".
+- **Decisión tomada en Task 14:** el callback de CORS en `server.js` rechaza orígenes no autorizados con `new AppError('Origen no autorizado', 403)` (en vez del `Error` genérico del snippet de `design.md`), para que `globalErrorHandler` (Task 11) lo resuelva automáticamente a HTTP 403 vía su rama `err instanceof AppError`. Verificado end-to-end con curl: `{"code":403,"message":"Origen no autorizado"}`.
+- **Verificación end-to-end manual de Task 14 (checkpoint 14.6):** además de los dos casos pedidos (`login`/`register` con `{}` → 400), se probó registro real, login, refresh con rotación de cookie, intento de inyección NoSQL (bloqueado con 400 por el hardening de Task 12) y logout — todo contra una base de datos MongoDB local desechable (`GalinGames-ci`), eliminada al terminar la prueba.
 - **Hallazgos de seguridad corregidos durante la implementación de Task 12:** (1) `recordFailedAttempt` ahora se llama también cuando el `username` no existe en `login()`, no solo cuando existe con password incorrecta — si no, el bloqueo por fuerza bruta se convertía en un canal de enumeración de usuarios. (2) `nullGuard.requireField` (Task 5) ahora rechaza también valores que no sean `string` (objetos/arrays), cerrando una inyección NoSQL vía body JSON tipo `{ "username": { "$ne": null } }`. (3) En `logout()`, el `userId` decodificado sin verificar del JWT se valida como `string` antes de usarse en `User.updateOne({ _id: userId }, ...)`, por el mismo motivo.
 
 ---
