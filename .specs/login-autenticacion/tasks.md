@@ -247,11 +247,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 11. `src/middleware/globalErrorHandler.js` — Middleware global de errores
+- [x] 11. `src/middleware/globalErrorHandler.js` — Middleware global de errores
   **Dependencias:** Task 5
   **Requisitos:** Req 16.5, 16.6, 9.4
 
-  - [ ] 11.1 Implementar `globalErrorHandler(err, req, res, next)` con firma de 4 parámetros
+  - [x] 11.1 Implementar `globalErrorHandler(err, req, res, next)` con firma de 4 parámetros
     - Registrar en consola: timestamp, método HTTP, ruta, y stack trace completo del error
     - Determinar código HTTP:
       - `AppError` con `.status` definido → usar ese valor
@@ -264,7 +264,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - Nunca incluir stack trace ni valores de campos en la respuesta al cliente
     - _Requisitos: 16.5, 16.6_
 
-  - [ ]* 11.2 Escribir tests unitarios de `globalErrorHandler.js`
+  - [x]* 11.2 Escribir tests unitarios de `globalErrorHandler.js`
     - Un `AppError` con status 400 produce respuesta HTTP 400 con campo `code`
     - Un error de Mongoose código 11000 en campo `username` produce HTTP 409 con mensaje sobre username
     - Un `JsonWebTokenError` produce HTTP 401
