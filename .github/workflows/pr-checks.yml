@@ -1,0 +1,80 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+# Cancela ejecuciones anteriores de este mismo PR cuando llegan nuevos commits.
+concurrency:
+  group: pr-checks-${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend (lint + build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: GalinGames_react
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: GalinGames_react/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  backend:
+    name: Backend (test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: GalinGames_nodejs
+    env:
+      # Valores ficticios solo para que la validación de entorno (src/config/env.js)
+      # y los tests puedan ejecutarse en CI. No son secretos reales.
+      JWT_SECRET: ci-test-jwt-secret-please-change-32chars
+      JWT_EXPIRES_IN: '3600'
+      REFRESH_TOKEN_SECRET: ci-test-refresh-secret-please-change-32
+      REFRESH_TOKEN_EXPIRES_DAYS: '7'
+      MONGODB_URI: mongodb://localhost:27017/GalinGames-ci
+      PORT: '3001'
+      NODE_ENV: test
+      ALLOWED_ORIGINS: http://localhost:5173
+      EMAIL_USER: ci-test@example.com
+      EMAIL_APP_PASSWORD: ci-test-app-password
+      FRONTEND_URL: http://localhost:5173
+      BACKEND_URL: http://localhost:3001
+      EMAIL_VERIFICATION_EXPIRES_HOURS: '24'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: GalinGames_nodejs/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Test
+        run: npm test
