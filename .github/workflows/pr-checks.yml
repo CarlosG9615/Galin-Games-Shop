@@ -57,6 +57,11 @@ jobs:
       PORT: '3001'
       NODE_ENV: test
       ALLOWED_ORIGINS: http://localhost:5173
+      EMAIL_USER: ci-test@example.com
+      EMAIL_APP_PASSWORD: ci-test-app-password
+      FRONTEND_URL: http://localhost:5173
+      BACKEND_URL: http://localhost:3001
+      EMAIL_VERIFICATION_EXPIRES_HOURS: '24'
     steps:
       - name: Checkout
         uses: actions/checkout@v7
