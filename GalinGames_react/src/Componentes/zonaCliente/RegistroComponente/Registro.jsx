@@ -1,94 +1,179 @@
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
 import InputBox from '/src/Componentes/compGlobales/InputBoxComponente/InputBox'
+import { authService } from '../../../servicios/authService'
 import './Registro.css'
 
+const CAMPOS_FORM = [
+  { name: 'username', label: 'Nombre de usuario', type: 'text' },
+  { name: 'nombre', label: 'Nombre', type: 'text' },
+  { name: 'apellidos', label: 'Apellidos', type: 'text' },
+  { name: 'email', label: 'Email', type: 'email' },
+  { name: 'password', label: 'Contraseña', type: 'password' },
+  { name: 'repetirPassword', label: 'Repetir Contraseña', type: 'password' },
+]
+
+const CAMPOS_INICIALES = { username: '', nombre: '', apellidos: '', email: '', password: '', repetirPassword: '' }
 
 function Registro() {
-  const [formulario, setFormulario] = useState({})
+  const [campos, setCampos] = useState(CAMPOS_INICIALES)
   const [aceptaTerminos, setAceptaTerminos] = useState(false)
   const [aceptaPrivacidad, setAceptaPrivacidad] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
+  const [retryCountdown, setRetryCountdown] = useState(0)
+  const [successMessage, setSuccessMessage] = useState('')
 
-  const OnChangeHandler = (e) => {
-    setFormulario((valorAnterior) => ({ ...valorAnterior, [e.target.name]: e.target.value }))
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (retryCountdown <= 0) return undefined
+    const intervalId = setInterval(() => {
+      setRetryCountdown((prev) => (prev <= 1 ? 0 : prev - 1))
+    }, 1000)
+    return () => clearInterval(intervalId)
+  }, [retryCountdown])
+
+  const handleFieldChange = (field) => (e) => {
+    setCampos((prev) => ({ ...prev, [field]: e.target.value }))
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
     if (!aceptaTerminos || !aceptaPrivacidad) {
-      alert('Debes aceptar los términos y la política de privacidad.');
-      return;
+      alert('Debes aceptar los términos y la política de privacidad.')
+      return
     }
-    // Aquí puedes enviar formulario a backend o hacer lo que necesites
-    console.log({ ...formulario, aceptaTerminos, aceptaPrivacidad });
-    alert('¡Registro enviado!');
+
+    setError('')
+    setFieldErrors({})
+
+    const algunCampoVacio = CAMPOS_FORM.some(({ name }) => !campos[name].trim())
+    if (algunCampoVacio) {
+      setError('Rellena todos los campos.')
+      return
+    }
+
+    if (campos.password !== campos.repetirPassword) {
+      setError('Las contraseñas no coinciden.')
+      return
+    }
+
+    setLoading(true)
+
+    const result = await authService.register(campos)
+
+    if (result.ok) {
+      setSuccessMessage(`¡Bienvenido, ${campos.username}! Tu cuenta se ha creado correctamente.`)
+      setTimeout(() => navigate('/login'), 3000)
+      return
+    }
+
+    setLoading(false)
+
+    if (result.status === 409) {
+      setError(result.message || 'El nombre de usuario o el email ya está en uso.')
+      return
+    }
+
+    if (result.status === 400) {
+      const errores = {}
+      for (const err of result.errors || []) {
+        errores[err.field] = err.message || 'Campo inválido'
+      }
+      setFieldErrors(errores)
+      setError('Revisa los campos marcados.')
+      return
+    }
+
+    if (result.status === 429) {
+      const retryAfter = Number(result.retryAfter) || 0
+      setRetryCountdown(retryAfter)
+      setError('Demasiadas peticiones. Inténtalo de nuevo en unos segundos.')
+      return
+    }
+
+    if (result.status === 0) {
+      setError(result.message || 'La petición tardó demasiado. Inténtalo de nuevo.')
+      return
+    }
+
+    setError('Ha ocurrido un problema inesperado. Inténtalo de nuevo más tarde.')
+  }
+
+  if (successMessage) {
+    return (
+      <div style={{ minHeight: '100vh', width: '100vw', position: 'relative' }}>
+        <div className="fondo-gaming" style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh' }} />
+        <div style={{ minHeight: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 10 }}>
+          <div className="contenido-registro marginForm rounded">
+            <p className="videojuego-text" role="status">{successMessage}</p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div style={{ minHeight: '100vh', width: '100vw', position: 'relative' }}>
       <div className="fondo-gaming" style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh' }} />
       <div style={{ minHeight: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 10 }}>
-  <div className="contenido-registro form-box">
+        <div className="contenido-registro form-box">
           <form onSubmit={handleSubmit} autoComplete="off">
             <div className="mb-3 color-fondo marginForm rounded">
-              <h1 className='videojuego-title'>Datos de la cuenta</h1>
-              {/*Forma anterior con cada input por separado*/}
-              {/* <label htmlFor="username" className="form-label videojuego-text">Nombre de Usuario</label>
-              <input type="text" className="form-control" id="username" placeholder='Introduce tu nombre de usuario...' />
-              <label htmlFor="nombre" className="form-label videojuego-text">Nombre</label>
-              <input type="text" className="form-control" id="nombre" placeholder='Introduce tu nombre...'/>
-              <label htmlFor="apellidos" className="form-label videojuego-text">Apellidos</label>
-              <input type="text" className="form-control" id="apellidos" placeholder='Introduce tus apellidos...'/>
-              <label htmlFor="email" className="form-label videojuego-text">Email</label>
-              <input type="email" className="form-control" id="email" placeholder='Introduce tu email...'/>
-              <label htmlFor="password" className="form-label videojuego-text">Contraseña</label>
-              <input type="password" className="form-control" id="password" placeholder='Introduce tu contraseña...'/>
-              <label htmlFor="Repetirpassword" className="form-label videojuego-text">Repetir Contraseña</label>
-              <input type="password" className="form-control" id="Repetirpassword" placeholder='Introduce nuevamente tu contraseña...'/> */}
-              {/*Nueva forma con componente InputBox y un map*/}
-              {['username', 'nombre', 'apellidos', 'email', 'password', 'Repetirpassword'].map((campo,pos) => (
-                <InputBox
-                  key={pos}
-                  nameInput={campo}
-                  labelInput={campo === 'password' ? 'Contraseña' : campo === 'Repetirpassword' ? 'Repetir Contraseña' : campo.charAt(0).toUpperCase() + campo.slice(1)}
-                  typeInput={campo === 'email' ? 'email' : campo.toLowerCase().includes('password') ? 'password' : 'text'}
-                  placeholderInput={campo === 'password' ? 'Introduce tu contraseña...' : campo === 'Repetirpassword' ? 'Introduce nuevamente tu contraseña...' : `Introduce tu ${campo}...`}
-                  eventoOnChange={OnChangeHandler}
-                />
+              <h1 className="videojuego-title">Datos de la cuenta</h1>
+              {CAMPOS_FORM.map(({ name, label, type }) => (
+                <div key={name}>
+                  <InputBox
+                    nameInput={name}
+                    labelInput={label}
+                    typeInput={type}
+                    placeholderInput={`Introduce tu ${label.toLowerCase()}...`}
+                    eventoOnChange={handleFieldChange(name)}
+                  />
+                  {fieldErrors[name] && <p className="videojuego-text" role="alert">{fieldErrors[name]}</p>}
+                </div>
               ))}
-                <div className="d-flex align-items-center gap-2 mt-3">
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    id="comprobarTerminos"
-                    checked={aceptaTerminos}
-                    onChange={e => setAceptaTerminos(e.target.checked)}
-                  />
-                  <label className="form-check-label videojuego-conditions" htmlFor="terminosCheck">Acepto los términos y condiciones</label>
-                </div>
-                <div className="d-flex align-items-center gap-2 mt-2">
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    id="comprobarPolitica"
-                    checked={aceptaPrivacidad}
-                    onChange={e => setAceptaPrivacidad(e.target.checked)}
-                  />
-                  <label className="m-2 form-check-label videojuego-conditions" htmlFor="comprobarPolitica">
-                    He leído y acepto la{' '}
-                    <a href="#" className="text-primary text-decoration-underline">Política de privacidad</a>
-                  </label>
-                </div>
-                <div className="mt-3 w-100 d-flex justify-content-end">
-                  <button type="submit" className="btn btn-primary botonRegistro">Registrarse</button>
-                </div>
-                <div>
-                  <a href="#" className="videojuego-conditions text-decoration-underline">¿Ya tienes cuenta? Inicia sesión</a>
-                </div>
-                <div className="invalid-feedback">Debes aceptar los términos y condiciones.</div>
-                <div className="invalid-feedback">Debes aceptar la política de privacidad.</div>
+              <div className="d-flex align-items-center gap-2 mt-3">
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  id="comprobarTerminos"
+                  checked={aceptaTerminos}
+                  onChange={e => setAceptaTerminos(e.target.checked)}
+                />
+                <label className="form-check-label videojuego-conditions" htmlFor="comprobarTerminos">Acepto los términos y condiciones</label>
+              </div>
+              <div className="d-flex align-items-center gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  id="comprobarPolitica"
+                  checked={aceptaPrivacidad}
+                  onChange={e => setAceptaPrivacidad(e.target.checked)}
+                />
+                <label className="m-2 form-check-label videojuego-conditions" htmlFor="comprobarPolitica">
+                  He leído y acepto la{' '}
+                  <a href="#" className="text-primary text-decoration-underline">Política de privacidad</a>
+                </label>
+              </div>
+
+              {error && <p className="videojuego-text" role="alert">{error}</p>}
+              {retryCountdown > 0 && (
+                <p className="videojuego-text" role="alert">Vuelve a intentarlo en {retryCountdown} segundos.</p>
+              )}
+
+              <div className="mt-3 w-100 d-flex justify-content-end">
+                <button type="submit" className="btn btn-primary botonRegistro" disabled={loading || retryCountdown > 0}>
+                  {loading ? 'Enviando...' : 'Registrarse'}
+                </button>
+              </div>
+              <div>
+                <Link to="/login" className="videojuego-conditions text-decoration-underline">¿Ya tienes cuenta? Inicia sesión</Link>
+              </div>
             </div>
-            
           </form>
         </div>
       </div>

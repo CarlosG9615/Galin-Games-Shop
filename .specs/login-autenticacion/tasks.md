@@ -382,21 +382,21 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 15. Instalar `react-router-dom` v6 en el frontend
+- [x] 15. Instalar `react-router-dom` v6 en el frontend
   **Dependencias:** Ninguna
   **Requisitos:** Req 1.9, 10.5, 15.3, 17.4
 
-  - [ ] 15.1 Ejecutar `npm install react-router-dom@6` en `GalinGames_react/`
+  - [x] 15.1 Ejecutar `npm install react-router-dom@6` en `GalinGames_react/`
     - Verificar que la dependencia queda registrada en `package.json` con versión exacta
     - _Requisitos: (infraestructura frontend)_
 
 ---
 
-- [ ] 16. `src/servicios/authService.js` — Cliente HTTP con AbortController
+- [x] 16. `src/servicios/authService.js` — Cliente HTTP con AbortController
   **Dependencias:** Task 15
   **Requisitos:** Req 1.4, 1.8, 10.1, 10.8, 13.1, 14.1, 15.2
 
-  - [ ] 16.1 Implementar y exportar `login(username, password)`
+  - [x] 16.1 Implementar y exportar `login(username, password)`
     - `AbortController` con timeout de 10 s vía `setTimeout`
     - `fetch('/api/auth/login', { method: 'POST', headers, credentials: 'include', body, signal })`
     - Aplicar `username.trim()` antes de enviar
@@ -405,23 +405,23 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - Capturar `AbortError` → `{ ok: false, status: 0, message: 'La petición tardó demasiado...' }`
     - _Requisitos: 1.4, 1.8, 3.5_
 
-  - [ ] 16.2 Implementar y exportar `register(datos)`
+  - [x] 16.2 Implementar y exportar `register(datos)`
     - Misma estructura con `AbortController` de 10 s
     - `POST /api/auth/register` con los seis campos
     - Retornar `{ ok: true, data }` o `{ ok: false, status, message, errors? }`
     - _Requisitos: 10.1, 10.8_
 
-  - [ ] 16.3 Implementar y exportar `logout()`
+  - [x] 16.3 Implementar y exportar `logout()`
     - `POST /api/auth/logout`, `credentials: 'include'`
     - Retornar `{ ok: true }` o `{ ok: false, message }`
     - _Requisitos: 15.2_
 
-  - [ ] 16.4 Implementar y exportar `silentRefresh()`
+  - [x] 16.4 Implementar y exportar `silentRefresh()`
     - `POST /api/auth/refresh`, `credentials: 'include'`
     - Retornar `{ ok: true, data: { userId, username } }` o `{ ok: false, status }`
     - _Requisitos: 14.1, 14.6, 15.3_
 
-  - [ ]* 16.5 Escribir tests unitarios de `authService.js` con fetch mockeado
+  - [x]* 16.5 Escribir tests unitarios de `authService.js` con fetch mockeado
     - `login` con respuesta 200 devuelve `{ ok: true, data }`
     - `login` con respuesta 401 devuelve `{ ok: false, status: 401 }`
     - `login` con `AbortError` devuelve `{ ok: false, status: 0 }`
@@ -430,11 +430,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 17. `src/globalState/authContext.jsx` — AuthProvider con persistencia de sesión
+- [x] 17. `src/globalState/authContext.jsx` — AuthProvider con persistencia de sesión
   **Dependencias:** Task 16
   **Requisitos:** Req 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.7
 
-  - [ ] 17.1 Crear y exportar `AuthContext` y `AuthProvider` en `src/globalState/authContext.jsx`
+  - [x] 17.1 Crear y exportar `AuthContext` y `AuthProvider` en `src/globalState/authContext.jsx`
     - Estado: `user` (`{ userId, username }` o `null`) y `initializing` (boolean, `true` al montar)
     - `useEffect` al montar: leer `localStorage.getItem('session')`, parsear JSON
     - Si `isLoggedIn === true`: llamar a `authService.silentRefresh()`
@@ -443,21 +443,21 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - En ambos casos llamar a `setInitializing(false)` en el bloque `finally`
     - _Requisitos: 15.3, 15.4, 15.5, 15.6_
 
-  - [ ] 17.2 Implementar `login(userId, username)` con `useCallback`
+  - [x] 17.2 Implementar `login(userId, username)` con `useCallback`
     - `setUser({ userId, username })`
     - `localStorage.setItem('session', JSON.stringify({ isLoggedIn: true, userId, username }))`
     - _Requisitos: 15.1, 15.7_
 
-  - [ ] 17.3 Implementar `logout()` con `useCallback`
+  - [x] 17.3 Implementar `logout()` con `useCallback`
     - Llamar a `authService.logout()`
     - `setUser(null)`
     - `localStorage.removeItem('session')`
     - _Requisitos: 15.2_
 
-  - [ ] 17.4 Exportar el shape del contexto: `{ user, isAuthenticated, initializing, login, logout }`
+  - [x] 17.4 Exportar el shape del contexto: `{ user, isAuthenticated, initializing, login, logout }`
     - _Requisitos: 15.6_
 
-  - [ ]* 17.5 Escribir tests unitarios de `authContext.jsx`
+  - [x]* 17.5 Escribir tests unitarios de `authContext.jsx`
     - `AuthProvider` llama a `silentRefresh` al montar si localStorage contiene `{ isLoggedIn: true }`
     - Si `silentRefresh` responde con 401, `localStorage.removeItem` es llamado
     - Llamar a `login` actualiza `user` y escribe en localStorage sin incluir tokens
@@ -465,11 +465,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 18. `src/hooks/useAuth.js` — Hook de consumo del AuthContext
+- [x] 18. `src/hooks/useAuth.js` — Hook de consumo del AuthContext
   **Dependencias:** Task 17
   **Requisitos:** Req 1.3, 10.4, 15.3
 
-  - [ ] 18.1 Implementar y exportar `useAuth()`
+  - [x] 18.1 Implementar y exportar `useAuth()`
     - Llamar a `useContext(AuthContext)`
     - Lanzar `Error('useAuth debe usarse dentro de AuthProvider')` si el contexto es `null`
     - Devolver el valor del contexto
@@ -477,11 +477,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 19. `ErrorPage.jsx` + `ErrorPage.css` — Página de error global con estilo gaming
+- [x] 19. `ErrorPage.jsx` + `ErrorPage.css` — Página de error global con estilo gaming
   **Dependencias:** Task 15
   **Requisitos:** Req 17.1, 17.2, 17.3, 17.4, 17.5, 17.6, 17.7, 17.8
 
-  - [ ] 19.1 Crear `src/Componentes/compGlobales/ErrorPageComponente/ErrorPage.jsx`
+  - [x] 19.1 Crear `src/Componentes/compGlobales/ErrorPageComponente/ErrorPage.jsx`
     - Aceptar props: `code` (número) y `retryAfter` (número, opcional)
     - Leer el código también desde `useParams()` si `code` prop no está definida (para la ruta `/error/:code`)
     - Definir objeto `ERROR_CONFIG` con título y mensaje para los códigos 400, 401, 403, 404, 429, 500 y 503
@@ -490,11 +490,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - Clases CSS: `fondo-gaming`, `videojuego-title`, `videojuego-text`
     - _Requisitos: 17.1, 17.2, 17.3, 17.6, 17.7_
 
-  - [ ] 19.2 Crear `src/Componentes/compGlobales/ErrorPageComponente/ErrorPage.css`
+  - [x] 19.2 Crear `src/Componentes/compGlobales/ErrorPageComponente/ErrorPage.css`
     - Estilos que complementen las clases gaming existentes: centrado vertical, código de error grande (`font-size` prominente), responsividad básica
     - _Requisitos: 17.3_
 
-  - [ ]* 19.3 Escribir tests de renderizado de `ErrorPage.jsx`
+  - [x]* 19.3 Escribir tests de renderizado de `ErrorPage.jsx`
     - Renderiza el código 404 y el mensaje correcto cuando `code={404}`
     - Renderiza la cuenta atrás cuando `code={429}` y `retryAfter={10}`
     - El botón de volver está presente
@@ -502,11 +502,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 20. `src/router/AppRouter.jsx` — Router de la aplicación con ProtectedRoute
+- [x] 20. `src/router/AppRouter.jsx` — Router de la aplicación con ProtectedRoute
   **Dependencias:** Task 18, Task 19
   **Requisitos:** Req 1.9, 15.6, 17.4, 17.8
 
-  - [ ] 20.1 Crear `src/router/AppRouter.jsx`
+  - [x] 20.1 Crear `src/router/AppRouter.jsx`
     - Importar `useAuth` para leer `initializing`
     - Si `initializing === true`: renderizar `<div className="loading-screen">Cargando...</div>` en lugar de las rutas
     - Definir `ProtectedRoute`: si `!isAuthenticated`, redirigir a `/login` con `<Navigate to="/login" replace />`
@@ -520,11 +520,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 21. `Login.jsx` + `Login.css` — Formulario de inicio de sesión
+- [x] 21. `Login.jsx` + `Login.css` — Formulario de inicio de sesión
   **Dependencias:** Task 16, Task 18, Task 19, Task 20
   **Requisitos:** Req 1.1–1.11
 
-  - [ ] 21.1 Crear `src/Componentes/zonaCliente/LoginComponente/Login.jsx`
+  - [x] 21.1 Crear `src/Componentes/zonaCliente/LoginComponente/Login.jsx`
     - Estado local: `campos { username, password }`, `error`, `loading`, `retryCountdown`
     - Renderizar dos `InputBox` (uno por campo): `name="username"` (maxLength 50) y `name="password"` type password (maxLength 128)
     - Validación en `handleSubmit`: si algún campo está vacío (o solo espacios), mostrar `error` y no enviar
@@ -540,25 +540,26 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - Aplicar clases: `fondo-gaming`, `contenido-registro`, `marginForm`, `videojuego-title`, `videojuego-text`, `botonRegistro`
     - _Requisitos: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11_
 
-  - [ ] 21.2 Crear `src/Componentes/zonaCliente/LoginComponente/Login.css`
+  - [x] 21.2 Crear `src/Componentes/zonaCliente/LoginComponente/Login.css`
     - Estilos específicos de Login que complementen las clases gaming reutilizadas
     - _Requisitos: 1.2_
 
-  - [ ]* 21.3 Escribir tests de renderizado y comportamiento de `Login.jsx`
+  - [x]* 21.3 Escribir tests de renderizado y comportamiento de `Login.jsx`
     - Renderiza los campos `username` y `password`
     - Muestra error de validación si se envía con campos vacíos (no hace fetch)
     - El botón se deshabilita durante `loading`
     - Muestra contador de segundos al recibir respuesta 429
     - Navega a `/` al recibir respuesta 200
     - _Requisitos: 1.5, 1.6, 1.7, 1.9, 1.11_
+    - _Nota: el test de "campos vacíos" usa valores compuestos solo de espacios (`'   '`), no cadenas vacías — el atributo `required` nativo de `InputBox` (sin cambios, ver `design.md`) ya bloquea el envío del navegador en el caso de cadena vacía antes de que el handler de React se ejecute._
 
 ---
 
-- [ ] 22. `Registro.jsx` — Modificar el componente existente para conectarlo al backend
+- [x] 22. `Registro.jsx` — Modificar el componente existente para conectarlo al backend
   **Dependencias:** Task 16, Task 18, Task 19
   **Requisitos:** Req 10.1–10.10
 
-  - [ ] 22.1 Modificar `src/Componentes/zonaCliente/RegistroComponente/Registro.jsx`
+  - [x] 22.1 Modificar `src/Componentes/zonaCliente/RegistroComponente/Registro.jsx`
     - Importar `authService.register` y `useNavigate`
     - Añadir estado: `loading`, `error` (mensaje genérico), `fieldErrors` (objeto por campo), `retryCountdown`
     - Añadir validación frontal en `handleSubmit`:
@@ -575,7 +576,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - Incluir enlace visible hacia `/login`
     - _Requisitos: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 10.9, 10.10_
 
-  - [ ]* 22.2 Escribir tests de `Registro.jsx` modificado
+  - [x]* 22.2 Escribir tests de `Registro.jsx` modificado
     - Muestra error si `password !== repetirPassword`
     - Se deshabilita el botón durante la carga
     - Redirige a `/login` tras recibir HTTP 201
@@ -584,23 +585,24 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 23. `src/main.jsx` — Añadir `BrowserRouter` y `AuthProvider`
+- [x] 23. `src/main.jsx` — Añadir `BrowserRouter` y `AuthProvider`
   **Dependencias:** Task 17, Task 20
   **Requisitos:** Req 15.3, 15.6
 
-  - [ ] 23.1 Modificar `src/main.jsx` para envolver la aplicación con `<BrowserRouter>` y `<AuthProvider>`
+  - [x] 23.1 Modificar `src/main.jsx` para envolver la aplicación con `<BrowserRouter>` y `<AuthProvider>`
     - Importar `BrowserRouter` de `react-router-dom`
     - Importar `AuthProvider` de `./globalState/authContext`
     - Importar `AppRouter` de `./router/AppRouter` y usarlo como hijo directo de `AuthProvider`
     - El orden de wrapping debe ser: `BrowserRouter` > `AuthProvider` > `AppRouter`
     - _Requisitos: 15.3, 15.6_
 
-  - [ ] 23.2 Checkpoint final del frontend — Verificar integración completa
+  - [x] 23.2 Checkpoint final del frontend — Verificar integración completa
     - Arrancar el servidor con `npm run dev` en `GalinGames_react/` y en `GalinGames_nodejs/`
     - Comprobar que la ruta `/login` renderiza el formulario
     - Comprobar que la ruta `/registro` renderiza el formulario de registro
     - Comprobar que una ruta inexistente muestra `ErrorPage` con código 404
     - Verificar que recarga de página con sesión activa ejecuta el silent refresh
+    - **Bug de integración encontrado y corregido:** sin proxy configurado, `fetch('/api/...')` desde `authService.js` (rutas relativas, tal como especifica `design.md`) resolvía contra el propio servidor Vite (puerto 5173) en vez del backend (puerto 3001), devolviendo 404 en vez de llegar a Express — a pesar de que el backend ya tenía CORS configurado para `http://localhost:5173`. Se añadió `server.proxy['/api'] → http://localhost:3001` en `vite.config.js` (solo afecta a `vite dev`, no al build de producción). Verificado end-to-end vía curl a través del proxy: registro → login → refresh (con rotación) → logout contra MongoDB real, con el usuario de prueba `checkpoint23test` eliminado al terminar.
 
 ---
 
@@ -706,6 +708,8 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 - **Decisión tomada en Task 12 (confirmada con el usuario):** `refreshTokenService.js` (Task 9) ahora exporta también `hashRefreshToken` (alias de la función interna de hash). `authController.refresh()` calcula el hash del token recibido y busca al usuario con `User.findOne({ refreshTokenHash: hash })` (búsqueda por igualdad exacta) en vez de `findOne({ refreshTokenHash: { $ne: null } })` tal como sugería literalmente esta task — la versión literal solo es correcta si nunca hay más de un usuario con sesión activa en toda la app, lo cual no es el caso (cada persona tiene su propia cuenta, aunque cada dispositivo mantenga solo una sesión). La rama "no coincide / reutilización detectada" de 12.5 queda como red de seguridad adicional aunque, con búsqueda por hash exacto, el caso real de token robado/rotado ya se cubre en la rama "no encontrado".
 - **Decisión tomada en Task 14:** el callback de CORS en `server.js` rechaza orígenes no autorizados con `new AppError('Origen no autorizado', 403)` (en vez del `Error` genérico del snippet de `design.md`), para que `globalErrorHandler` (Task 11) lo resuelva automáticamente a HTTP 403 vía su rama `err instanceof AppError`. Verificado end-to-end con curl: `{"code":403,"message":"Origen no autorizado"}`.
 - **Verificación end-to-end manual de Task 14 (checkpoint 14.6):** además de los dos casos pedidos (`login`/`register` con `{}` → 400), se probó registro real, login, refresh con rotación de cookie, intento de inyección NoSQL (bloqueado con 400 por el hardening de Task 12) y logout — todo contra una base de datos MongoDB local desechable (`GalinGames-ci`), eliminada al terminar la prueba.
+- **Decisión tomada en Tasks 21/22:** `InputBox.jsx` (marcado "sin cambios" en `design.md`) no reenvía el atributo `name` al `<input>` interno, solo `id`. En vez de depender de `e.target.name` (como hacía el `Registro.jsx` original, con un bug latente que sobrescribía siempre la misma clave), `Login.jsx` y `Registro.jsx` usan closures por campo (`handleFieldChange(name)` / `handleUsernameChange` etc.) que capturan el nombre del campo directamente. `InputBox` también renderiza `required` de forma incondicional, por lo que el navegador bloquea el envío nativo cuando un campo está realmente vacío; la validación "solo espacios" en React cubre el resto (Req 1.5/10.2). El límite de caracteres (`maxLength` 50/128 en username/password) se aplica truncando el valor en el handler de cambio, ya que `InputBox` tampoco reenvía `maxLength` al `<input>`.
+- **Decisión tomada en Task 20:** no existía ningún componente de tienda en el repo, así que se creó un placeholder mínimo en `src/Componentes/zonaTienda/TiendaComponente/Tienda.jsx` (saludo con `username` vía `useAuth` + botón de logout), tal como permitía la propia task ("o usar un placeholder"). Deberá sustituirse cuando exista la tienda real.
 - **Hallazgos de seguridad corregidos durante la implementación de Task 12:** (1) `recordFailedAttempt` ahora se llama también cuando el `username` no existe en `login()`, no solo cuando existe con password incorrecta — si no, el bloqueo por fuerza bruta se convertía en un canal de enumeración de usuarios. (2) `nullGuard.requireField` (Task 5) ahora rechaza también valores que no sean `string` (objetos/arrays), cerrando una inyección NoSQL vía body JSON tipo `{ "username": { "$ne": null } }`. (3) En `logout()`, el `userId` decodificado sin verificar del JWT se valida como `string` antes de usarse en `User.updateOne({ _id: userId }, ...)`, por el mismo motivo.
 
 ---
