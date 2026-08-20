@@ -76,7 +76,7 @@ describe('Registro', () => {
     await rellenarFormulario(user)
     await user.click(screen.getByRole('button', { name: /registrarse/i }))
 
-    expect(await screen.findByRole('status')).toHaveTextContent(/bienvenido/i)
+    expect(await screen.findByRole('status')).toHaveTextContent(/correo de verificación/i)
 
     await waitFor(() => expect(screen.getByText('LOGIN_PAGE')).toBeInTheDocument(), { timeout: 4000 })
   }, 6000)

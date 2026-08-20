@@ -7,6 +7,7 @@ const ERROR_CONFIG = {
   401: { title: 'No autorizado', message: 'Debes iniciar sesión para acceder a este contenido.' },
   403: { title: 'Acceso denegado', message: 'No tienes permiso para ver esta página.' },
   404: { title: 'Página no encontrada', message: 'La página que buscas no existe o ha sido movida.' },
+  410: { title: 'Enlace caducado', message: 'Este enlace de verificación no es válido o ha caducado. Regístrate de nuevo si no llegaste a confirmarlo a tiempo.' },
   429: { title: 'Demasiadas peticiones', message: 'Has superado el límite de intentos. Espera un momento.' },
   500: { title: 'Error del servidor', message: 'Algo ha salido mal en nuestro servidor. Inténtalo más tarde.' },
   503: { title: 'Servicio no disponible', message: 'El servicio está temporalmente fuera de línea. Vuelve pronto.' },

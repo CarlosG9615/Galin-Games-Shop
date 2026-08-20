@@ -1,4 +1,5 @@
 const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
+const env = require('../config/env');
 
 function keyGenerator(req) {
   if (process.env.NODE_ENV === 'production') {
@@ -44,4 +45,18 @@ const refreshLimiter = rateLimit({
   handler: buildHandler('Demasiadas peticiones. Espera antes de volver a intentarlo.'),
 });
 
-module.exports = { loginLimiter, registerLimiter, refreshLimiter };
+// GET /api/auth/verify-email se abre por navegación directa desde un correo, nunca
+// por fetch — igual que el resto de respuestas de ese endpoint, el límite también
+// redirige en vez de devolver JSON (ver design.md → Error Handling, excepción documentada).
+const verifyEmailLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator,
+  handler: (req, res) => {
+    res.redirect(302, `${env.FRONTEND_URL}/error/429`);
+  },
+});
+
+module.exports = { loginLimiter, registerLimiter, refreshLimiter, verifyEmailLimiter };

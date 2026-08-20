@@ -7,7 +7,7 @@ function isBlank(value) {
 function loadEnv() {
   dotenv.config();
 
-  const required = ['JWT_SECRET', 'MONGODB_URI'];
+  const required = ['JWT_SECRET', 'MONGODB_URI', 'EMAIL_USER', 'EMAIL_APP_PASSWORD', 'FRONTEND_URL', 'BACKEND_URL'];
   for (const key of required) {
     if (isBlank(process.env[key])) {
       console.error(`[FATAL] La variable de entorno ${key} es obligatoria`);
@@ -46,6 +46,11 @@ function loadEnv() {
     ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS
       ? process.env.ALLOWED_ORIGINS.split(',').map((origin) => origin.trim())
       : [],
+    EMAIL_USER: process.env.EMAIL_USER,
+    EMAIL_APP_PASSWORD: process.env.EMAIL_APP_PASSWORD,
+    FRONTEND_URL: process.env.FRONTEND_URL,
+    BACKEND_URL: process.env.BACKEND_URL,
+    EMAIL_VERIFICATION_EXPIRES_HOURS: parseInt(process.env.EMAIL_VERIFICATION_EXPIRES_HOURS, 10) || 24,
   };
 }
 

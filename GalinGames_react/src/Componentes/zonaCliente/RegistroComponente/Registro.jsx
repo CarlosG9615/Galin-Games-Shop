@@ -66,7 +66,7 @@ function Registro() {
     const result = await authService.register(campos)
 
     if (result.ok) {
-      setSuccessMessage(`¡Bienvenido, ${campos.username}! Tu cuenta se ha creado correctamente.`)
+      setSuccessMessage(`¡Ya casi está, ${campos.username}! Te hemos enviado un correo de verificación a ${campos.email}. Confirma tu cuenta para poder iniciar sesión.`)
       setTimeout(() => navigate('/login'), 3000)
       return
     }
