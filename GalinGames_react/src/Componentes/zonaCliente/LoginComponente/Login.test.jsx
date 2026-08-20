@@ -14,9 +14,9 @@ vi.mock('../../../servicios/authService', () => ({
   },
 }))
 
-function renderLogin() {
+function renderLogin(initialEntry = '/login') {
   return render(
-    <MemoryRouter initialEntries={['/login']}>
+    <MemoryRouter initialEntries={[initialEntry]}>
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -38,6 +38,18 @@ describe('Login', () => {
 
     expect(screen.getByLabelText(/nombre de usuario/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument()
+  })
+
+  it('muestra el banner de email verificado cuando la URL incluye ?verificado=true', () => {
+    renderLogin('/login?verificado=true')
+
+    expect(screen.getByRole('status')).toHaveTextContent(/email verificado correctamente/i)
+  })
+
+  it('no muestra el banner de email verificado sin el query param', () => {
+    renderLogin()
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 
   it('muestra error de validación si se envía con campos de solo espacios y no hace fetch', async () => {

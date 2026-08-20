@@ -2,8 +2,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const env = require('../config/env');
 const User = require('../models/User');
+const PendingUser = require('../models/PendingUser');
 const tokenService = require('../services/tokenService');
 const refreshTokenService = require('../services/refreshTokenService');
+const emailVerificationService = require('../services/emailVerificationService');
+const emailService = require('../services/emailService');
 const { requireField, AppError } = require('../utils/nullGuard');
 
 const BCRYPT_COST = 12;
@@ -140,6 +143,8 @@ async function register(req, res, next) {
     requireField(email, 'email');
     requireField(password, 'password');
 
+    // 409 solo si el username/email pertenece a un usuario ya verificado. Si coincide
+    // con un PendingUser no caducado, no se revela — se reenvía el correo (Req 18.8).
     const existingUsername = await User.findOne({ username });
     if (existingUsername) {
       return next(new AppError('El nombre de usuario ya está en uso', 409));
@@ -151,11 +156,30 @@ async function register(req, res, next) {
     }
 
     const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
-    const user = await User.create({ username, nombre, apellidos, email, password: passwordHash });
+    const { token, hash: verificationTokenHash } = emailVerificationService.generateVerificationToken();
+    const expiresAt = new Date(Date.now() + env.EMAIL_VERIFICATION_EXPIRES_HOURS * 60 * 60 * 1000);
+
+    let pendingUser = await PendingUser.findOne({ $or: [{ username }, { email }] });
+
+    if (pendingUser) {
+      pendingUser.set({ username, nombre, apellidos, email, password: passwordHash, verificationTokenHash, expiresAt });
+      await pendingUser.save();
+    } else {
+      pendingUser = await PendingUser.create({
+        username, nombre, apellidos, email, password: passwordHash, verificationTokenHash, expiresAt,
+      });
+    }
+
+    try {
+      await emailService.sendVerificationEmail(email, username, token);
+    } catch {
+      // No dejar un PendingUser huérfano sin correo enviado ni posibilidad de reenvío (Req 18.12).
+      await PendingUser.deleteOne({ _id: pendingUser._id });
+      return next(new AppError('No se pudo completar el registro. Inténtalo de nuevo.', 500));
+    }
 
     return res.status(201).json({
-      message: 'Usuario creado correctamente',
-      userId: user._id.toString(),
+      message: 'Te hemos enviado un correo de verificación. Confirma tu cuenta para poder iniciar sesión.',
     });
   } catch (err) {
     if (err.name === 'MongooseServerSelectionError') {
@@ -164,6 +188,43 @@ async function register(req, res, next) {
     // err.code === 11000 (clave duplicada, condición de carrera) lo resuelve el
     // globalErrorHandler a partir de err.keyPattern con el mismo mensaje por campo.
     return next(err);
+  }
+}
+
+async function verifyEmail(req, res) {
+  const { token } = req.query;
+
+  try {
+    if (!token || typeof token !== 'string') {
+      return res.redirect(302, `${env.FRONTEND_URL}/error/400`);
+    }
+
+    const hash = emailVerificationService.hashVerificationToken(token);
+    const pendingUser = await PendingUser.findOne({ verificationTokenHash: hash }).select('+password +verificationTokenHash');
+
+    if (!pendingUser || pendingUser.expiresAt.getTime() < Date.now()) {
+      if (pendingUser) {
+        await PendingUser.deleteOne({ _id: pendingUser._id });
+      }
+      return res.redirect(302, `${env.FRONTEND_URL}/error/410`);
+    }
+
+    await User.create({
+      username: pendingUser.username,
+      nombre: pendingUser.nombre,
+      apellidos: pendingUser.apellidos,
+      email: pendingUser.email,
+      password: pendingUser.password,
+    });
+
+    await PendingUser.deleteOne({ _id: pendingUser._id });
+
+    return res.redirect(302, `${env.FRONTEND_URL}/login?verificado=true`);
+  } catch (err) {
+    // GET /verify-email nunca responde JSON (se abre por navegación directa desde un
+    // correo) — se captura y registra aquí en vez de delegar a next(err)/globalErrorHandler.
+    console.error(`[${new Date().toISOString()}] GET /api/auth/verify-email`, err.stack);
+    return res.redirect(302, `${env.FRONTEND_URL}/error/500`);
   }
 }
 
@@ -233,4 +294,4 @@ async function logout(req, res, next) {
   }
 }
 
-module.exports = { login, register, refresh, logout };
+module.exports = { login, register, verifyEmail, refresh, logout };

@@ -14,6 +14,11 @@ const VALID_ENV = {
   PORT: '3001',
   NODE_ENV: 'test',
   ALLOWED_ORIGINS: 'http://localhost:5173',
+  EMAIL_USER: 'GalinGamesShop@gmail.com',
+  EMAIL_APP_PASSWORD: 'app-password-de-prueba',
+  FRONTEND_URL: 'http://localhost:5173',
+  BACKEND_URL: 'http://localhost:3001',
+  EMAIL_VERIFICATION_EXPIRES_HOURS: '24',
 };
 
 function setEnv(overrides) {
@@ -70,5 +75,36 @@ describe('src/config/env.js', () => {
     expect(exitSpy).not.toHaveBeenCalled();
     expect(env.JWT_EXPIRES_IN).toBe(3600);
     expect(env.MONGODB_URI).toBe(VALID_ENV.MONGODB_URI);
+  });
+
+  it('termina el proceso con código 1 si falta EMAIL_USER', async () => {
+    setEnv({ EMAIL_USER: '' });
+    const { exitSpy } = await loadEnvModule();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+  });
+
+  it('termina el proceso con código 1 si falta EMAIL_APP_PASSWORD', async () => {
+    setEnv({ EMAIL_APP_PASSWORD: '' });
+    const { exitSpy } = await loadEnvModule();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+  });
+
+  it('termina el proceso con código 1 si falta FRONTEND_URL', async () => {
+    setEnv({ FRONTEND_URL: '' });
+    const { exitSpy } = await loadEnvModule();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+  });
+
+  it('termina el proceso con código 1 si falta BACKEND_URL', async () => {
+    setEnv({ BACKEND_URL: '' });
+    const { exitSpy } = await loadEnvModule();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+  });
+
+  it('aplica el valor por defecto de EMAIL_VERIFICATION_EXPIRES_HOURS (24) si no está definida', async () => {
+    setEnv({ EMAIL_VERIFICATION_EXPIRES_HOURS: '' });
+    const { exitSpy, env } = await loadEnvModule();
+    expect(exitSpy).not.toHaveBeenCalled();
+    expect(env.EMAIL_VERIFICATION_EXPIRES_HOURS).toBe(24);
   });
 });

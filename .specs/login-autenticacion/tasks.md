@@ -606,38 +606,249 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-### Phase 3 — Testing
+### Phase 3 — Verificación de Email
 
 ---
 
-- [ ] 24. Tests unitarios del backend
-  **Dependencias:** Task 8, Task 9, Task 5, Task 6, Task 11
-  **Requisitos:** Req 3, 4, 5, 16
+- [x] 24. Instalar `nodemailer` y configurar variables de entorno de email
+  **Dependencias:** Task 2
+  **Requisitos:** Req 18.2, 18.3, 18.4, 18.7
 
-  - [ ]* 24.1 Añadir tests unitarios de `tokenService.js` en `tests/unit/tokenService.test.js`
+  - [x] 24.1 Ejecutar `npm install nodemailer` en `GalinGames_nodejs/`
+    - _Requisitos: (infraestructura)_
+
+  - [x] 24.2 Extender `.env.example` con `EMAIL_USER`, `EMAIL_APP_PASSWORD`, `FRONTEND_URL`, `BACKEND_URL`, `EMAIL_VERIFICATION_EXPIRES_HOURS`
+    - Valores de ejemplo no secretos (ver `design.md` → Environment Variables)
+    - _Requisitos: 18.4_
+
+  - [x] 24.3 Extender `.env` (desarrollo, no rastreado por git) con las mismas variables
+    - `EMAIL_USER=GalinGamesShop@gmail.com`, `FRONTEND_URL=http://localhost:5173`, `BACKEND_URL=http://localhost:3001`, `EMAIL_VERIFICATION_EXPIRES_HOURS=24`
+    - **`EMAIL_APP_PASSWORD` debe generarla el propio usuario** en https://myaccount.google.com/apppasswords para la cuenta `GalinGamesShop@gmail.com` (requiere verificación en dos pasos activada) — es una credencial real que Claude no puede generar ni debe inventar
+    - _Requisitos: 18.4_
+
+  - [x] 24.4 Extender `src/config/env.js` para validar `EMAIL_USER`, `EMAIL_APP_PASSWORD`, `FRONTEND_URL`, `BACKEND_URL` como obligatorias (mismo patrón que `JWT_SECRET`: `console.error` + `process.exit(1)` si faltan)
+    - Añadir `EMAIL_VERIFICATION_EXPIRES_HOURS` al objeto `env` exportado, con valor por defecto 24 si no está definida
+    - _Requisitos: 18.7_
+
+  - [x]* 24.5 Actualizar tests unitarios de `env.js`
+    - Verificar que el proceso termina con código 1 cuando falta `EMAIL_USER` o `EMAIL_APP_PASSWORD`
+    - Verificar que `EMAIL_VERIFICATION_EXPIRES_HOURS` toma el valor por defecto 24 si no está definida
+    - _Requisitos: 18.7_
+
+---
+
+- [x] 25. `src/models/PendingUser.js` — Modelo Mongoose de registros pendientes de verificación
+  **Dependencias:** Task 3
+  **Requisitos:** Req 18.1, 18.2, 18.7
+
+  - [x] 25.1 Definir `PendingUserSchema` con los campos: `username`, `nombre`, `apellidos`, `email`, `password` (ya hasheada), `verificationTokenHash` (`select: false`), `createdAt` (default `Date.now`, `immutable`), `expiresAt` (requerido)
+    - Mismas reglas de longitud/formato que `UserSchema` (ver `design.md` → PendingUserSchema)
+    - _Requisitos: 18.1, 18.2_
+
+  - [x] 25.2 Añadir índices: `username: 1` y `email: 1` con `{ unique: true }`, y un índice TTL sobre `expiresAt` con `{ expireAfterSeconds: 0 }`
+    - _Requisitos: 18.7_
+
+  - [x]* 25.3 Escribir tests unitarios del schema
+    - Verificar que un documento sin `verificationTokenHash` falla la validación
+    - Verificar que `password` y `verificationTokenHash` no aparecen en una consulta `.find()` estándar
+    - _Requisitos: 18.1_
+
+---
+
+- [x] 26. `src/services/emailVerificationService.js` — Token opaco de verificación de email
+  **Dependencias:** Task 5
+  **Requisitos:** Req 18.2, 18.11
+
+  - [x] 26.1 Implementar y exportar `generateVerificationToken()`
+    - Generar token opaco con `crypto.randomBytes(32).toString('base64url')`
+    - Calcular hash SHA-256 del token
+    - Devolver `{ token, hash }` (mismo patrón que `refreshTokenService.generateRefreshToken`)
+    - _Requisitos: 18.2_
+
+  - [x] 26.2 Implementar y exportar `verifyVerificationToken(tokenRecibido, hashAlmacenado)`
+    - Calcular SHA-256 de `tokenRecibido` y comparar con `hashAlmacenado`
+    - Llamar a `requireField` sobre ambos argumentos antes de operar
+    - _Requisitos: 18.11_
+
+  - [x]* 26.3 Escribir tests unitarios de `emailVerificationService.js`
+    - `generateVerificationToken()` devuelve `token` y `hash` distintos entre sí y entre llamadas
+    - `verifyVerificationToken(token, hash)` devuelve `true` con el hash correcto y `false` con uno distinto
+    - _Requisitos: 18.2, 18.11_
+
+---
+
+- [x] 27. `src/services/emailService.js` — Envío del correo de verificación con plantilla GalinGames
+  **Dependencias:** Task 24
+  **Requisitos:** Req 18.3, 18.4, 18.12
+
+  - [x] 27.1 Configurar el `transporter` de `nodemailer` para Gmail usando `env.EMAIL_USER` y `env.EMAIL_APP_PASSWORD`
+    - _Requisitos: 18.4_
+
+  - [x] 27.2 Implementar `buildVerificationEmailHtml(username, verificationLink)`
+    - HTML con estilos inline (sin CSS externo ni `@font-face`, por compatibilidad con clientes de correo): fondo degradado violeta oscuro coherente con `.fondo-gaming`, tipografía sans-serif en negrita con `letter-spacing` simulando `videojuego-title`
+    - Saludo personalizado: `Hola, ${username}`
+    - Botón/enlace con el texto exacto **"Haz click aquí para confirmar tu email"** apuntando a `verificationLink`
+    - Incluir el enlace también como texto plano de respaldo (accesibilidad y clientes que bloquean botones)
+    - _Requisitos: 18.3_
+
+  - [x] 27.3 Implementar y exportar `sendVerificationEmail(to, username, verificationToken)`
+    - Construir `verificationLink = \`${env.BACKEND_URL}/api/auth/verify-email?token=${verificationToken}\``
+    - Enviar con `transporter.sendMail({ from: '"GalinGames" <EMAIL_USER>', to, subject, html, text })`
+    - Dejar que la excepción se propague si el envío falla (el controlador decide cómo reaccionar, Req 18.12) — nunca registrar el token en claro ni `EMAIL_APP_PASSWORD` en logs
+    - _Requisitos: 18.3, 18.4, 18.12_
+
+  - [x]* 27.4 Escribir tests unitarios de `emailService.js` con el transporter de `nodemailer` mockeado (sin enviar correos reales)
+    - `sendVerificationEmail` llama a `transporter.sendMail` con el `to`, `subject` y un `html` que contiene el texto "Haz click aquí para confirmar tu email" y el `username`
+    - `sendVerificationEmail` propaga la excepción si `transporter.sendMail` rechaza
+    - _Requisitos: 18.3, 18.12_
+
+---
+
+- [x] 28. `src/middleware/rateLimiter.js` — `verifyEmailLimiter`
+  **Dependencias:** Task 7
+  **Requisitos:** Req 18.10
+
+  - [x] 28.1 Implementar y exportar `verifyEmailLimiter` usando `express-rate-limit`
+    - Ventana: 15 minutos, máximo 20 peticiones por IP
+    - Mismo `keyGenerator` que `loginLimiter`; `handler` distinto — redirige a `{FRONTEND_URL}/error/429` en vez de responder JSON, consistente con que `GET /verify-email` nunca responde JSON (ver decisión en Task 29/design.md)
+    - _Requisitos: 18.10_
+
+---
+
+- [x] 29. `src/controllers/authController.js` — Registro con verificación pendiente + `verifyEmail`
+  **Dependencias:** Task 12, Task 25, Task 26, Task 27
+  **Requisitos:** Req 18.1, 18.5, 18.6, 18.8, 18.9, 18.11, 18.12, 18.13
+
+  - [x] 29.1 Modificar `register(req, res, next)`
+    - Tras comprobar que `username`/`email` no existen en `users` (409 si existen, como hasta ahora): comprobar también `PendingUser.findOne({ $or: [{ username }, { email }] })`
+    - Si existe un `PendingUser` no caducado: generar un nuevo `Verification_Token`, actualizar `verificationTokenHash`, `expiresAt` y el resto de campos (por si cambió la contraseña), reenviar el correo
+    - Si no existe: hashear la contraseña con bcrypt (coste 12, como hasta ahora), generar `Verification_Token`, crear el `PendingUser` con `expiresAt = now + env.EMAIL_VERIFICATION_EXPIRES_HOURS horas`
+    - Enviar el correo con `emailService.sendVerificationEmail`; si falla, eliminar el `PendingUser` recién creado/actualizado y responder HTTP 500 con mensaje genérico (no `next(err)` silencioso: debe deshacer el `PendingUser` explícitamente)
+    - Responder HTTP 201 con `{ message: "Te hemos enviado un correo de verificación. Confirma tu cuenta para poder iniciar sesión." }` — sin `userId` (todavía no existe en `users`), sin distinguir en la respuesta si fue creación o reenvío
+    - **Ya no crear el documento `User` en este paso**
+    - _Requisitos: 18.1, 18.2, 18.8, 18.9, 18.12, 18.13_
+
+  - [x] 29.2 Implementar y exportar `verifyEmail(req, res, next)`
+    - Leer `token` desde `req.query.token`; si ausente → `res.redirect(302, \`${env.FRONTEND_URL}/error/400\`)`
+    - Calcular el hash SHA-256 del token (reutilizando la misma función de hash de `emailVerificationService.js`) y buscar `PendingUser.findOne({ verificationTokenHash: hash }).select('+password +verificationTokenHash')`
+    - Si no se encuentra, o `expiresAt < Date.now()` (doble comprobación además del TTL de Mongo): si existía pero caducado, eliminarlo; en ambos casos → `res.redirect(302, \`${env.FRONTEND_URL}/error/410\`)`
+    - Si es válido: crear `new User({ username, nombre, apellidos, email, password })` (la contraseña ya viene hasheada desde `PendingUser`), guardar, eliminar el `PendingUser`, y `res.redirect(302, \`${env.FRONTEND_URL}/login?verificado=true\`)`
+    - Capturar cualquier error inesperado (p.ej. `MongoServerError` en la creación de `User`) y redirigir a `\`${env.FRONTEND_URL}/error/500\`` en vez de propagar a `next(err)` — este endpoint nunca responde JSON (ver `design.md` → Error Handling, excepción documentada)
+    - _Requisitos: 18.5, 18.6, 18.11_
+
+---
+
+- [x] 30. `src/routes/auth.routes.js` — Ruta `GET /verify-email`
+  **Dependencias:** Task 28, Task 29, Task 13
+  **Requisitos:** Req 18.5, 18.10
+
+  - [x] 30.1 Registrar `GET /verify-email` → `[verifyEmailLimiter, authController.verifyEmail]`
+    - _Requisitos: 18.5, 18.10_
+
+---
+
+- [x] 31. Checkpoint — Verificar el flujo de verificación de email en el backend
+  **Dependencias:** Task 30, Task 24
+
+  - [x] 31.1 Ejecutar `npm run dev` y comprobar manualmente:
+    - `POST /api/auth/register` con datos válidos responde 201 y crea un documento en `pendingusers`, **no** en `users`
+    - Un segundo `POST /api/auth/register` con el mismo `username` (antes de verificar) responde 201 de nuevo (reenvío), sin crear un segundo `PendingUser`
+    - `GET /api/auth/verify-email?token=<token real recibido por correo>` redirige a `{FRONTEND_URL}/login?verificado=true`, crea el documento en `users` y elimina el `PendingUser`
+    - `GET /api/auth/verify-email?token=cualquiera-invalido` redirige a `{FRONTEND_URL}/error/410`
+    - Tras verificar, `POST /api/auth/login` con las credenciales originales responde 200
+    - Verificar que el correo recibido en la bandeja de `GalinGamesShop@gmail.com` (o la cuenta de prueba usada como destinatario) aplica el estilo de marca y contiene el texto exacto "Haz click aquí para confirmar tu email"
+
+---
+
+- [x] 32. Frontend: `ErrorPage.jsx` — Añadir código 410 (enlace caducado/inválido)
+  **Dependencias:** Task 19
+
+  - [x] 32.1 Añadir entrada `410` a `ERROR_CONFIG` con título "Enlace caducado" y mensaje explicando que el enlace de verificación no es válido o ha caducado
+    - _Requisitos: 18.6_
+
+---
+
+- [x] 33. Frontend: `Registro.jsx` — Actualizar el mensaje de éxito tras HTTP 201
+  **Dependencias:** Task 22
+  **Requisitos:** Req 10.5, 18.13
+
+  - [x] 33.1 Cambiar el texto de `successMessage` para indicar que se ha enviado un correo de verificación a la dirección proporcionada y que debe confirmarlo para poder iniciar sesión (en vez del mensaje de bienvenida inmediata)
+    - Mantener el resto del comportamiento (`setTimeout` + `navigate('/login')` tras 3s) sin cambios
+    - _Requisitos: 10.5, 18.13_
+
+---
+
+- [x] 34. Frontend: `Login.jsx` — Banner de verificación exitosa
+  **Dependencias:** Task 21, Task 15
+  **Requisitos:** Req 18.5
+
+  - [x] 34.1 Leer el query param `verificado` con `useSearchParams` de `react-router-dom`
+    - Si `verificado === 'true'`, mostrar un mensaje de confirmación (p.ej. "¡Email verificado correctamente! Ya puedes iniciar sesión.") antes de que el usuario introduzca sus credenciales
+    - _Requisitos: 18.5_
+
+---
+
+- [x] 35. Checkpoint final — Flujo de verificación de email end-to-end
+  **Dependencias:** Task 31, Task 32, Task 33, Task 34
+
+  - [x] 35.1 Con `npm run dev` en ambos proyectos: completar un registro real desde el formulario `/registro`, comprobar que llega el correo con el diseño de marca, hacer clic en el enlace y verificar que el navegador aterriza en `/login?verificado=true` mostrando el banner de éxito, y que el login con esas credenciales funciona inmediatamente después
+    - Comprobar también que un enlace con un token inventado muestra la página de error 410
+    - Eliminar cualquier usuario/`PendingUser` de prueba creado durante la verificación
+
+---
+
+### Phase 4 — Testing
+
+---
+
+- [ ] 36. Tests unitarios del backend
+  **Dependencias:** Task 8, Task 9, Task 5, Task 6, Task 11, Task 25, Task 26, Task 27, Task 29
+  **Requisitos:** Req 3, 4, 5, 16, 18
+
+  - [ ]* 36.1 Añadir tests unitarios de `tokenService.js` en `tests/unit/tokenService.test.js`
     - Cubrir los casos de `generateToken` y `verifyToken` descritos en Task 8
     - Incluir verificación del payload (solo `userId`, `username`, `iat`, `exp`)
     - _Requisitos: 5.1, 5.3, 5.4, 5.5, 5.6_
 
-  - [ ]* 24.2 Añadir tests unitarios de `validator.js` en `tests/unit/validator.test.js`
+  - [ ]* 36.2 Añadir tests unitarios de `validator.js` en `tests/unit/validator.test.js`
     - Cubrir los casos de `validateLoginInput` y `validateRegisterInput` descritos en Task 6
     - _Requisitos: 3.1, 3.2, 3.4, 3.6, 3.7, 11.2, 11.3, 11.4_
 
-  - [ ]* 24.3 Añadir tests unitarios de `nullGuard.js` en `tests/unit/nullGuard.test.js`
+  - [ ]* 36.3 Añadir tests unitarios de `nullGuard.js` en `tests/unit/nullGuard.test.js`
     - Cubrir los casos de `requireField`, `isEmpty` y `sanitizeResponse` descritos en Task 5
     - _Requisitos: 16.1, 16.2, 16.4_
 
-  - [ ]* 24.4 Añadir tests unitarios de `refreshTokenService.js` en `tests/unit/refreshTokenService.test.js`
+  - [ ]* 36.4 Añadir tests unitarios de `refreshTokenService.js` en `tests/unit/refreshTokenService.test.js`
     - Cubrir los casos descritos en Task 9
     - _Requisitos: 13.3, 13.5_
 
+  - [ ]* 36.5 Añadir tests unitarios de `emailVerificationService.js` en `tests/unit/emailVerificationService.test.js`
+    - Cubrir los casos descritos en Task 26
+    - _Requisitos: 18.2, 18.11_
+
+  - [ ]* 36.6 Añadir tests unitarios de `PendingUser.js` en `tests/unit/pendingUser.test.js`
+    - Cubrir los casos descritos en Task 25 (validación requerida, `select: false`)
+    - _Requisitos: 18.1_
+
+  - [ ]* 36.7 Añadir tests unitarios de `emailService.js` en `tests/unit/emailService.test.js` (transporter mockeado)
+    - Cubrir los casos descritos en Task 27
+    - _Requisitos: 18.3, 18.12_
+
+  - [ ]* 36.8 Añadir tests unitarios de `authController.register`/`verifyEmail` en `tests/unit/authController.test.js` (con `User`, `PendingUser` y `emailService` mockeados)
+    - `register()` crea un `PendingUser` y no un `User` cuando los datos son válidos y únicos
+    - `register()` reenvía el correo (sin crear un segundo `PendingUser`) si ya existe uno no caducado con ese `username`/`email`
+    - `register()` elimina el `PendingUser` recién creado si `emailService.sendVerificationEmail` rechaza
+    - `verifyEmail()` crea el `User`, elimina el `PendingUser`, y redirige a `{FRONTEND_URL}/login?verificado=true` con un token válido
+    - `verifyEmail()` redirige a `{FRONTEND_URL}/error/410` con un token inexistente o caducado
+    - _Requisitos: 18.1, 18.5, 18.6, 18.8, 18.9, 18.12_
+
 ---
 
-- [ ] 25. Tests de propiedades con `fast-check` — Propiedades 1–18
-  **Dependencias:** Task 12, Task 14, Task 8, Task 9
-  **Requisitos:** Req 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, 15, 16
+- [ ] 37. Tests de propiedades con `fast-check` — Propiedades 1–22
+  **Dependencias:** Task 12, Task 14, Task 8, Task 9, Task 29, Task 30
+  **Requisitos:** Req 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, 15, 16, 18
 
-  - [ ]* 25.1 `tests/property/auth.properties.test.js` — Propiedades 1, 2, 3, 4
+  - [ ]* 37.1 `tests/property/auth.properties.test.js` — Propiedades 1, 2, 3, 4
     - **Propiedad 1:** Para todo par `(username, password)` de usuario registrado → HTTP 200 + cookie `token`
       - **Valida: Requisitos 2.3, 5.1, 12.1**
     - **Propiedad 2:** Para todo par inválido → HTTP 401, mensaje genérico, tiempo entre 200–600 ms
@@ -649,7 +860,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - Usar `fc.assert` con `numRuns: 100` para cada propiedad
     - _Requisitos: 2.3, 2.4, 2.6, 3.1–3.7, 4.5, 12.1, 12.3, 12.5_
 
-  - [ ]* 25.2 `tests/property/auth.properties.test.js` — Propiedades 5, 6, 7
+  - [ ]* 37.2 `tests/property/auth.properties.test.js` — Propiedades 5, 6, 7
     - **Propiedad 5:** Para toda contraseña en texto plano → el valor almacenado en MongoDB es siempre un hash bcrypt (empieza por `$2b$`), nunca igual al texto plano
       - **Valida: Requisitos 4.1, 4.2, 11.7**
     - **Propiedad 6:** Para todo endpoint que devuelva datos de usuario → el campo `password` nunca aparece en el body de la respuesta
@@ -658,7 +869,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
       - **Valida: Requisito 5.3**
     - _Requisitos: 4.1, 4.2, 4.4, 5.3, 11.7, 11.9_
 
-  - [ ]* 25.3 `tests/property/auth.properties.test.js` — Propiedades 8, 9, 10, 11
+  - [ ]* 37.3 `tests/property/auth.properties.test.js` — Propiedades 8, 9, 10, 11
     - **Propiedad 8:** Para toda petición a `POST /api/auth/login` → las cabeceras `Retry-After` y `X-RateLimit-Remaining` están siempre presentes con valores enteros no negativos
       - **Valida: Requisito 6.3**
     - **Propiedad 9:** Para todo username ya registrado → un segundo registro con ese username devuelve HTTP 409 con mensaje sobre el username
@@ -669,7 +880,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
       - **Valida: Requisitos 8.3, 8.4**
     - _Requisitos: 6.3, 8.3, 8.4, 9.5, 11.5, 11.6_
 
-  - [ ]* 25.4 `tests/property/auth.properties.test.js` — Propiedades 12, 13
+  - [ ]* 37.4 `tests/property/auth.properties.test.js` — Propiedades 12, 13
     - **Propiedad 12:** Para todo campo de formulario compuesto solo de espacios → el formulario no envía fetch y muestra error de validación
       - **Valida: Requisitos 1.5, 10.2**
       - Implementar con `fc.string()` filtrado a strings con solo `\s` characters usando `fc.stringOf(fc.constantFrom(' ', '\t', '\n'))`
@@ -677,7 +888,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
       - **Valida: Requisito 2.7**
     - _Requisitos: 1.5, 2.7, 10.2_
 
-  - [ ]* 25.5 `tests/property/auth.properties.test.js` — Propiedades 14, 15, 16
+  - [ ]* 37.5 `tests/property/auth.properties.test.js` — Propiedades 14, 15, 16
     - **Propiedad 14:** Para todo refresh token válido usado en `POST /api/auth/refresh` → el token devuelto en la cookie es diferente al recibido
       - **Valida: Requisito 13.4**
     - **Propiedad 15:** Si un refresh token ya rotado se presenta de nuevo → HTTP 401 + `refreshTokenHash` limpiado en MongoDB
@@ -687,12 +898,24 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
       - Test de frontend con Vitest + `jsdom`
     - _Requisitos: 13.4, 13.5, 15.1_
 
-  - [ ]* 25.6 `tests/property/auth.properties.test.js` — Propiedades 17, 18
+  - [ ]* 37.6 `tests/property/auth.properties.test.js` — Propiedades 17, 18
     - **Propiedad 17:** Para toda petición con campo requerido `undefined`, `null` o vacío → HTTP 400 antes de que ninguna función criptográfica sea invocada (verificar con spies que `bcrypt.hash`, `bcrypt.compare`, `jwt.sign`, `jwt.verify` no son llamados)
       - **Valida: Requisitos 16.1, 16.2**
     - **Propiedad 18:** Para toda excepción no manejada que llegue al middleware global → la respuesta contiene `code` y `message`, nunca contiene un stack trace, y nunca contiene el texto `"undefined"` como valor
       - **Valida: Requisitos 16.5, 16.6**
     - _Requisitos: 16.1, 16.2, 16.5, 16.6_
+
+  - [ ]* 37.7 `tests/property/emailVerification.properties.test.js` — Propiedades 19, 20, 21, 22
+    - **Propiedad 19:** Para todo registro completado, mientras el token no se consuma con éxito → ninguna consulta a `users` por ese `username`/`email` devuelve documento
+      - **Valida: Requisitos 18.1, 18.9**
+    - **Propiedad 20:** Para todo `Verification_Token` ya consumido → una segunda petición a `GET /api/auth/verify-email` con el mismo token nunca crea un segundo `User` ni redirige a éxito
+      - **Valida: Requisitos 18.5, 18.11**
+    - **Propiedad 21:** Para todo `PendingUser` con `expiresAt` en el pasado → `GET /api/auth/verify-email` con su token nunca crea un `User`, incluso si el TTL de MongoDB aún no lo ha borrado físicamente
+      - **Valida: Requisitos 18.6, 18.7**
+    - **Propiedad 22:** Para todo `PendingUser` cuyo token se consume con éxito → un `POST /api/auth/login` inmediato con el `username` y la contraseña originales devuelve HTTP 200
+      - **Valida: Requisitos 12.1, 18.5**
+    - Usar `fc.assert` con `numRuns: 100` para cada propiedad; requiere MongoDB real (test DB) y `emailService` mockeado para no enviar correos reales
+    - _Requisitos: 12.1, 18.1, 18.5, 18.6, 18.7, 18.9, 18.11_
 
 ---
 
@@ -700,8 +923,16 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 - Las sub-tareas marcadas con `*` son opcionales y pueden omitirse para un MVP más rápido.
 - Cada tarea referencia requisitos específicos para garantizar trazabilidad completa.
-- Los checkpoints en Tasks 14.6 y 23.2 son puntos de integración; si algo falla, deben resolverse antes de continuar.
-- Las propiedades de tests (Tasks 25.x) corresponden exactamente a las Propiedades 1–18 definidas en `design.md`.
+- Los checkpoints en Tasks 14.6, 23.2, 31.1 y 35.1 son puntos de integración; si algo falla, deben resolverse antes de continuar.
+- Las propiedades de tests (Tasks 37.x) corresponden exactamente a las Propiedades 1–22 definidas en `design.md` (1–18 del núcleo de login/registro/refresh, 19–22 de verificación de email añadidas en la Phase 3).
+- **La Phase 3 (Verificación de Email) se añadió tras completar las Phases 1 y 2**, a petición del usuario, antes de ejecutar la Phase 4 (Testing, antes numerada como Phase 3). `requirements.md` y `design.md` se actualizaron primero (Requisito 18, Propiedades 19–22, nuevos componentes `PendingUser`/`emailVerificationService`/`emailService`) y después se regeneraron únicamente las tasks nuevas/afectadas — las Tasks 1–23 ya completadas no se tocaron. Los Requisitos 10.5, 11.9 y 12.1 se corrigieron para reflejar que el registro ya no crea el `User` inmediatamente (ver Requisito 18).
+- **`EMAIL_APP_PASSWORD` (Task 24.3) es una credencial real que debe generar el propio usuario** en https://myaccount.google.com/apppasswords para `GalinGamesShop@gmail.com` — no puede generarse ni inventarse durante la ejecución de las tasks.
+- **Decisión tomada en Task 27:** `emailService.js` expone `createEmailService(transporter)` (inyección de dependencias) además de `sendVerificationEmail`/`buildVerificationEmailHtml`. Mockear `nodemailer` con `vi.mock`/`vi.doMock` no interceptaba de forma fiable el `require('nodemailer')` interno del módulo en este proyecto (Vitest 4 externaliza el paquete); la inyección de dependencias evita depender de ese mocking y es más simple de testear.
+- **Hallazgo de seguridad corregido en Task 27:** `validator.js` no restringe caracteres HTML en `username` (solo caracteres de control y longitud), y `buildVerificationEmailHtml` interpolaba `username` sin escapar en el HTML del correo — un `username` como `<img src=x onerror=...>` se habría inyectado tal cual en el email de verificación. Se añadió `escapeHtml()` antes de interpolar `username` en la plantilla HTML (el cuerpo `text/plain` no lo necesita). Cubierto con test de regresión.
+- **Resuelto — bloqueo de `EMAIL_APP_PASSWORD`:** las dos primeras contraseñas de aplicación proporcionadas fueron rechazadas por Gmail (`535-5.7.8 Username and Password not accepted`); la causa era que la verificación en dos pasos no estaba activada en `GalinGamesShop@gmail.com` (Google ni siquiera muestra la opción de generar contraseñas de aplicación sin ella). Tras activarla, la tercera contraseña de aplicación funcionó (`transporter.verify()` OK) y se completaron los checkpoints 31.1 y 35.1 con envío real.
+- **Decisión tomada en Task 31 (feedback del usuario sobre el diseño del correo):** tras ver el primer envío real, se rediseñó `buildVerificationEmailHtml` — (1) se eliminó el enlace de texto plano duplicado bajo el botón (queda solo en el `text` MIME alternativo, para clientes sin HTML); (2) el título "GalinGames" pasó a una franja de ancho completo (`<tr><td>` a 100% del ancho del email, sin `max-width`, sin `border-radius`) en vez de estar dentro de la misma card redondeada que el contenido — `position:absolute` se descartó por soporte CSS muy pobre en clientes de correo, se usó una fila de tabla completa en su lugar; (3) el contenido de texto pasó a estar directamente sobre el fondo principal, ya no dentro de una card superpuesta. Confirmado visualmente por el usuario sobre el correo real antes de completar el checkpoint.
+- **Nota sobre 35.1:** el paso de "registro real" se ejecutó vía `curl` directo contra `POST /api/auth/register` (mismo endpoint que llama `authService.js` desde `Registro.jsx`), no tecleando en el formulario del navegador — no había herramienta de automatización de navegador disponible en la sesión. El clic en el enlace del correo y el aterrizaje en `/login?verificado=true` sí se hicieron en un navegador real, confirmado por el usuario.
+- **Verificación manual exhaustiva de Tasks 29/30 (sustituye parcialmente al checkpoint 31.1, salvo el envío real de correo, bloqueado por la credencial):** contra MongoDB real, con `npm run dev`, se comprobó: (1) `POST /register` crea `PendingUser` y falla limpiamente con 500 al no poder enviar el correo (credencial inválida), sin dejar `PendingUser` huérfano; (2) insertando manualmente un `PendingUser` con un token conocido, `GET /verify-email?token=...` crea el `User`, borra el `PendingUser` y redirige a `/login?verificado=true`; (3) una segunda petición con el mismo token ya consumido redirige a `/error/410` (token de un solo uso, Propiedad 20); (4) sin `token` en la query redirige a `/error/400`; (5) un token inexistente redirige a `/error/410`; (6) un `PendingUser` con `expiresAt` en el pasado (insertado directamente vía `collection.insertOne` para evitar la validación de Mongoose) redirige a `/error/410` y se elimina explícitamente (Propiedad 21); (7) tras verificar, `POST /login` con las credenciales originales responde 200 (Propiedad 22); (8) un segundo `POST /register` con un `username` que ya tenía un `PendingUser` no caducado actualiza el registro existente sin colisión de índice único y falla igual de limpio en el envío de correo (reenvío, Req 18.8). Todos los usuarios/`PendingUser` de prueba se eliminaron al terminar.
 - El campo `password` usa `select: false` en Mongoose — para el flujo de login, añadir `.select('+password')` explícitamente en la consulta del controlador.
 - El backend (`GalinGames_nodejs/`) parte desde cero; la Task 1 debe completarse antes que cualquier otra tarea del backend.
 - El refresh token usa `Path=/api/auth/refresh` en la cookie — el navegador solo lo envía a ese endpoint exacto.
@@ -741,8 +972,20 @@ graph TD
     T21["Task 21: Login.jsx + CSS"]
     T22["Task 22: Registro.jsx (modificar)"]
     T23["Task 23: main.jsx"]
-    T24["Task 24: Tests unitarios backend"]
-    T25["Task 25: Tests de propiedades fast-check"]
+    T24["Task 24: nodemailer + env de email"]
+    T25["Task 25: PendingUser.js (modelo)"]
+    T26["Task 26: emailVerificationService.js"]
+    T27["Task 27: emailService.js"]
+    T28["Task 28: verifyEmailLimiter"]
+    T29["Task 29: authController.js (register + verifyEmail)"]
+    T30["Task 30: auth.routes.js (verify-email)"]
+    T31["Task 31: Checkpoint backend verificación email"]
+    T32["Task 32: ErrorPage.jsx (código 410)"]
+    T33["Task 33: Registro.jsx (mensaje verificación)"]
+    T34["Task 34: Login.jsx (banner verificación)"]
+    T35["Task 35: Checkpoint final verificación email"]
+    T36["Task 36: Tests unitarios backend"]
+    T37["Task 37: Tests de propiedades fast-check"]
 
     T1 --> T2
     T1 --> T5
@@ -782,9 +1025,46 @@ graph TD
     T17 --> T23
     T20 --> T23
 
-    T14 --> T24
-    T14 --> T25
-    T24 --> T25
+    T2 --> T24
+    T3 --> T25
+    T5 --> T26
+    T24 --> T27
+    T7 --> T28
+    T12 --> T29
+    T25 --> T29
+    T26 --> T29
+    T27 --> T29
+    T28 --> T30
+    T29 --> T30
+    T13 --> T30
+    T30 --> T31
+    T24 --> T31
+    T19 --> T32
+    T22 --> T33
+    T21 --> T34
+    T15 --> T34
+    T31 --> T35
+    T32 --> T35
+    T33 --> T35
+    T34 --> T35
+
+    T8 --> T36
+    T9 --> T36
+    T5 --> T36
+    T6 --> T36
+    T11 --> T36
+    T14 --> T36
+    T25 --> T36
+    T26 --> T36
+    T27 --> T36
+    T29 --> T36
+    T12 --> T37
+    T14 --> T37
+    T8 --> T37
+    T9 --> T37
+    T29 --> T37
+    T30 --> T37
+    T36 --> T37
 ```
 
 ```json
@@ -792,16 +1072,15 @@ graph TD
   "waves": [
     { "wave": 1, "tasks": [1, 15] },
     { "wave": 2, "tasks": [2, 5, 7] },
-    { "wave": 3, "tasks": [3, 6, 8, 9, 11] },
-    { "wave": 4, "tasks": [4, 10] },
+    { "wave": 3, "tasks": [3, 6, 8, 9, 11, 24, 26, 28] },
+    { "wave": 4, "tasks": [4, 10, 25, 27] },
     { "wave": 5, "tasks": [12, 16] },
-    { "wave": 6, "tasks": [13, 17] },
-    { "wave": 7, "tasks": [14, 18] },
-    { "wave": 8, "tasks": [19, 20] },
-    { "wave": 9, "tasks": [21, 22] },
-    { "wave": 10, "tasks": [23] },
-    { "wave": 11, "tasks": [24] },
-    { "wave": 12, "tasks": [25] }
+    { "wave": 6, "tasks": [13, 17, 29] },
+    { "wave": 7, "tasks": [14, 18, 30] },
+    { "wave": 8, "tasks": [19, 20, 31, 36] },
+    { "wave": 9, "tasks": [21, 22, 32, 37] },
+    { "wave": 10, "tasks": [23, 33, 34] },
+    { "wave": 11, "tasks": [35] }
   ]
 }
 ```

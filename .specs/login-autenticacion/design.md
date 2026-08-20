@@ -8,6 +8,8 @@ El diseño sigue el principio de **defensa en profundidad**: validación en el f
 
 El sistema implementa un esquema de doble token: un **access token** JWT de corta duración (15 min) en httpOnly cookie para autenticar peticiones, y un **refresh token** opaco de larga duración (7 días) en httpOnly cookie de ruta restringida (`/api/auth/refresh`) para renovar la sesión silenciosamente. La persistencia de sesión entre recargas se gestiona mediante un objeto no sensible `{ isLoggedIn, userId, username }` en localStorage que desencadena un silent refresh automático al arrancar la app.
 
+El registro incorpora además un paso de **verificación de email obligatoria**: el usuario no se crea en la colección `users` en el momento del registro, sino que sus datos (con la contraseña ya hasheada) se guardan temporalmente en `PendingUser` junto a un token de verificación opaco de un solo uso. Solo al hacer clic en el enlace enviado por correo (con la plantilla de marca de GalinGames, desde `GalinGamesShop@gmail.com`) se crea el documento definitivo en `users` y la cuenta queda accesible por login — antes de eso, el `username` es indistinguible de uno que nunca se ha registrado.
+
 ---
 
 ## Architecture
@@ -26,16 +28,23 @@ graph TB
 
     subgraph "Backend Node.js / Express"
         Server["server.js\n(entry point)"]
-        RateLimit["rateLimiter.js\n(Req 6)"]
+        RateLimit["rateLimiter.js\n(Req 6, 18.10)"]
         Validator["validator.js\n(Req 3)"]
-        AuthCtrl["authController.js\n(Req 2, 11, 13, 14)"]
+        AuthCtrl["authController.js\n(Req 2, 11, 13, 14, 18)"]
         TokenSvc["tokenService.js\n(Req 5, 13)"]
         RefreshSvc["refreshTokenService.js\n(Req 13, 14)"]
+        EmailVerSvc["emailVerificationService.js\n(Req 18.2, 18.11)"]
+        EmailSvc["emailService.js\n(Req 18.3, 18.4)"]
         UserModel["User.js\n(Mongoose Model)"]
+        PendingModel["PendingUser.js\n(Mongoose Model, TTL)"]
     end
 
     subgraph "MongoDB"
-        DB["GalinGames\n└── users\n    (+ refreshTokenHash)"]
+        DB["GalinGames\n├── users (+ refreshTokenHash)\n└── pendingusers (TTL, Req 18.7)"]
+    end
+
+    subgraph "Gmail SMTP"
+        GM["GalinGamesShop@gmail.com"]
     end
 
     Login -->|"POST /api/auth/login"| AuthSvc
@@ -45,7 +54,11 @@ graph TB
     Server --> RateLimit --> Validator --> AuthCtrl
     AuthCtrl --> TokenSvc
     AuthCtrl --> RefreshSvc
+    AuthCtrl --> EmailVerSvc
+    AuthCtrl --> EmailSvc --> GM
     AuthCtrl --> UserModel --> DB
+    AuthCtrl --> PendingModel --> DB
+    GM -.->|"clic en el enlace del correo\n(navegación directa, no fetch)"| Server
     AuthCtx --> useAuthHook
     AuthCtx <-->|"lee/escribe"| LS
     useAuthHook --> Login
@@ -63,21 +76,24 @@ GalinGames_nodejs/
 ├── src/
 │   ├── config/
 │   │   ├── db.js              # Conexión Mongoose + validación de MONGODB_URI
-│   │   └── env.js             # Validación de variables de entorno al arranque
+│   │   └── env.js             # Validación de variables de entorno al arranque (+ vars de email, Req 18)
 │   ├── controllers/
-│   │   └── authController.js  # Lógica de login y registro
+│   │   └── authController.js  # Lógica de login, registro y verificación de email
 │   ├── middleware/
 │   │   ├── authMiddleware.js  # Verificación JWT para rutas protegidas
-│   │   ├── rateLimiter.js     # Rate limiting por IP (express-rate-limit)
+│   │   ├── rateLimiter.js     # Rate limiting por IP (express-rate-limit) — incluye verifyEmailLimiter
 │   │   ├── validator.js       # Validación y sanitización de entradas
 │   │   └── globalErrorHandler.js  # Middleware global de errores — último app.use
 │   ├── models/
-│   │   └── User.js            # UserSchema Mongoose
+│   │   ├── User.js            # UserSchema Mongoose
+│   │   └── PendingUser.js     # NUEVO — registros de email aún no verificados (TTL, Req 18)
 │   ├── routes/
-│   │   └── auth.routes.js     # Rutas: /login, /register, /logout
+│   │   └── auth.routes.js     # Rutas: /login, /register, /refresh, /logout, /verify-email
 │   ├── services/
-│   │   ├── tokenService.js         # Generación y verificación de access tokens JWT
-│   │   └── refreshTokenService.js  # Generación, hash y rotación de refresh tokens
+│   │   ├── tokenService.js              # Generación y verificación de access tokens JWT
+│   │   ├── refreshTokenService.js       # Generación, hash y rotación de refresh tokens
+│   │   ├── emailVerificationService.js  # NUEVO — token opaco de verificación (mismo patrón que refresh token)
+│   │   └── emailService.js              # NUEVO — nodemailer + plantilla HTML de verificación GalinGames
 │   └── utils/
 │       └── nullGuard.js       # Defensive guards: requireField, isEmpty, sanitizeResponse
 ├── .env.example
@@ -241,6 +257,11 @@ const [retryCountdown, setRetryCountdown] = useState(0);
 // Reutiliza: InputBox (nameInput, labelInput, typeInput, placeholderInput, eventoOnChange)
 // Clases CSS: fondo-gaming, contenido-registro, marginForm, videojuego-title,
 //             videojuego-text, botonRegistro
+
+// Req 18: lee el query param que deja la redirección de GET /api/auth/verify-email
+// tras un clic exitoso en el enlace del correo, y muestra un banner de éxito.
+// const [searchParams] = useSearchParams();
+// const emailVerificado = searchParams.get('verificado') === 'true';
 ```
 
 ### tokenService.js (Backend)
@@ -281,7 +302,7 @@ Componente reutilizable que muestra una página de error con estilo gaming. Reci
 
 ```jsx
 // Props aceptadas
-// code: number (400 | 401 | 403 | 404 | 429 | 500 | 503)
+// code: number (400 | 401 | 403 | 404 | 410 | 429 | 500 | 503)
 // message?: string (opcional, sobreescribe el mensaje por defecto)
 // retryAfter?: number (segundos, solo para 429 — activa cuenta atrás)
 
@@ -291,6 +312,7 @@ const ERROR_CONFIG = {
   401: { title: 'No autorizado',             message: 'Debes iniciar sesión para acceder a este contenido.' },
   403: { title: 'Acceso denegado',           message: 'No tienes permiso para ver esta página.' },
   404: { title: 'Página no encontrada',      message: 'La página que buscas no existe o ha sido movida.' },
+  410: { title: 'Enlace caducado',           message: 'Este enlace de verificación no es válido o ha caducado. Regístrate de nuevo si no llegaste a confirmarlo a tiempo.' },
   429: { title: 'Demasiadas peticiones',     message: 'Has superado el límite de intentos. Espera un momento.' },
   500: { title: 'Error del servidor',        message: 'Algo ha salido mal en nuestro servidor. Inténtalo más tarde.' },
   503: { title: 'Servicio no disponible',    message: 'El servicio está temporalmente fuera de línea. Vuelve pronto.' },
@@ -358,6 +380,60 @@ function verifyRefreshToken(tokenRecibido, hashAlmacenado)
 
 // Firma: async, sin efecto secundario — la persistencia la hace el controller
 ```
+
+### emailVerificationService.js (Backend)
+
+Mismo patrón criptográfico que `refreshTokenService.js`: token opaco aleatorio + hash SHA-256 persistido, nunca el token en claro.
+
+```javascript
+// Genera un token de verificación opaco y devuelve { token, hash }
+// token: string base64url de 32 bytes (va en el enlace del correo, nunca se persiste)
+// hash: SHA-256 del token (almacenado en PendingUser.verificationTokenHash)
+function generateVerificationToken()
+// → { token: string, hash: string }
+
+// Verifica que el token recibido coincide con el hash almacenado
+function verifyVerificationToken(tokenRecibido, hashAlmacenado)
+// → boolean
+
+// Firma: síncrono, sin efecto secundario — la persistencia la hace el controller
+```
+
+### emailService.js (Backend)
+
+Encapsula el transporte SMTP (nodemailer) y la plantilla HTML de la marca GalinGames. Ningún otro módulo construye HTML de email ni toca las credenciales SMTP directamente.
+
+```javascript
+// Transporter configurado una sola vez a partir de variables de entorno
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: { user: env.EMAIL_USER, pass: env.EMAIL_APP_PASSWORD },
+});
+
+// Construye y envía el correo de verificación con la plantilla de marca.
+// Lanza si el envío falla — el controller decide cómo reaccionar (Req 18.12).
+async function sendVerificationEmail(to, username, verificationToken) {
+  const verificationLink = `${env.BACKEND_URL}/api/auth/verify-email?token=${verificationToken}`;
+  const html = buildVerificationEmailHtml(username, verificationLink);
+  await transporter.sendMail({
+    from: `"GalinGames" <${env.EMAIL_USER}>`,
+    to,
+    subject: 'Confirma tu email en GalinGames',
+    html,
+    text: `Hola ${username}, confirma tu cuenta en GalinGames visitando: ${verificationLink}`,
+  });
+}
+
+// Plantilla HTML con estilos inline (los clientes de correo no cargan CSS externo
+// ni respetan @font-face de forma fiable): fondo degradado violeta oscuro coherente
+// con .fondo-gaming, tipografía sans-serif en negrita con letter-spacing simulando
+// el estilo "gaming" de videojuego-title, botón CTA con el texto exacto
+// "Haz click aquí para confirmar tu email", y un enlace de texto plano de respaldo
+// para clientes que bloquean botones/HTML.
+function buildVerificationEmailHtml(username, verificationLink) { /* ... */ }
+```
+
+**Nota de seguridad:** `EMAIL_USER` y `EMAIL_APP_PASSWORD` se leen exclusivamente de variables de entorno (nunca hardcodeadas), y `EMAIL_APP_PASSWORD` es una [contraseña de aplicación de Gmail](https://myaccount.google.com/apppasswords) — no la contraseña real de la cuenta `GalinGamesShop@gmail.com` — de modo que puede revocarse sin afectar al acceso a la cuenta de correo. `sendVerificationEmail` nunca registra en logs el token en claro ni la contraseña de aplicación.
 
 ### authService.js — función silentRefresh (Frontend)
 
@@ -432,6 +508,74 @@ UserSchema.index({ email: 1 },    { unique: true });
 
 **Nota:** `select: false` en el campo `password` garantiza que Mongoose nunca lo incluya en consultas `.find()` ni `.findOne()` a menos que se solicite explícitamente con `.select('+password')` — lo cual solo ocurre durante el flujo de login para la comparación bcrypt.
 
+### PendingUserSchema (Mongoose)
+
+Almacena un registro mientras su email no ha sido verificado. Contiene los mismos datos que `UserSchema` (con la contraseña ya hasheada) más el hash del token de verificación y una fecha de caducidad con índice TTL de MongoDB para el borrado automático.
+
+```javascript
+// src/models/PendingUser.js
+const PendingUserSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: [true, 'El nombre de usuario es obligatorio'],
+    trim: true,
+    minlength: [3, 'El username debe tener al menos 3 caracteres'],
+    maxlength: [50, 'El username no puede superar los 50 caracteres'],
+  },
+  nombre: {
+    type: String,
+    required: [true, 'El nombre es obligatorio'],
+    trim: true,
+    maxlength: [100, 'El nombre no puede superar los 100 caracteres'],
+  },
+  apellidos: {
+    type: String,
+    required: [true, 'Los apellidos son obligatorios'],
+    trim: true,
+    maxlength: [150, 'Los apellidos no pueden superar los 150 caracteres'],
+  },
+  email: {
+    type: String,
+    required: [true, 'El email es obligatorio'],
+    lowercase: true,
+    trim: true,
+    match: [/^\S+@\S+\.\S+$/, 'Formato de email inválido'],
+    maxlength: [255, 'El email no puede superar los 255 caracteres'],
+  },
+  password: {
+    type: String,
+    required: [true, 'La contraseña es obligatoria'],
+    minlength: [60, 'Longitud mínima para hashes bcrypt'],
+    select: false,           // ya viene hasheada con bcrypt desde register()
+  },
+  verificationTokenHash: {
+    type: String,
+    required: true,
+    select: false,            // igual que refreshTokenHash: nunca se expone en consultas
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    immutable: true,
+  },
+  expiresAt: {
+    type: Date,
+    required: true,           // createdAt + EMAIL_VERIFICATION_EXPIRES_HOURS
+  },
+});
+
+// Índices: username/email únicos solo entre registros pendientes (permiten reintentar
+// tras la caducidad, ya que el TTL borra el documento antiguo primero).
+PendingUserSchema.index({ username: 1 }, { unique: true });
+PendingUserSchema.index({ email: 1 },    { unique: true });
+// Índice TTL: MongoDB borra el documento automáticamente al alcanzar expiresAt.
+PendingUserSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+```
+
+**Nota de seguridad:** al igual que `refreshTokenHash` en `UserSchema`, `verificationTokenHash` usa `select: false` — solo el hash SHA-256 se persiste, nunca el token en claro. La colección `pendingusers` es completamente independiente de `users`: mientras un documento solo existe aquí, es indetectable por el flujo de login (que consulta exclusivamente `users`), cumpliendo el Requisito 18.1 sin necesidad de un campo `emailVerified` ni lógica adicional en `login()`.
+
+**Nota sobre el índice TTL:** el monitor TTL de MongoDB se ejecuta aproximadamente cada 60 segundos, no de forma instantánea al alcanzar `expiresAt`. Por eso `verifyEmail()` (ver Authentication Flows) comprueba `expiresAt` explícitamente en el propio controlador antes de confiar en que el documento ya no existe — la Propiedad 21 depende de esta doble comprobación, no solo del TTL de MongoDB.
+
 ---
 
 ## API Design
@@ -482,11 +626,31 @@ En desarrollo: sin atributo `Secure`.
 
 | Código | Condición | Body |
 |--------|-----------|------|
-| 201 | Registro exitoso | `{ "message": "Usuario creado correctamente", "userId": "<id_MongoDB>" }` |
+| 201 | Datos válidos y únicos: se crea/renueva un `PendingUser` y se envía el correo de verificación | `{ "message": "Te hemos enviado un correo de verificación. Confirma tu cuenta para poder iniciar sesión." }` |
 | 400 | Validación fallida | `{ "errors": [{ "field": "password", "rule": "minlength", "message": "..." }] }` |
-| 409 | username o email duplicado | `{ "message": "El nombre de usuario ya está en uso" }` o `{ "message": "El email ya está en uso" }` |
+| 409 | username o email ya existe **verificado** en `users` | `{ "message": "El nombre de usuario ya está en uso" }` o `{ "message": "El email ya está en uso" }` |
 | 429 | Rate limit (5 req/15min) | `{ "message": "Demasiados intentos de registro", "retryAfter": 900 }` |
+| 500 | Fallo al enviar el correo de verificación (proveedor SMTP) | `{ "message": "No se pudo completar el registro. Inténtalo de nuevo." }` (el `PendingUser` recién creado se elimina, ver Requisito 18.12) |
 | 503 | MongoDB no disponible | `{ "message": "Servicio temporalmente no disponible" }` |
+
+**Nota:** ya no se crea el documento en `users` en este paso — el `userId` de la respuesta 201 anterior desaparece porque todavía no existe ningún usuario definitivo (Requisito 18.1). Si `username`/`email` coinciden con un `PendingUser` no caducado (no con un usuario ya verificado), la respuesta sigue siendo 201 con el mismo mensaje, pero internamente se reenvía el correo con un token nuevo (Requisito 18.8) — ver «Flujo de Registro con Reenvío» más abajo.
+
+---
+
+### GET /api/auth/verify-email
+
+**Request:** Query string `?token=<token en claro>`. Sin body — es el enlace que el usuario abre desde el cliente de correo, no una llamada `fetch` del SPA.
+
+**Respuesta:** Nunca JSON. Siempre una redirección HTTP 302 hacia `FRONTEND_URL`, para que el usuario aterrice en una pantalla de la SPA en vez de ver una respuesta cruda de API:
+
+| Condición | Redirección |
+|-----------|-------------|
+| Token válido y no caducado | `302 → {FRONTEND_URL}/login?verificado=true` — el `PendingUser` se elimina y el `User` definitivo se crea en esta misma petición |
+| Token ausente en la query string | `302 → {FRONTEND_URL}/error/400` |
+| Token no encontrado, ya usado, o caducado | `302 → {FRONTEND_URL}/error/410` |
+| Error inesperado (MongoDB caído, etc.) | `302 → {FRONTEND_URL}/error/500` |
+
+**Nota de diseño:** este es el único endpoint de `Auth_API` que responde con una redirección en vez de JSON — ver «Design Decisions» para la justificación (el enlace se abre directamente en el navegador desde un cliente de correo, no desde el SPA). Está sujeto a `verifyEmailLimiter` (20 req/15min por IP) igual que el resto de endpoints públicos.
 
 ---
 
@@ -569,7 +733,7 @@ sequenceDiagram
     Note over BE: Misma respuesta que si el usuario<br/>existe pero la password es incorrecta
 ```
 
-### Flujo de Registro Exitoso
+### Flujo de Registro con Verificación de Email Pendiente
 
 ```mermaid
 sequenceDiagram
@@ -578,6 +742,8 @@ sequenceDiagram
     participant S as authService.js
     participant BE as Auth_API (Express)
     participant DB as MongoDB
+    participant ES as emailService.js
+    participant GM as Gmail SMTP
 
     U->>F: Rellena formulario, pulsa "Registrarse"
     F->>F: Validación frontend (campos vacíos, passwords coinciden)
@@ -587,14 +753,70 @@ sequenceDiagram
     BE->>BE: rateLimiter (5 req/15min por IP)
     BE->>BE: validator (todos los campos, longitud, passwords coinciden)
     BE->>DB: User.findOne({ $or: [{ username }, { email }] })
-    DB-->>BE: null (no existe)
+    DB-->>BE: null (no existe usuario verificado)
+    BE->>DB: PendingUser.findOne({ $or: [{ username }, { email }] })
+    DB-->>BE: null (no hay registro pendiente)
     BE->>BE: bcrypt.hash(password, 12)
-    BE->>DB: new User({ username, nombre, apellidos, email, password: hash }).save()
-    DB-->>BE: { _id, username, ... }
-    BE-->>S: 201 { message: "Usuario creado correctamente", userId }
+    BE->>BE: emailVerificationService.generateVerificationToken() → { token, hash }
+    BE->>DB: new PendingUser({ username, nombre, apellidos, email, password: hash, verificationTokenHash, expiresAt }).save()
+    DB-->>BE: { _id, ... }
+    BE->>ES: sendVerificationEmail(email, username, token)
+    ES->>GM: Envía correo con plantilla GalinGames + enlace /api/auth/verify-email?token=...
+    GM-->>ES: 250 OK
+    ES-->>BE: éxito
+    BE-->>S: 201 { message: "Te hemos enviado un correo de verificación..." }
     S-->>F: { ok: true, data }
-    F->>U: Muestra mensaje de bienvenida
+    F->>U: Muestra mensaje "revisa tu correo para confirmar tu cuenta"
     F->>U: (tras 3s) navigate('/login')
+
+    Note over DB: El usuario NO existe todavía en `users`.<br/>Un login en este punto devuelve 401 genérico (Req 18.9).
+```
+
+### Flujo de Verificación de Email (clic en el enlace)
+
+```mermaid
+sequenceDiagram
+    actor U as Usuario
+    participant BE as Auth_API (Express)
+    participant DB as MongoDB
+
+    U->>BE: Abre en el navegador GET /api/auth/verify-email?token=abc123...
+    BE->>BE: verifyEmailLimiter (20 req/15min por IP)
+    BE->>BE: hash = sha256(token)
+    BE->>DB: PendingUser.findOne({ verificationTokenHash: hash })
+    alt Token no encontrado o expiresAt < now
+        DB-->>BE: null (o documento caducado)
+        BE->>DB: (si existía pero caducado) PendingUser.deleteOne(...)
+        BE-->>U: 302 → {FRONTEND_URL}/error/410
+    else Token válido y no caducado
+        DB-->>BE: documento PendingUser
+        BE->>DB: new User({ username, nombre, apellidos, email, password }).save()
+        DB-->>BE: { _id, ... }
+        BE->>DB: PendingUser.deleteOne({ _id })
+        BE-->>U: 302 → {FRONTEND_URL}/login?verificado=true
+    end
+```
+
+### Flujo de Registro con Reenvío (registro pendiente ya existente)
+
+```mermaid
+sequenceDiagram
+    actor U as Usuario
+    participant BE as Auth_API (Express)
+    participant DB as MongoDB
+    participant ES as emailService.js
+
+    U->>BE: POST /api/auth/register { username: "carlos", ... } (ya registrado pero no verificado)
+    BE->>DB: User.findOne({ $or: [{ username }, { email }] })
+    DB-->>BE: null
+    BE->>DB: PendingUser.findOne({ $or: [{ username }, { email }] })
+    DB-->>BE: documento PendingUser existente (no caducado)
+    BE->>BE: emailVerificationService.generateVerificationToken() → nuevo { token, hash }
+    BE->>DB: PendingUser.updateOne({ _id }, { verificationTokenHash: hash, expiresAt: nuevo, password: nuevoHash, ... })
+    BE->>ES: sendVerificationEmail(email, username, token)
+    ES-->>BE: éxito
+    BE-->>U: 201 { message: "Te hemos enviado un correo de verificación..." }
+    Note over U: Misma respuesta que un registro nuevo — no revela<br/>que ya existía un pendiente (Req 18.8, 18.13)
 ```
 
 ### Flujo de Registro con Datos Duplicados
@@ -608,11 +830,13 @@ sequenceDiagram
 
     U->>BE: POST /api/auth/register { username: "existente", ... }
     BE->>DB: User.findOne({ username: "existente" })
-    DB-->>BE: documento existente
+    DB-->>BE: documento existente (ya verificado)
     BE-->>F: 409 { message: "El nombre de usuario ya está en uso" }
     F->>F: setLoading(false), re-habilita botón
     F->>U: Muestra mensaje de error específico
 ```
+
+**Nota:** este 409 solo ocurre si `username`/`email` pertenecen a un usuario **ya verificado** en `users`. Si en cambio pertenecen a un `PendingUser` no caducado (registro previo aún sin verificar), el flujo es el de «Registro con Reenvío» (arriba): responde 201 y reenvía el correo, nunca 409 — evita revelar por el código de estado si el dato ya está totalmente registrado o solo pendiente de verificación.
 
 ---
 
@@ -704,6 +928,13 @@ const registerLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,   // 15 minutos
   max: 5,                      // 5 peticiones por IP
   // ... misma configuración
+});
+
+// Para GET /api/auth/verify-email (Req 18.10)
+const verifyEmailLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,   // 15 minutos
+  max: 20,                     // 20 peticiones por IP
+  // ... misma configuración de keyGenerator/handler que loginLimiter
 });
 ```
 
@@ -811,6 +1042,17 @@ async function uniformDelay() {
 // Si el usuario no existe: bcrypt.compare(password, DUMMY_HASH) + uniformDelay()
 // Si la password es incorrecta: bcrypt.compare devuelve false (ya toma ~250ms) + ajuste
 ```
+
+### Verificación de Email
+
+1. **Cuenta inaccesible hasta verificar:** al no existir el documento en `users` hasta que se consume el `Verification_Token`, no hace falta ningún campo `emailVerified` ni comprobación adicional en `login()` — la ausencia del documento ya produce el mismo 401 genérico que un `username` que nunca existió (Req 18.9), preservando la resistencia a enumeración de usuarios ya aplicada en el resto del sistema.
+2. **Token opaco, no JWT:** igual que el refresh token, el `Verification_Token` es aleatorio (`crypto.randomBytes(32)`) y solo su hash SHA-256 se persiste. Un JWT sería verificable sin consultar la base de datos, lo que impediría invalidarlo tras un solo uso sin una lista de revocación adicional.
+3. **Un solo uso:** `verifyEmail()` crea el `User` y borra el `PendingUser` en la misma operación lógica; cualquier segunda petición con el mismo token ya no encuentra el documento y se trata como token inválido (Propiedad 20).
+4. **Expiración doble capa:** el índice TTL de MongoDB (`expireAfterSeconds: 0` sobre `expiresAt`) limpia los documentos caducados de forma diferida (~60s de margen), pero `verifyEmail()` comprueba `expiresAt < Date.now()` explícitamente antes de confiar en la ausencia del documento — evita la ventana de carrera entre la caducidad lógica y el borrido físico (Propiedad 21).
+5. **Sin enumeración vía registro repetido:** un segundo registro con el mismo `username`/`email` mientras existe un `PendingUser` no caducado responde 201 igual que un registro nuevo (reenviando el correo), nunca 409 — de lo contrario un atacante podría usar el endpoint de registro para averiguar si un email ya inició un registro sin completarlo (Req 18.8, 18.13).
+6. **Credenciales SMTP fuera del código:** `EMAIL_USER`/`EMAIL_APP_PASSWORD` solo viven en variables de entorno, validadas al arranque igual que `JWT_SECRET`; `EMAIL_APP_PASSWORD` es una contraseña de aplicación de Gmail (revocable independientemente de la contraseña real de la cuenta).
+7. **Endpoint de verificación público pero limitado:** `GET /api/auth/verify-email` no requiere autenticación (no puede requerirla — el usuario aún no tiene sesión), así que se protege únicamente con `verifyEmailLimiter` y con la imposibilidad práctica de adivinar un token de 256 bits por fuerza bruta.
+8. **Sin filtración por el código de estado del email:** si el envío del correo falla, el `PendingUser` recién creado se elimina (Req 18.12) — no queda una reserva de `username`/`email` "fantasma" que un usuario legítimo no pueda reclamar después porque el correo nunca llegó.
 
 ---
 
@@ -944,12 +1186,21 @@ NODE_ENV=development
 
 # CORS — lista separada por comas
 ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+
+# Email de verificación (Req 18)
+EMAIL_USER=GalinGamesShop@gmail.com
+EMAIL_APP_PASSWORD=your-gmail-app-password-here
+FRONTEND_URL=http://localhost:5173
+BACKEND_URL=http://localhost:3001
+EMAIL_VERIFICATION_EXPIRES_HOURS=24
 ```
+
+**Nota:** `EMAIL_APP_PASSWORD` es una [contraseña de aplicación de Gmail](https://myaccount.google.com/apppasswords) (requiere verificación en dos pasos activada en la cuenta `GalinGamesShop@gmail.com`), no la contraseña de la cuenta. `BACKEND_URL` se usa para construir el enlace del correo (`{BACKEND_URL}/api/auth/verify-email?token=...`); `FRONTEND_URL` para la redirección tras verificar.
 
 ### Validación al arranque (src/config/env.js)
 
 ```javascript
-const required = ['JWT_SECRET', 'MONGODB_URI'];
+const required = ['JWT_SECRET', 'MONGODB_URI', 'EMAIL_USER', 'EMAIL_APP_PASSWORD', 'FRONTEND_URL', 'BACKEND_URL'];
 
 for (const key of required) {
   if (!process.env[key] || process.env[key].trim() === '') {
@@ -974,6 +1225,9 @@ if (expiresIn > 86400) {
   console.error('[FATAL] JWT_EXPIRES_IN no puede superar 86400 segundos (24 horas)');
   process.exit(1);
 }
+
+// EMAIL_VERIFICATION_EXPIRES_HOURS: valor por defecto 24 si no está definida
+const emailVerificationExpiresHours = parseInt(process.env.EMAIL_VERIFICATION_EXPIRES_HOURS || '24', 10);
 ```
 
 ---
@@ -1128,6 +1382,38 @@ if (expiresIn > 86400) {
 
 ---
 
+### Propiedad 19: Un usuario no verificado nunca existe en `users`
+
+*Para todo registro completado con datos válidos, mientras el `Verification_Token` asociado no se haya consumido con éxito, ninguna consulta a la colección `users` por ese `username` o `email` devuelve un documento — el registro solo vive en `PendingUser`.*
+
+**Valida: Requisitos 18.1, 18.9**
+
+---
+
+### Propiedad 20: El token de verificación es de un solo uso
+
+*Para todo `Verification_Token` consumido con éxito una vez, cualquier petición posterior a `GET /api/auth/verify-email` con ese mismo token nunca crea un segundo documento en `users` ni devuelve un resultado de éxito.*
+
+**Valida: Requisitos 18.5, 18.11**
+
+---
+
+### Propiedad 21: Un token caducado nunca activa una cuenta
+
+*Para todo `PendingUser` cuya fecha de caducidad (`expiresAt`) sea anterior al momento de la petición, `GET /api/auth/verify-email` con su token nunca crea un documento en `users`, independientemente de si el proceso de limpieza TTL de MongoDB ya lo eliminó físicamente del documento.*
+
+**Valida: Requisitos 18.6, 18.7**
+
+---
+
+### Propiedad 22: La verificación exitosa habilita el login con las mismas credenciales
+
+*Para todo `PendingUser` cuyo token se consume con éxito, una petición inmediata a `POST /api/auth/login` con el `username` y la contraseña en texto plano originales del registro devuelve HTTP 200.*
+
+**Valida: Requisitos 12.1, 18.5**
+
+---
+
 ## Error Handling
 
 ### Jerarquía de errores en el backend
@@ -1143,7 +1429,14 @@ Rate limit superado                      → HTTP 429 + { code: 429, retryAfter 
 Username bloqueado                       → HTTP 429 + { code: 429, retryAfter: 300 }
 MongoDB no disponible                    → HTTP 503 + { code: 503, message: genérico }
 Error no manejado / excepción inesperada → HTTP 500 + { code: 500, message: genérico }
+
+--- Excepción: GET /api/auth/verify-email (Req 18) ---
+Token ausente en la query string         → 302 redirect → {FRONTEND_URL}/error/400 (nunca JSON)
+Token no encontrado / usado / caducado   → 302 redirect → {FRONTEND_URL}/error/410 (nunca JSON)
+Error inesperado (MongoDB caído, etc.)   → 302 redirect → {FRONTEND_URL}/error/500 (nunca JSON)
 ```
+
+**Sobre la excepción de `verify-email`:** este es el único endpoint de `Auth_API` donde el controlador captura sus propios errores localmente y responde con `res.redirect(302, ...)` en vez de propagar a `globalErrorHandler` — el cliente en este caso es el navegador navegando directamente desde un enlace de correo, no un `fetch` del SPA que sepa interpretar `{ code, message }`. Ver «Design Decisions» para la justificación completa. El resto de endpoints mantiene el contrato JSON estándar sin excepción.
 
 ### Principios de manejo de errores
 
@@ -1216,16 +1509,20 @@ Los tests de esta feature se organizan en dos capas complementarias:
 GalinGames_nodejs/
 ├── tests/
 │   ├── unit/
-│   │   ├── tokenService.test.js        # generateToken, verifyToken
-│   │   ├── validator.test.js           # validateLoginInput, validateRegisterInput
-│   │   ├── authController.test.js      # login, register (con mocks)
-│   │   └── rateLimiter.test.js
+│   │   ├── tokenService.test.js              # generateToken, verifyToken
+│   │   ├── validator.test.js                 # validateLoginInput, validateRegisterInput
+│   │   ├── authController.test.js            # login, register (con mocks)
+│   │   ├── rateLimiter.test.js
+│   │   ├── emailVerificationService.test.js  # generateVerificationToken, verifyVerificationToken
+│   │   ├── emailService.test.js              # sendVerificationEmail (transporter mockeado)
+│   │   └── pendingUser.test.js               # PendingUserSchema: requeridos, índice único, TTL
 │   ├── property/
-│   │   ├── auth.properties.test.js     # Propiedades 1-13
+│   │   ├── auth.properties.test.js     # Propiedades 1-18
 │   │   └── validator.properties.test.js
 │   └── integration/
-│       ├── login.integration.test.js   # Con MongoDB real (test DB)
-│       └── register.integration.test.js
+│       ├── login.integration.test.js         # Con MongoDB real (test DB)
+│       ├── register.integration.test.js
+│       └── emailVerification.integration.test.js  # Propiedades 19-22, con MongoDB real (test DB) y transporter mockeado
 ```
 
 ### Estructura de tests del frontend
@@ -1282,8 +1579,8 @@ describe('Propiedad 2: Login con credenciales inválidas', () => {
 ### Balance de tests
 
 - **Unitarios:** Máximo 3-5 tests por módulo para cubrir caminos concretos. Evitar tests redundantes con los de propiedades.
-- **Propiedades:** Un test por propiedad definida en este documento (13 propiedades).
-- **Integración:** 2-3 tests end-to-end con MongoDB real (happy path login, happy path register, login tras register).
+- **Propiedades:** Un test por propiedad definida en este documento (22 propiedades: 1-18 del núcleo de login/registro/refresh, 19-22 de verificación de email).
+- **Integración:** 2-3 tests end-to-end con MongoDB real (happy path login, happy path register, login tras register, registro → verificación de email → login).
 
 ---
 
@@ -1304,3 +1601,9 @@ describe('Propiedad 2: Login con credenciales inválidas', () => {
 | `ErrorPage` en `compGlobales/` importable desde cualquier componente | Manejar errores inline en cada formulario | Centralizar la presentación de errores evita duplicar lógica de UI. Al estar en `compGlobales`, cualquier parte futura de la app (catálogo, carrito, perfil) puede importarla sin dependencia del módulo de auth. |
 | `nullGuard.requireField()` antes de funciones criptográficas | Confiar solo en la validación de Express middleware | El guard explícito garantiza que bcrypt/JWT nunca reciben `undefined` independientemente del orden de los middlewares o de refactorizaciones futuras. |
 | `globalErrorHandler` como último middleware de Express | Try/catch individual en cada controlador | Un middleware centralizado garantiza que ningún error escapa sin respuesta estructurada, reduce boilerplate y facilita añadir logging centralizado en el futuro. |
+| `PendingUser` como colección separada de `users` | Campo `emailVerified: false` en `UserSchema` | Con un campo booleano, un usuario no verificado seguiría siendo localizable con `User.findOne({ username })`, obligando a añadir `emailVerified` a *toda* consulta relevante (login, unicidad, etc.) para no filtrarlo por error. Con una colección separada, el flujo de login existente (que solo consulta `users`) ya excluye a los no verificados sin ningún cambio ni riesgo de "olvidar el filtro". |
+| Índice TTL de MongoDB (`expireAfterSeconds: 0`) para caducar `PendingUser` | Cron job de limpieza periódico | MongoDB ya gestiona el borrado automático sin infraestructura adicional ni proceso a mantener. Su margen de ~60s se compensa comprobando `expiresAt` explícitamente en `verifyEmail()` (ver Security → Verificación de Email). |
+| Token de verificación opaco (mismo patrón que refresh token) | JWT con `exp` como token de verificación | Reutiliza un patrón ya auditado del proyecto. Un JWT sería verificable sin tocar la base de datos, complicando invalidarlo tras un solo uso sin mantener una lista de revocación aparte. |
+| `GET /api/auth/verify-email` con redirección 302, en vez de JSON | Página intermedia en el SPA que llama a `POST /api/auth/verify-email` vía fetch | El enlace vive en un correo y se abre como navegación de navegador normal, no como llamada `fetch` del SPA — debe funcionar con solo hacer clic, sin JS adicional ni pantalla de carga previa. El coste es que este único endpoint rompe el contrato JSON del resto de la API (documentado explícitamente en Error Handling) a cambio de una UX de un solo clic. |
+| Reenviar correo (misma respuesta 201) si ya existe un `PendingUser` no caducado | Responder 409 "ya hay un registro pendiente" | Devolver 409 revelaría a un atacante que ese `username`/`email` ya inició un registro sin completarlo — la misma lógica anti-enumeración que ya aplica el resto del sistema (Propiedad 2, Requisito 12.3). |
+| nodemailer + Gmail SMTP con contraseña de aplicación | Proveedor transaccional dedicado (SendGrid, Resend, SES) | El cliente ya dispone de la cuenta `GalinGamesShop@gmail.com` y el volumen esperado es bajo; una contraseña de aplicación de Gmail evita añadir una cuenta de proveedor externo y sus credenciales para el alcance actual del proyecto. Documentado como punto a revisar si el volumen de registros crece (Gmail limita el envío saliente). |

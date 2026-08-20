@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import InputBox from '../../compGlobales/InputBoxComponente/InputBox'
 import ErrorPage from '../../compGlobales/ErrorPageComponente/ErrorPage'
 import { authService } from '../../../servicios/authService'
@@ -18,6 +18,8 @@ function Login() {
 
   const navigate = useNavigate()
   const authContext = useAuth()
+  const [searchParams] = useSearchParams()
+  const emailVerificado = searchParams.get('verificado') === 'true'
 
   useEffect(() => {
     if (retryCountdown <= 0) return undefined
@@ -88,6 +90,10 @@ function Login() {
           <form onSubmit={handleSubmit} autoComplete="off">
             <div className="mb-3 color-fondo marginForm rounded">
               <h1 className="videojuego-title">Iniciar sesión</h1>
+
+              {emailVerificado && (
+                <p className="videojuego-text" role="status">¡Email verificado correctamente! Ya puedes iniciar sesión.</p>
+              )}
 
               <InputBox
                 nameInput="username"

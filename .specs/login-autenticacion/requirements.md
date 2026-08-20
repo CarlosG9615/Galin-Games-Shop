@@ -25,6 +25,9 @@ Este documento describe los requisitos del sistema de autenticación de la tiend
 - **Access_Token**: El JWT de corta duración (15 minutos) almacenado en httpOnly cookie, usado para autenticar peticiones a endpoints protegidos.
 - **Session_Store**: Objeto `{ isLoggedIn, userId, username }` guardado en localStorage, sin datos sensibles, usado para restaurar el estado visual de la UI al recargar la página.
 - **Silent_Refresh**: Proceso automático por el que el frontend llama a `POST /api/auth/refresh` al arrancar la app si detecta `isLoggedIn: true` en localStorage.
+- **PendingUser**: Documento temporal en MongoDB que almacena los datos de un registro aún no verificado (incluida la contraseña ya hasheada con bcrypt) junto al hash del token de verificación, hasta que el usuario confirma su email o el registro caduca.
+- **Verification_Token**: Token opaco de un solo uso, generado en el momento del registro, enviado por email en un enlace, usado para confirmar la propiedad del email y activar la cuenta definitiva en `users`.
+- **Email_Service**: El módulo backend responsable de construir y enviar el correo de verificación con la plantilla de marca GalinGames, usando las credenciales SMTP configuradas por variables de entorno.
 
 ---
 
@@ -189,7 +192,7 @@ Este documento describe los requisitos del sistema de autenticación de la tiend
 2. WHEN el usuario envía el formulario con cualquiera de los campos `username`, `nombre`, `apellidos`, `email`, `password` o `repetirPassword` vacíos o con solo espacios en blanco, THE Register_Form SHALL mostrar un mensaje de error de validación y no enviar la petición al backend.
 3. WHEN el valor de `password` no coincide con el valor de `repetirPassword`, THE Register_Form SHALL mostrar un mensaje de error indicando que las contraseñas no coinciden y no enviar la petición al backend.
 4. WHILE la petición de registro está en curso, THE Register_Form SHALL deshabilitar el botón de envío y mostrar un indicador visual de carga para prevenir envíos duplicados.
-5. IF el servidor devuelve HTTP 201, THEN THE Register_Form SHALL mostrar un mensaje de bienvenida al usuario y redirigir al formulario de login tras 3 segundos.
+5. IF el servidor devuelve HTTP 201, THEN THE Register_Form SHALL mostrar un mensaje indicando que se ha enviado un correo de verificación a la dirección proporcionada y que debe confirmarlo para activar la cuenta, y redirigir al formulario de login tras 3 segundos.
 6. IF el servidor devuelve HTTP 409, THEN THE Register_Form SHALL mostrar un mensaje específico indicando que el nombre de usuario o el email ya está en uso, y re-habilitar el botón de envío.
 7. IF el servidor devuelve HTTP 400, THEN THE Register_Form SHALL mostrar los errores de validación devueltos por el servidor en el cuerpo de la respuesta, y re-habilitar el botón de envío.
 8. WHEN la petición de registro no recibe respuesta en 10 segundos, THE Register_Form SHALL cancelar la petición, mostrar un mensaje de error de timeout y re-habilitar el botón de envío.
@@ -212,7 +215,7 @@ Este documento describe los requisitos del sistema de autenticación de la tiend
 6. IF el campo `email` recibido ya existe en la colección `users` de la base de datos `GalinGames`, THEN THE Auth_API SHALL responder con HTTP 409 y un mensaje específico indicando que el email ya está en uso.
 7. WHEN las validaciones son correctas y los datos son únicos, THE Auth_API SHALL hashear el campo `password` con bcrypt usando un factor de coste entre 12 y 14 inclusive antes de persistir el documento en MongoDB.
 8. THE Auth_API SHALL garantizar que el campo `repetirPassword` nunca se almacene en la base de datos ni aparezca en ningún log del sistema.
-9. WHEN el usuario se crea correctamente en MongoDB, THE Auth_API SHALL responder con HTTP 201 y un cuerpo JSON `{ "message": "Usuario creado correctamente", "userId": "<id_generado_por_MongoDB>" }` sin incluir el campo `password` ni el campo `repetirPassword` en la respuesta.
+9. WHEN los datos de registro son válidos y únicos, THE Auth_API SHALL crear un `PendingUser` (Requisito 18), enviar el correo de verificación y responder con HTTP 201 y un cuerpo JSON `{ "message": "Te hemos enviado un correo de verificación. Confirma tu cuenta para poder iniciar sesión." }`, sin incluir el campo `password`, `repetirPassword` ni ningún identificador de `users` — el documento definitivo aún no existe hasta que el email se verifica.
 10. THE Rate_Limiter SHALL limitar a un máximo de 5 peticiones al endpoint `POST /api/auth/register` por dirección IP en una ventana de tiempo deslizante de 15 minutos, respondiendo con HTTP 429 e incluyendo en el cuerpo el número de segundos que el cliente debe esperar.
 11. IF la conexión a MongoDB no está disponible en el momento de ejecutar la inserción del nuevo usuario, THEN THE Auth_API SHALL responder con HTTP 503 y un mensaje genérico sin exponer detalles de la infraestructura.
 
@@ -224,7 +227,7 @@ Este documento describe los requisitos del sistema de autenticación de la tiend
 
 #### Criterios de Aceptación
 
-1. WHEN un usuario completa el registro exitosamente, THE Sistema SHALL garantizar que una petición de login con el mismo `username` y la misma contraseña en texto plano funcione correctamente en un tiempo no superior a 5 segundos tras la confirmación del registro.
+1. WHEN un usuario completa el registro Y verifica su email exitosamente (Requisito 18), THE Sistema SHALL garantizar que una petición de login con el mismo `username` y la misma contraseña en texto plano funcione correctamente en un tiempo no superior a 5 segundos tras la verificación del email.
 2. THE User_Repository SHALL utilizar el mismo campo `username` como clave de búsqueda tanto en el flujo de login como en el flujo de registro, de modo que el documento creado por el endpoint de registro sea localizable por el endpoint de login sin transformaciones adicionales.
 3. IF un usuario intenta hacer login con un `username` que no existe en la colección `users` de `GalinGames`, THEN THE Auth_API SHALL responder con HTTP 401 y un mensaje genérico sin revelar que el usuario no existe.
 4. THE User_Repository SHALL almacenar el campo `username` con el mismo valor exacto (incluyendo mayúsculas y minúsculas) con el que fue enviado en el registro, de modo que el login con ese mismo valor exacto funcione de forma inmediata.
@@ -307,3 +310,25 @@ Este documento describe los requisitos del sistema de autenticación de la tiend
 6. WHEN el backend devuelve HTTP 429, THE componente receptor SHALL pasar al ErrorPage la prop `retryAfter` (segundos del header `Retry-After`) para mostrar una cuenta atrás visible.
 7. THE ErrorPage SHALL incluir un botón o enlace que permita al usuario volver a la página anterior o a `/login`.
 8. THE ErrorPage SHALL ser accesible mediante las rutas `/error/400`, `/error/401`, `/error/403`, `/error/404`, `/error/429`, `/error/500` y `/error/503` para permitir pruebas manuales y navegación programática.
+
+---
+
+### Requisito 18: Verificación de Email tras el Registro
+
+**User Story:** Como sistema, quiero exigir que el usuario confirme su dirección de email antes de activar su cuenta, para evitar registros con emails falsos o ajenos y garantizar que el titular del correo es quien controla la cuenta.
+
+#### Criterios de Aceptación
+
+1. WHEN un usuario completa el formulario de registro con datos válidos y únicos, THE Auth_API SHALL almacenar los datos en un `PendingUser` en vez de crear el documento en la colección `users`, de modo que el usuario NO exista en `users` ni sea localizable por login hasta confirmar su email.
+2. WHEN se crea un `PendingUser`, THE Auth_API SHALL generar un `Verification_Token` opaco, almacenar únicamente su hash SHA-256 en el documento, y enviar mediante THE Email_Service un correo a la dirección proporcionada con un enlace que incluye el token en texto plano.
+3. THE correo de verificación SHALL aplicar el estilo visual de marca de GalinGames (fondo oscuro degradado y paleta violeta coherente con las clases `fondo-gaming`/`videojuego-title` del frontend), incluir un saludo personalizado con el `username` introducido en el registro, y un botón o enlace con el texto exacto "Haz click aquí para confirmar tu email".
+4. THE Email_Service SHALL enviar el correo desde la cuenta `GalinGamesShop@gmail.com`, con las credenciales SMTP leídas exclusivamente desde variables de entorno, sin exponerlas ni registrarlas en ningún log.
+5. WHEN el usuario hace clic en el enlace de verificación con un `Verification_Token` válido y no caducado, THE Auth_API SHALL crear el documento definitivo en la colección `users` con los datos almacenados en el `PendingUser` correspondiente, eliminar dicho `PendingUser`, y redirigir el navegador a una página de la aplicación frontend que confirme el éxito.
+6. IF el `Verification_Token` recibido no existe, ya fue consumido, o está caducado, THEN THE Auth_API SHALL redirigir el navegador a una página de error de la aplicación frontend indicando que el enlace no es válido, sin crear ningún documento en `users`.
+7. THE `PendingUser` SHALL caducar automáticamente transcurrido el número de horas configurado en la variable de entorno `EMAIL_VERIFICATION_EXPIRES_HOURS` (por defecto 24) desde su creación, tras lo cual el token deja de ser válido y el registro se elimina de la base de datos.
+8. IF un usuario intenta registrarse de nuevo con un `username` o `email` que ya tiene un `PendingUser` no caducado, THEN THE Auth_API SHALL generar un nuevo `Verification_Token`, actualizar el `PendingUser` existente y reenviar el correo de verificación, respondiendo con el mismo mensaje HTTP 201 genérico que un registro nuevo, sin revelar si ya existía un registro pendiente.
+9. IF un usuario intenta iniciar sesión con un `username` cuya cuenta aún no ha sido verificada, THEN THE Auth_API SHALL responder con el mismo HTTP 401 y mensaje genérico definido en el Requisito 12.3 para cualquier `username` inexistente, sin revelar que existe un `PendingUser` asociado.
+10. THE Rate_Limiter SHALL limitar el endpoint de verificación de email a un máximo de 20 peticiones por IP en una ventana de 15 minutos, de forma equivalente al resto de endpoints públicos de Auth_API.
+11. THE Auth_API SHALL garantizar que el `Verification_Token` sea de un solo uso: una vez consumido con éxito, cualquier intento posterior con el mismo token SHALL fallar con el mismo comportamiento que un token inexistente, sin crear un usuario duplicado.
+12. IF el envío del correo de verificación falla (error del proveedor SMTP), THEN THE Auth_API SHALL responder con HTTP 500 y un mensaje genérico, y SHALL eliminar el `PendingUser` recién creado para no dejar un registro huérfano sin ningún correo enviado ni posibilidad de reenvío hasta un nuevo intento de registro.
+13. THE Register_Form SHALL mostrar el mensaje de confirmación de envío de correo definido en el Requisito 10.5 independientemente de si el registro creó un `PendingUser` nuevo o reenvió uno existente, para no revelar esa distinción al usuario.

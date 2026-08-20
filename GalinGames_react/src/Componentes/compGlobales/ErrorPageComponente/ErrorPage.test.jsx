@@ -29,6 +29,17 @@ describe('ErrorPage', () => {
     expect(screen.getByText(/10 segundos/)).toBeInTheDocument()
   })
 
+  it('renderiza el código 410 (enlace caducado) para verificación de email', () => {
+    render(
+      <MemoryRouter>
+        <ErrorPage code={410} />
+      </MemoryRouter>
+    )
+
+    expect(screen.getByText('410')).toBeInTheDocument()
+    expect(screen.getByText('Enlace caducado')).toBeInTheDocument()
+  })
+
   it('el botón de volver está presente', () => {
     render(
       <MemoryRouter>
