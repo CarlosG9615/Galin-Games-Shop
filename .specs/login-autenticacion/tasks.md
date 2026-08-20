@@ -382,21 +382,21 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 15. Instalar `react-router-dom` v6 en el frontend
+- [x] 15. Instalar `react-router-dom` v6 en el frontend
   **Dependencias:** Ninguna
   **Requisitos:** Req 1.9, 10.5, 15.3, 17.4
 
-  - [ ] 15.1 Ejecutar `npm install react-router-dom@6` en `GalinGames_react/`
+  - [x] 15.1 Ejecutar `npm install react-router-dom@6` en `GalinGames_react/`
     - Verificar que la dependencia queda registrada en `package.json` con versión exacta
     - _Requisitos: (infraestructura frontend)_
 
 ---
 
-- [ ] 16. `src/servicios/authService.js` — Cliente HTTP con AbortController
+- [x] 16. `src/servicios/authService.js` — Cliente HTTP con AbortController
   **Dependencias:** Task 15
   **Requisitos:** Req 1.4, 1.8, 10.1, 10.8, 13.1, 14.1, 15.2
 
-  - [ ] 16.1 Implementar y exportar `login(username, password)`
+  - [x] 16.1 Implementar y exportar `login(username, password)`
     - `AbortController` con timeout de 10 s vía `setTimeout`
     - `fetch('/api/auth/login', { method: 'POST', headers, credentials: 'include', body, signal })`
     - Aplicar `username.trim()` antes de enviar
@@ -405,23 +405,23 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - Capturar `AbortError` → `{ ok: false, status: 0, message: 'La petición tardó demasiado...' }`
     - _Requisitos: 1.4, 1.8, 3.5_
 
-  - [ ] 16.2 Implementar y exportar `register(datos)`
+  - [x] 16.2 Implementar y exportar `register(datos)`
     - Misma estructura con `AbortController` de 10 s
     - `POST /api/auth/register` con los seis campos
     - Retornar `{ ok: true, data }` o `{ ok: false, status, message, errors? }`
     - _Requisitos: 10.1, 10.8_
 
-  - [ ] 16.3 Implementar y exportar `logout()`
+  - [x] 16.3 Implementar y exportar `logout()`
     - `POST /api/auth/logout`, `credentials: 'include'`
     - Retornar `{ ok: true }` o `{ ok: false, message }`
     - _Requisitos: 15.2_
 
-  - [ ] 16.4 Implementar y exportar `silentRefresh()`
+  - [x] 16.4 Implementar y exportar `silentRefresh()`
     - `POST /api/auth/refresh`, `credentials: 'include'`
     - Retornar `{ ok: true, data: { userId, username } }` o `{ ok: false, status }`
     - _Requisitos: 14.1, 14.6, 15.3_
 
-  - [ ]* 16.5 Escribir tests unitarios de `authService.js` con fetch mockeado
+  - [x]* 16.5 Escribir tests unitarios de `authService.js` con fetch mockeado
     - `login` con respuesta 200 devuelve `{ ok: true, data }`
     - `login` con respuesta 401 devuelve `{ ok: false, status: 401 }`
     - `login` con `AbortError` devuelve `{ ok: false, status: 0 }`
@@ -430,11 +430,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 17. `src/globalState/authContext.jsx` — AuthProvider con persistencia de sesión
+- [x] 17. `src/globalState/authContext.jsx` — AuthProvider con persistencia de sesión
   **Dependencias:** Task 16
   **Requisitos:** Req 15.1, 15.2, 15.3, 15.4, 15.5, 15.6, 15.7
 
-  - [ ] 17.1 Crear y exportar `AuthContext` y `AuthProvider` en `src/globalState/authContext.jsx`
+  - [x] 17.1 Crear y exportar `AuthContext` y `AuthProvider` en `src/globalState/authContext.jsx`
     - Estado: `user` (`{ userId, username }` o `null`) y `initializing` (boolean, `true` al montar)
     - `useEffect` al montar: leer `localStorage.getItem('session')`, parsear JSON
     - Si `isLoggedIn === true`: llamar a `authService.silentRefresh()`
@@ -443,21 +443,21 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - En ambos casos llamar a `setInitializing(false)` en el bloque `finally`
     - _Requisitos: 15.3, 15.4, 15.5, 15.6_
 
-  - [ ] 17.2 Implementar `login(userId, username)` con `useCallback`
+  - [x] 17.2 Implementar `login(userId, username)` con `useCallback`
     - `setUser({ userId, username })`
     - `localStorage.setItem('session', JSON.stringify({ isLoggedIn: true, userId, username }))`
     - _Requisitos: 15.1, 15.7_
 
-  - [ ] 17.3 Implementar `logout()` con `useCallback`
+  - [x] 17.3 Implementar `logout()` con `useCallback`
     - Llamar a `authService.logout()`
     - `setUser(null)`
     - `localStorage.removeItem('session')`
     - _Requisitos: 15.2_
 
-  - [ ] 17.4 Exportar el shape del contexto: `{ user, isAuthenticated, initializing, login, logout }`
+  - [x] 17.4 Exportar el shape del contexto: `{ user, isAuthenticated, initializing, login, logout }`
     - _Requisitos: 15.6_
 
-  - [ ]* 17.5 Escribir tests unitarios de `authContext.jsx`
+  - [x]* 17.5 Escribir tests unitarios de `authContext.jsx`
     - `AuthProvider` llama a `silentRefresh` al montar si localStorage contiene `{ isLoggedIn: true }`
     - Si `silentRefresh` responde con 401, `localStorage.removeItem` es llamado
     - Llamar a `login` actualiza `user` y escribe en localStorage sin incluir tokens
@@ -465,11 +465,11 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 18. `src/hooks/useAuth.js` — Hook de consumo del AuthContext
+- [x] 18. `src/hooks/useAuth.js` — Hook de consumo del AuthContext
   **Dependencias:** Task 17
   **Requisitos:** Req 1.3, 10.4, 15.3
 
-  - [ ] 18.1 Implementar y exportar `useAuth()`
+  - [x] 18.1 Implementar y exportar `useAuth()`
     - Llamar a `useContext(AuthContext)`
     - Lanzar `Error('useAuth debe usarse dentro de AuthProvider')` si el contexto es `null`
     - Devolver el valor del contexto
