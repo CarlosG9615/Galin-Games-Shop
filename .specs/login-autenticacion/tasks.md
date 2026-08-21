@@ -801,54 +801,55 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ---
 
-- [ ] 36. Tests unitarios del backend
+- [x] 36. Tests unitarios del backend
   **Dependencias:** Task 8, Task 9, Task 5, Task 6, Task 11, Task 25, Task 26, Task 27, Task 29
   **Requisitos:** Req 3, 4, 5, 16, 18
 
-  - [ ]* 36.1 Añadir tests unitarios de `tokenService.js` en `tests/unit/tokenService.test.js`
+  - [x]* 36.1 Añadir tests unitarios de `tokenService.js` en `tests/unit/tokenService.test.js`
     - Cubrir los casos de `generateToken` y `verifyToken` descritos en Task 8
     - Incluir verificación del payload (solo `userId`, `username`, `iat`, `exp`)
     - _Requisitos: 5.1, 5.3, 5.4, 5.5, 5.6_
 
-  - [ ]* 36.2 Añadir tests unitarios de `validator.js` en `tests/unit/validator.test.js`
+  - [x]* 36.2 Añadir tests unitarios de `validator.js` en `tests/unit/validator.test.js`
     - Cubrir los casos de `validateLoginInput` y `validateRegisterInput` descritos en Task 6
     - _Requisitos: 3.1, 3.2, 3.4, 3.6, 3.7, 11.2, 11.3, 11.4_
 
-  - [ ]* 36.3 Añadir tests unitarios de `nullGuard.js` en `tests/unit/nullGuard.test.js`
+  - [x]* 36.3 Añadir tests unitarios de `nullGuard.js` en `tests/unit/nullGuard.test.js`
     - Cubrir los casos de `requireField`, `isEmpty` y `sanitizeResponse` descritos en Task 5
     - _Requisitos: 16.1, 16.2, 16.4_
 
-  - [ ]* 36.4 Añadir tests unitarios de `refreshTokenService.js` en `tests/unit/refreshTokenService.test.js`
+  - [x]* 36.4 Añadir tests unitarios de `refreshTokenService.js` en `tests/unit/refreshTokenService.test.js`
     - Cubrir los casos descritos en Task 9
     - _Requisitos: 13.3, 13.5_
 
-  - [ ]* 36.5 Añadir tests unitarios de `emailVerificationService.js` en `tests/unit/emailVerificationService.test.js`
+  - [x]* 36.5 Añadir tests unitarios de `emailVerificationService.js` en `tests/unit/emailVerificationService.test.js`
     - Cubrir los casos descritos en Task 26
     - _Requisitos: 18.2, 18.11_
 
-  - [ ]* 36.6 Añadir tests unitarios de `PendingUser.js` en `tests/unit/pendingUser.test.js`
+  - [x]* 36.6 Añadir tests unitarios de `PendingUser.js` en `tests/unit/pendingUser.test.js`
     - Cubrir los casos descritos en Task 25 (validación requerida, `select: false`)
     - _Requisitos: 18.1_
 
-  - [ ]* 36.7 Añadir tests unitarios de `emailService.js` en `tests/unit/emailService.test.js` (transporter mockeado)
+  - [x]* 36.7 Añadir tests unitarios de `emailService.js` en `tests/unit/emailService.test.js` (transporter mockeado)
     - Cubrir los casos descritos en Task 27
     - _Requisitos: 18.3, 18.12_
 
-  - [ ]* 36.8 Añadir tests unitarios de `authController.register`/`verifyEmail` en `tests/unit/authController.test.js` (con `User`, `PendingUser` y `emailService` mockeados)
+  - [x]* 36.8 Añadir tests unitarios de `authController.register`/`verifyEmail` en `tests/unit/authController.test.js` (con `User`, `PendingUser` y `emailService` mockeados)
     - `register()` crea un `PendingUser` y no un `User` cuando los datos son válidos y únicos
     - `register()` reenvía el correo (sin crear un segundo `PendingUser`) si ya existe uno no caducado con ese `username`/`email`
     - `register()` elimina el `PendingUser` recién creado si `emailService.sendVerificationEmail` rechaza
     - `verifyEmail()` crea el `User`, elimina el `PendingUser`, y redirige a `{FRONTEND_URL}/login?verificado=true` con un token válido
     - `verifyEmail()` redirige a `{FRONTEND_URL}/error/410` con un token inexistente o caducado
     - _Requisitos: 18.1, 18.5, 18.6, 18.8, 18.9, 18.12_
+    - _Nota: `vi.mock()` no intercepta de forma fiable el `require()` interno de módulos CommonJS en este proyecto (mismo hallazgo que en Task 27 para `nodemailer`, generalizado). Se resolvió refactorizando `authController.js` a `createAuthController({ User, PendingUser, ... })` (mismo patrón de inyección de dependencias que `emailService.js`); ver decisión en `design.md`. `auth.routes.js` no cambió — `module.exports` conserva `{ login, register, verifyEmail, refresh, logout }`._
 
 ---
 
-- [ ] 37. Tests de propiedades con `fast-check` — Propiedades 1–22
+- [x] 37. Tests de propiedades con `fast-check` — Propiedades 1–22
   **Dependencias:** Task 12, Task 14, Task 8, Task 9, Task 29, Task 30
   **Requisitos:** Req 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, 15, 16, 18
 
-  - [ ]* 37.1 `tests/property/auth.properties.test.js` — Propiedades 1, 2, 3, 4
+  - [x]* 37.1 `tests/property/auth.properties.test.js` — Propiedades 1, 2, 3, 4
     - **Propiedad 1:** Para todo par `(username, password)` de usuario registrado → HTTP 200 + cookie `token`
       - **Valida: Requisitos 2.3, 5.1, 12.1**
     - **Propiedad 2:** Para todo par inválido → HTTP 401, mensaje genérico, tiempo entre 200–600 ms
@@ -860,7 +861,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
     - Usar `fc.assert` con `numRuns: 100` para cada propiedad
     - _Requisitos: 2.3, 2.4, 2.6, 3.1–3.7, 4.5, 12.1, 12.3, 12.5_
 
-  - [ ]* 37.2 `tests/property/auth.properties.test.js` — Propiedades 5, 6, 7
+  - [x]* 37.2 `tests/property/auth.properties.test.js` — Propiedades 5, 6, 7
     - **Propiedad 5:** Para toda contraseña en texto plano → el valor almacenado en MongoDB es siempre un hash bcrypt (empieza por `$2b$`), nunca igual al texto plano
       - **Valida: Requisitos 4.1, 4.2, 11.7**
     - **Propiedad 6:** Para todo endpoint que devuelva datos de usuario → el campo `password` nunca aparece en el body de la respuesta
@@ -869,7 +870,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
       - **Valida: Requisito 5.3**
     - _Requisitos: 4.1, 4.2, 4.4, 5.3, 11.7, 11.9_
 
-  - [ ]* 37.3 `tests/property/auth.properties.test.js` — Propiedades 8, 9, 10, 11
+  - [x]* 37.3 `tests/property/auth.properties.test.js` — Propiedades 8, 9, 10, 11
     - **Propiedad 8:** Para toda petición a `POST /api/auth/login` → las cabeceras `Retry-After` y `X-RateLimit-Remaining` están siempre presentes con valores enteros no negativos
       - **Valida: Requisito 6.3**
     - **Propiedad 9:** Para todo username ya registrado → un segundo registro con ese username devuelve HTTP 409 con mensaje sobre el username
@@ -880,7 +881,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
       - **Valida: Requisitos 8.3, 8.4**
     - _Requisitos: 6.3, 8.3, 8.4, 9.5, 11.5, 11.6_
 
-  - [ ]* 37.4 `tests/property/auth.properties.test.js` — Propiedades 12, 13
+  - [x]* 37.4 `tests/property/auth.properties.test.js` — Propiedades 12, 13
     - **Propiedad 12:** Para todo campo de formulario compuesto solo de espacios → el formulario no envía fetch y muestra error de validación
       - **Valida: Requisitos 1.5, 10.2**
       - Implementar con `fc.string()` filtrado a strings con solo `\s` characters usando `fc.stringOf(fc.constantFrom(' ', '\t', '\n'))`
@@ -888,7 +889,7 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
       - **Valida: Requisito 2.7**
     - _Requisitos: 1.5, 2.7, 10.2_
 
-  - [ ]* 37.5 `tests/property/auth.properties.test.js` — Propiedades 14, 15, 16
+  - [x]* 37.5 `tests/property/auth.properties.test.js` — Propiedades 14, 15, 16
     - **Propiedad 14:** Para todo refresh token válido usado en `POST /api/auth/refresh` → el token devuelto en la cookie es diferente al recibido
       - **Valida: Requisito 13.4**
     - **Propiedad 15:** Si un refresh token ya rotado se presenta de nuevo → HTTP 401 + `refreshTokenHash` limpiado en MongoDB
@@ -898,14 +899,14 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
       - Test de frontend con Vitest + `jsdom`
     - _Requisitos: 13.4, 13.5, 15.1_
 
-  - [ ]* 37.6 `tests/property/auth.properties.test.js` — Propiedades 17, 18
+  - [x]* 37.6 `tests/property/auth.properties.test.js` — Propiedades 17, 18
     - **Propiedad 17:** Para toda petición con campo requerido `undefined`, `null` o vacío → HTTP 400 antes de que ninguna función criptográfica sea invocada (verificar con spies que `bcrypt.hash`, `bcrypt.compare`, `jwt.sign`, `jwt.verify` no son llamados)
       - **Valida: Requisitos 16.1, 16.2**
     - **Propiedad 18:** Para toda excepción no manejada que llegue al middleware global → la respuesta contiene `code` y `message`, nunca contiene un stack trace, y nunca contiene el texto `"undefined"` como valor
       - **Valida: Requisitos 16.5, 16.6**
     - _Requisitos: 16.1, 16.2, 16.5, 16.6_
 
-  - [ ]* 37.7 `tests/property/emailVerification.properties.test.js` — Propiedades 19, 20, 21, 22
+  - [x]* 37.7 `tests/property/emailVerification.properties.test.js` — Propiedades 19, 20, 21, 22
     - **Propiedad 19:** Para todo registro completado, mientras el token no se consuma con éxito → ninguna consulta a `users` por ese `username`/`email` devuelve documento
       - **Valida: Requisitos 18.1, 18.9**
     - **Propiedad 20:** Para todo `Verification_Token` ya consumido → una segunda petición a `GET /api/auth/verify-email` con el mismo token nunca crea un segundo `User` ni redirige a éxito
@@ -921,6 +922,16 @@ Implementación completa del ciclo de alta e inicio de sesión para la tienda de
 
 ## Notes
 
+- **Decisiones de implementación de la Task 37 (tests de propiedades):**
+  - **`createRequire(import.meta.url)` en vez de `import` para los módulos propios del backend** en ambos ficheros de propiedades: los tests corren la app real (`server.js`) vía `supertest` contra MongoDB real, y necesitan que `User`/`PendingUser`/`emailService`/etc. sean la MISMA instancia que usa `authController.js` internamente — con `import` normal se duplican (mismo problema de fondo que forzó la inyección de dependencias en la Task 36.8), y con modelos de Mongoose la duplicación ni siquiera es posible (`OverwriteModelError`). `createRequire` comparte la caché nativa de `require()` de Node con el resto del backend y evita el problema.
+  - **`server.js` ya no arranca automáticamente al ser `require()`-ado** (guardado con `if (require.main === module)`) para que los tests puedan montar la `app` con `supertest` sin conectar a la base de datos de desarrollo ni intentar escuchar en el puerto 3001 real.
+  - **Bases de datos MongoDB de test dedicadas** (`GalinGames-property-auth` y `GalinGames-property-email`, distintas entre sí y de la de desarrollo/CI) para poder crear y borrar usuarios libremente sin pisar datos reales ni colisionar si ambos ficheros corren en paralelo. Se añadió un servicio `mongodb` (imagen `mongo:7`) al job `backend` de `.github/workflows/pr-checks.yml` para que estos tests corran también en CI.
+  - **Rate limiting (`express-rate-limit`) reseteado entre cada run de cada propiedad** vía `limiter.resetKey(key)` para las claves de loopback conocidas (`127.0.0.1`, `::ffff:127.0.0.1`, `::1`) — sin esto, el límite real de 10 peticiones/15min a `/login` haría que casi todas las propiedades fallasen por 429 tras la décima petición del fichero. No se modificó `rateLimiter.js` para lograr esto (ver Propiedad 8, que sí depende de que el rate limiting real siga activo).
+  - **`emailService.sendVerificationEmail` mockeado con `vi.spyOn`** (apuntando a la instancia obtenida vía `createRequire`, la misma que usa `authController.js`) en ambos ficheros, para que las propiedades que llaman a `POST /register` a través de la app real no disparen envíos de correo reales a Gmail.
+  - **`numRuns` reducido (8–30 según la propiedad) en vez de 100 para las propiedades que tocan MongoDB real y/o bcrypt** (coste 12, ~250ms por hash): con `numRuns: 100` la suite completa habría tardado varias veces más sin aportar más confianza real, dado que la aleatoriedad relevante (usernames/passwords/emails) ya está bien cubierta con menos runs. Las propiedades puramente en memoria (7, 17 parcialmente) mantienen `numRuns: 100` por ser prácticamente instantáneas.
+  - **Propiedad 15**: el código de `authController.refresh()` busca el usuario por igualdad exacta de hash (`User.findOne({ refreshTokenHash: hash })`, decisión de la Task 12), por lo que la rama explícita de "reutilización detectada" que limpia `refreshTokenHash` es inalcanzable en la práctica — un token ya rotado simplemente no encuentra ningún usuario. El test verifica el comportamiento observable real: reutilizar el token viejo devuelve 401, y el hash actualmente almacenado para ese usuario ya no corresponde al token viejo (por tanto nunca vuelve a ser válido), en vez de asumir literalmente "campo puesto a null".
+  - **Propiedad 12 (frontend, en `Login.test.jsx`)**: el alfabeto de espacios en blanco se restringió a `' '` y `'\t'` (excluyendo `'\n'` del `fc.constantFrom(' ', '\t', '\n')` sugerido originalmente) porque jsdom convierte el valor de un `<input>` de una sola línea compuesto únicamente por `'\n'` en cadena vacía — eso activa el bloqueo nativo `required` (ya cubierto por otro test) en vez del validador de React que esta propiedad concreta quiere ejercitar.
+  - **Propiedad 16 (frontend, en `authContext.test.jsx`)**: implementada contra `AuthProvider.login()` directamente (no el flujo completo de `silentRefresh`), con un alfabeto alfanumérico seguro para `userId`/`username` que no pueda contener por azar los substrings `"eyJ"` o `"refreshToken"` que la propiedad busca descartar.
 - Las sub-tareas marcadas con `*` son opcionales y pueden omitirse para un MVP más rápido.
 - Cada tarea referencia requisitos específicos para garantizar trazabilidad completa.
 - Los checkpoints en Tasks 14.6, 23.2, 31.1 y 35.1 son puntos de integración; si algo falla, deben resolverse antes de continuar.

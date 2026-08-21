@@ -1,0 +1,28 @@
+.games-grid {
+  padding: 2.5rem 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  // "TENDENCIAS ›": encabezado real de esta sección (antes vivía, mal ubicado, dentro
+  // del Hero) — mismo tratamiento visual de etiqueta con acento que tenía allí.
+  &__titulo {
+    color: var(--color-acento);
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    margin: 0 0 1.25rem;
+  }
+
+  &__lista {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .games-grid__lista {
+    grid-template-columns: 1fr;
+  }
+}

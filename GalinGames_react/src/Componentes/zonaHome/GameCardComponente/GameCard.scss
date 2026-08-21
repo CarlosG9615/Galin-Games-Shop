@@ -1,0 +1,36 @@
+@use '../../../styles/mixins' as *;
+
+.game-card {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid var(--color-acento);
+  box-shadow: var(--sombra-acento);
+
+  @include transicion-suave(transform 0.2s ease, box-shadow 0.2s ease);
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+
+  &__imagen {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    text-align: center;
+    color: var(--color-texto);
+    background: var(--color-fondo-elevado);
+    font-weight: 600;
+  }
+}
