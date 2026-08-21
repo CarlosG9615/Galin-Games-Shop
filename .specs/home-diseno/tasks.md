@@ -151,83 +151,85 @@ Plan de implementación de la nueva Home pública de GalinGames con dos temas vi
 
 ---
 
-- [ ] 8. `zonaHome/GameCardComponente/GameCard.jsx`
+- [x] 8. `zonaHome/GameCardComponente/GameCard.jsx`
   **Dependencias:** Task 2
   **Requisitos:** Req 6.2, 6.3, 6.4, 8.3
 
-  - [ ] 8.1 Implementar `GameCard.jsx` con props `{ src, alt }`, estado local `error` y `onError` en el `<img>` que activa el fallback (`role="img"` + `aria-label={alt}`) según el contrato de `design.md`
+  - [x] 8.1 Implementar `GameCard.jsx` con props `{ src, alt }`, estado local `error` y `onError` en el `<img>` que activa el fallback (`role="img"` + `aria-label={alt}`) según el contrato de `design.md`
     - _Requisitos: 6.2, 6.4, 8.3_
 
-  - [ ] 8.2 Crear `GameCard.scss`: borde/resplandor con `var(--color-acento)` (Req 6.3), sin declarar color de tema propio
+  - [x] 8.2 Crear `GameCard.scss`: borde/resplandor con `var(--color-acento)` (Req 6.3), sin declarar color de tema propio
     - _Requisitos: 6.3, 9.6_
 
-  - [ ]* 8.3 Escribir tests unitarios de `GameCard.jsx`
+  - [x]* 8.3 Escribir tests unitarios de `GameCard.jsx`
     - Renderiza la imagen con el `src`/`alt` recibidos
     - Al disparar `onError` en la imagen, muestra el fallback con el `alt` visible y dejar de renderizar el `<img>` roto
     - _Requisitos: 6.2, 6.4_
 
 ---
 
-- [ ] 9. `zonaHome/GamesGridComponente/GamesGrid.jsx`
+- [x] 9. `zonaHome/GamesGridComponente/GamesGrid.jsx`
   **Dependencias:** Task 8
   **Requisitos:** Req 6.1, 6.5, 8.5
 
-  - [ ] 9.1 Definir el array constante de 6 entradas `{ src: '/assassins.jpg', alt: '...' }` (ídem `blooddownwalker.jpg`, `dragonball.jpg`, `fc27.jpg`, `gta.jpg`, `wolverine.jpg`) con `alt` descriptivo por juego, y mapear a `<GameCard />` dentro de un `<section>` con encabezado `<h2>` para lectores de pantalla
+  - [x] 9.1 Definir el array constante de 6 entradas `{ src: '/assassins.jpg', alt: '...' }` (ídem `blooddownwalker.jpg`, `dragonball.jpg`, `fc27.jpg`, `gta.jpg`, `wolverine.jpg`) con `alt` descriptivo por juego, y mapear a `<GameCard />` dentro de un `<section>` con encabezado `<h2>` para lectores de pantalla
     - _Requisitos: 6.1, 8.5_
+    - _Nota: el `<h2>` usa la nueva utilidad `.visualmente-oculto` (añadida a `index.scss`) — no aparece en el mockup pero orienta a lectores de pantalla._
 
-  - [ ] 9.2 Crear `GamesGrid.scss`: grid de 3 columnas en escritorio, 1 columna bajo el breakpoint móvil (768px), manteniendo la proporción de cada portada
+  - [x] 9.2 Crear `GamesGrid.scss`: grid de 3 columnas en escritorio, 1 columna bajo el breakpoint móvil (768px), manteniendo la proporción de cada portada
     - _Requisitos: 6.5_
 
-  - [ ]* 9.3 Escribir test de `GamesGrid.jsx`: renderiza exactamente 6 `GameCard`
+  - [x]* 9.3 Escribir test de `GamesGrid.jsx`: renderiza exactamente 6 `GameCard`
     - _Requisitos: 6.1_
 
 ---
 
-- [ ] 10. `zonaHome/HeroSectionComponente/HeroSection.jsx`
+- [x] 10. `zonaHome/HeroSectionComponente/HeroSection.jsx`
   **Dependencias:** Task 5
   **Requisitos:** Req 5.2, 5.3, 5.4
 
-  - [ ] 10.1 Implementar `HeroSection.jsx`: etiqueta "TENDENCIAS", `<h1>` "LO MÁS JUGADO", texto descriptivo, botón "Ver todos" como `<span aria-disabled="true">` (Req 5.4), e imagen de mando como `background-image` de `.hero__imagen-mando` según `theme` (`/mando.png` en azul, `/mando2.png` en rojo)
+  - [x] 10.1 Implementar `HeroSection.jsx`: etiqueta "TENDENCIAS", `<h1>` "LO MÁS JUGADO", texto descriptivo, botón "Ver todos" como `<span aria-disabled="true">` (Req 5.4), e imagen de mando como `background-image` de `.hero__imagen-mando` según `theme` (`/mando.png` en azul, `/mando2.png` en rojo)
     - _Requisitos: 5.2, 5.3, 5.4_
 
-  - [ ] 10.2 Crear `HeroSection.scss` consumiendo `var(--color-*)`
+  - [x] 10.2 Crear `HeroSection.scss` consumiendo `var(--color-*)`
     - _Requisitos: 9.6_
 
-  - [ ]* 10.3 Escribir test de `HeroSection.jsx`: la imagen de fondo cambia según el tema activo (mockear `useTheme`)
+  - [x]* 10.3 Escribir test de `HeroSection.jsx`: la imagen de fondo cambia según el tema activo (mockear `useTheme`)
     - _Requisitos: 5.3_
 
 ---
 
-- [ ] 11. `zonaHome/HomeComponente/Home.jsx`
+- [x] 11. `zonaHome/HomeComponente/Home.jsx`
   **Dependencias:** Task 7, Task 9, Task 10
   **Requisitos:** Req 5.1, 9.5
 
-  - [ ] 11.1 Implementar `Home.jsx`: `<><Navbar /><main className="home"><HeroSection /><GamesGrid /></main></>`, sin lógica propia
+  - [x] 11.1 Implementar `Home.jsx`: `<><Navbar /><main className="home"><HeroSection /><GamesGrid /></main></>`, sin lógica propia
     - _Requisitos: 5.1, 9.5_
 
-  - [ ] 11.2 Crear `Home.scss` (layout general de la página, `var(--color-fondo)`)
+  - [x] 11.2 Crear `Home.scss` (layout general de la página, `var(--color-fondo)`)
 
-  - [ ]* 11.3 Escribir test de integración de `Home.jsx`: renderiza Navbar, Hero y los 6 GameCard juntos (envolviendo en `MemoryRouter` + `AuthProvider` + `ThemeProvider`)
+  - [x]* 11.3 Escribir test de integración de `Home.jsx`: renderiza Navbar, Hero y los 6 GameCard juntos (envolviendo en `MemoryRouter` + `AuthProvider` + `ThemeProvider`)
     - _Requisitos: 5.1_
 
 ---
 
-- [ ] 12. Enrutado: `AppRouter.jsx` y `main.jsx`
+- [x] 12. Enrutado: `AppRouter.jsx` y `main.jsx`
   **Dependencias:** Task 11, Task 4
   **Requisitos:** Req 5.1, 5.5
 
-  - [ ] 12.1 Modificar `AppRouter.jsx`: sustituir el `import Tienda` por `import Home from '../Componentes/zonaHome/HomeComponente/Home'`, y la ruta `/` pasa de `<ProtectedRoute><Tienda /></ProtectedRoute>` a `<Home />` directamente
+  - [x] 12.1 Modificar `AppRouter.jsx`: sustituir el `import Tienda` por `import Home from '../Componentes/zonaHome/HomeComponente/Home'`, y la ruta `/` pasa de `<ProtectedRoute><Tienda /></ProtectedRoute>` a `<Home />` directamente
     - _Requisitos: 5.1, 5.5_
+    - _Nota (ajuste sobre `design.md`): se eliminó por completo la función `ProtectedRoute` de `AppRouter.jsx` en vez de dejarla sin usar — al quedar sin ninguna referencia tras este cambio, ESLint la habría marcado como código muerto (`no-unused-vars`). Es trivial de recrear (3 líneas) si una futura zona autenticada la necesita; mantener código genuinamente inalcanzable contradice las convenciones del proyecto._
 
-  - [ ] 12.2 Eliminar `src/Componentes/zonaTienda/TiendaComponente/Tienda.jsx` (y la carpeta `zonaTienda/` si queda vacía)
+  - [x] 12.2 Eliminar `src/Componentes/zonaTienda/TiendaComponente/Tienda.jsx` (y la carpeta `zonaTienda/` si queda vacía)
     - _Requisitos: 5.5_
 
-  - [ ] 12.3 Modificar `main.jsx`: envolver `<AuthProvider>` con `<ThemeProvider>` (orden: `BrowserRouter` > `ThemeProvider` > `AuthProvider` > `AppRouter`)
+  - [x] 12.3 Modificar `main.jsx`: envolver `<AuthProvider>` con `<ThemeProvider>` (orden: `BrowserRouter` > `ThemeProvider` > `AuthProvider` > `AppRouter`)
     - _Requisitos: (infraestructura, ver design.md → main.jsx)_
 
-  - [ ] 12.4 Checkpoint — Arrancar `npm run dev` y verificar manualmente: `/` renderiza la Home sin redirigir a `/login` estando desconectado; el `ThemeToggle` cambia logotipo/mando/bordes de las 6 tarjetas de forma inmediata; recargar la página conserva el último tema elegido
-
----
+  - [x] 12.4 Checkpoint — Arrancar `npm run dev` y verificar manualmente: `/` renderiza la Home sin redirigir a `/login` estando desconectado; el `ThemeToggle` cambia logotipo/mando/bordes de las 6 tarjetas de forma inmediata; recargar la página conserva el último tema elegido
+    - _Nota: este entorno no tiene navegador disponible para una verificación visual real. Se comprobó que el servidor de desarrollo arranca y responde 200 en `/` sin errores de consola/compilación, y la lógica de enrutado/tema está cubierta por los 45 tests automatizados (incluidos los de integración de `Home`/`Navbar` con `ThemeProvider`+`AuthProvider`). **La verificación visual real (recorte del logo, aspecto del degradado, comportamiento sticky) queda pendiente de que el usuario la revise en su navegador** — no se marca como verificada más allá de lo que los tests automatizados garantizan._
+    - _Aparte: se detectó y corrigió que esta rama, creada antes de que se mergease el PR #10 en `dev`, no tenía el fix de `baseline-browser-mapping` — se reaplicó (`npm i baseline-browser-mapping@latest -D`) directamente en esta rama._
 
 ### Phase 4 — Migración visual de Login, Registro, ErrorPage e InputBox
 

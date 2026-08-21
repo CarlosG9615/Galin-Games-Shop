@@ -1,0 +1,17 @@
+.games-grid {
+  padding: 2.5rem 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  &__lista {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .games-grid__lista {
+    grid-template-columns: 1fr;
+  }
+}

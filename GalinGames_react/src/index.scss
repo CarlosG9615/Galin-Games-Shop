@@ -26,12 +26,23 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
   min-height: 100vh;
   background-color: var(--color-fondo);
   color: var(--color-texto);
+}
+
+// Oculta visualmente un elemento sin quitarlo del árbol de accesibilidad (Requisito 8.5):
+// encabezados de sección que no aparecen en el mockup pero orientan a lectores de pantalla.
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 h1 {
