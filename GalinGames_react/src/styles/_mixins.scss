@@ -1,0 +1,9 @@
+// Mixins compartidos por cualquier hoja SCSS del proyecto (Navbar, Home y las páginas
+// que usan _shared.scss por igual) — separado de _shared.scss porque este último
+// también emite clases CSS concretas que Navbar/Home no necesitan (Requisito 9.8).
+
+@mixin transicion-suave($propiedades...) {
+  @media (prefers-reduced-motion: no-preference) {
+    transition: $propiedades;
+  }
+}
