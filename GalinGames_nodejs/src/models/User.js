@@ -4,7 +4,6 @@ const UserSchema = new mongoose.Schema({
   username: {
     type: String,
     required: [true, 'El nombre de usuario es obligatorio'],
-    unique: true,
     trim: true,
     minlength: [3, 'El username debe tener al menos 3 caracteres'],
     maxlength: [50, 'El username no puede superar los 50 caracteres'],
@@ -24,7 +23,6 @@ const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, 'El email es obligatorio'],
-    unique: true,
     lowercase: true,
     trim: true,
     match: [/^\S+@\S+\.\S+$/, 'Formato de email inválido'],
@@ -48,6 +46,8 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
+// La unicidad se declara solo aquí (no también como `unique: true` en el campo)
+// para evitar el índice duplicado que Mongoose advierte en consola al arrancar.
 UserSchema.index({ username: 1 }, { unique: true });
 UserSchema.index({ email: 1 }, { unique: true });
 
