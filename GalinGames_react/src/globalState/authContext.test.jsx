@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, waitFor, act } from '@testing-library/react'
+import { render, screen, waitFor, act, cleanup } from '@testing-library/react'
 import { useContext } from 'react'
+import fc from 'fast-check'
 import { AuthContext, AuthProvider } from './authContext'
 import { authService } from '../servicios/authService'
 
@@ -66,5 +67,40 @@ describe('AuthProvider', () => {
     const stored = JSON.parse(localStorage.getItem('session'))
     expect(stored).toEqual({ isLoggedIn: true, userId: '1', username: 'carlos' })
     expect(JSON.stringify(stored)).not.toMatch(/eyJ|token/i)
+  })
+
+  it('Propiedad 16: para todo estado de la aplicación, localStorage.getItem(\'session\') nunca contiene "eyJ" ni "refreshToken"', async () => {
+    // Alfabeto seguro para userId/username: evita que el propio valor generado
+    // contenga por azar "eyJ" o "refreshToken", lo que invalidaría la propiedad.
+    const safeCharArb = fc.constantFrom(
+      ..."abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-".split(''),
+    )
+    const safeStringArb = fc.array(safeCharArb, { minLength: 1, maxLength: 40 }).map((arr) => arr.join(''))
+
+    function LoginProbe({ userId, username }) {
+      const ctx = useContext(AuthContext)
+      return <button onClick={() => ctx.login(userId, username)}>login</button>
+    }
+
+    await fc.assert(
+      fc.asyncProperty(safeStringArb, safeStringArb, async (userId, username) => {
+        localStorage.clear()
+        vi.clearAllMocks()
+
+        render(<AuthProvider><LoginProbe userId={userId} username={username} /></AuthProvider>)
+
+        await act(async () => {
+          screen.getByText('login').click()
+        })
+
+        const stored = localStorage.getItem('session')
+        expect(stored).not.toBeNull()
+        expect(stored).not.toContain('eyJ')
+        expect(stored).not.toContain('refreshToken')
+
+        cleanup()
+      }),
+      { numRuns: 30 },
+    )
   })
 })
