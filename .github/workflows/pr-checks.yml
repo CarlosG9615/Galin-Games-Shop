@@ -2,7 +2,7 @@ name: PR Checks
 
 on:
   pull_request:
-    branches: [main]
+    branches: [prod, dev]
     types: [opened, synchronize, reopened]
 
 # Cancela ejecuciones anteriores de este mismo PR cuando llegan nuevos commits.
