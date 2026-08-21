@@ -11,8 +11,13 @@
 .theme-toggle {
   position: absolute;
   left: 1.5rem;
-  top: 50%;
-  transform: translateY(-50%);
+  // top fijo (no top:50% + transform de centrado): el navbar está pegado al borde
+  // superior real de la ventana (position: sticky; top: 0), así que cualquier
+  // desbordamiento por ENCIMA de la barra se corta contra el borde del viewport, no
+  // contra ningún overflow de CSS. Ancla el borde superior del logo un poco por
+  // debajo del propio navbar, y deja que desborde libremente hacia abajo (sobre el
+  // border-bottom coloreado), sea cual sea la altura renderizada del logo activo.
+  top: 0.4rem;
   z-index: 1;
   display: inline-flex;
   align-items: center;
@@ -25,17 +30,48 @@
 
   &__logo {
     display: block;
-    width: 260px;
-    height: 140px;
-    // contain (no cover): nunca recorta el logotipo, solo lo ajusta dentro de la
-    // caja — logo1.png (retrato) y logo2.png (cuadrado) se ven completos aunque
-    // ocupen distinto ancho dentro de la misma caja.
-    object-fit: contain;
-    object-position: center;
     mix-blend-mode: screen;
     transform-style: preserve-3d;
 
     @include transicion-suave(transform 0.3s ease, filter 0.3s ease);
+
+    // logo2.png (tema rojo): recorte ajustado y fondo transparente — contain con una
+    // caja generosa ya lo muestra grande y nítido.
+    &--rojo {
+      width: 360px;
+      height: 202px;
+      object-fit: contain;
+      object-position: center;
+      margin-top: 0;
+    }
+
+    // logo1.png (tema azul) tiene mucho lienzo "vacío"/difuminado alrededor del
+    // símbolo real, así que con "contain" el símbolo acaba pareciendo pequeño aunque
+    // la caja sea grande. En vez de compensarlo con un transform: scale() (eso es lo
+    // que pixelaba/difuminaba la imagen al combinarse con el zoom del hover), se usa
+    // "cover" con una caja bastante mayor, recortando directamente sobre la franja
+    // donde vive el símbolo dentro del lienzo 1024x1536 — el navegador escala la
+    // imagen de forma nativa, sin el doble escalado borroso.
+    // object-position Y ajustado tras revisión visual iterativa (44% dejaba hueco
+    // vacío arriba y cortaba el símbolo por abajo; 56% se pasó y cortaba la parte de
+    // arriba de las "GG"): 50% es el punto intermedio actual.
+    // margin-top: como las cajas de --rojo (202px) y --azul (168px) tienen alturas
+    // distintas, con el mismo top del botón la línea del border-bottom del navbar
+    // cruzaba cada logo en un punto relativo distinto (más abajo en --azul, por ser
+    // más bajo) — este margen extra iguala esa posición relativa entre ambos temas.
+    &--azul {
+      width: 300px;
+      height: 168px;
+      object-fit: cover;
+      object-position: 50% 45%;
+      margin-top: 0.9rem;
+      margin-left: 2rem;
+      // Con el recorte "cover" tan ajustado ya no queda apenas fondo difuminado que
+      // disimular, y el screen estaba fundiendo las sombras/bisel oscuro de las
+      // propias letras "GG" con el fondo oscuro del navbar — parecía un recorte,
+      // pero era el modo de fusión "borrando" parte del propio símbolo.
+      mix-blend-mode: normal;
+    }
   }
 
   &:hover &__logo,

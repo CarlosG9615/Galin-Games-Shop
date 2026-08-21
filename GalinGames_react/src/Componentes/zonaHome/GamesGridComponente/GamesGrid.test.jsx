@@ -8,4 +8,13 @@ describe('GamesGrid', () => {
 
     expect(screen.getAllByRole('img')).toHaveLength(6)
   })
+
+  it('renderiza "TENDENCIAS" como título de la sección, en el mismo contenedor que las tarjetas', () => {
+    const { container } = render(<GamesGrid />)
+
+    const titulo = screen.getByRole('heading', { level: 2, name: /TENDENCIAS/ })
+    const seccion = container.querySelector('.games-grid')
+    expect(seccion).toContainElement(titulo)
+    expect(seccion.querySelector('.games-grid__lista')).not.toBeNull()
+  })
 })

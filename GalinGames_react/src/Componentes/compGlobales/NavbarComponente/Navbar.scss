@@ -4,6 +4,10 @@
 @use '../../../styles/shared' as *;
 
 $navbar-breakpoint-movil: 768px;
+// Tramo intermedio: el logo grande + los 4 enlaces + búsqueda/idioma/sesión ya no
+// caben en una sola fila, pero todavía no hace falta colapsarlo todo en el menú
+// móvil completo — solo las categorías se sustituyen por un icono de tres líneas.
+$navbar-breakpoint-categorias: 1100px;
 $navbar-padding-x: 1.5rem;
 
 .navbar {
@@ -14,7 +18,11 @@ $navbar-padding-x: 1.5rem;
   background: var(--color-fondo-elevado);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--color-acento);
+  // Borde suave en vez de una línea sólida al 100% de opacidad: color atenuado
+  // (--color-acento-borde) + una sombra difuminada del mismo tono, para un brillo
+  // tenue en vez de una línea dura y "cantosa".
+  border-bottom: 1px solid var(--color-acento-borde);
+  box-shadow: 0 2px 10px -2px var(--color-acento-borde);
 
   // Sin max-width/margin:auto: el logo y los botones de sesión se posicionan pegados
   // al borde real de la pantalla (a petición del usuario), no al borde de un
@@ -23,12 +31,13 @@ $navbar-padding-x: 1.5rem;
     position: relative;
     display: flex;
     align-items: center;
-    min-height: 88px;
+    min-height: 100px;
     padding: 0.5rem $navbar-padding-x;
     width: 100%;
   }
 
-  &__toggle-menu {
+  &__toggle-menu,
+  &__toggle-categorias {
     display: none;
     flex-direction: column;
     justify-content: center;
@@ -39,6 +48,9 @@ $navbar-padding-x: 1.5rem;
     border: none;
     background: transparent;
     cursor: pointer;
+  }
+
+  &__toggle-menu {
     margin-left: auto;
   }
 
@@ -176,10 +188,49 @@ $navbar-padding-x: 1.5rem;
   }
 }
 
+// Tramo intermedio (entre el móvil completo y el escritorio ancho): las categorías
+// se sustituyen por un icono de tres líneas centrado; búsqueda/idioma/sesión siguen
+// visibles en su sitio, ya sin los enlaces disputándoles espacio en la misma fila.
+@media (max-width: $navbar-breakpoint-categorias) and (min-width: $navbar-breakpoint-movil + 1) {
+  .navbar {
+    &__toggle-categorias {
+      display: flex;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    &__enlaces {
+      display: none;
+
+      &--desplegado {
+        display: flex;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        background: var(--color-fondo-elevado);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--color-acento-borde);
+      }
+    }
+  }
+}
+
 @media (max-width: $navbar-breakpoint-movil) {
   .navbar {
     &__toggle-menu {
       display: flex;
+    }
+
+    &__toggle-categorias {
+      display: none;
     }
 
     &__menu-movil {
@@ -195,7 +246,7 @@ $navbar-padding-x: 1.5rem;
       background: var(--color-fondo-elevado);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--color-acento);
+      border-bottom: 1px solid var(--color-acento-borde);
 
       &--abierto {
         display: flex;

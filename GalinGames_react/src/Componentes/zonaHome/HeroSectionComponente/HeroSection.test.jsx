@@ -17,10 +17,9 @@ describe('HeroSection', () => {
     document.documentElement.removeAttribute('data-theme')
   })
 
-  it('renderiza el título, la etiqueta y el botón "Ver todos" no navegable', () => {
+  it('renderiza el título y el botón "Ver todos" no navegable', () => {
     renderHero()
 
-    expect(screen.getByText('TENDENCIAS')).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 1, name: 'LO MÁS JUGADO' })).toBeInTheDocument()
     const boton = screen.getByText(/Ver todos/)
     expect(boton.tagName).not.toBe('A')

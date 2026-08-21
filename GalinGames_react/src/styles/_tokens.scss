@@ -14,6 +14,9 @@
   --color-texto: #ffffff;
   --color-texto-tenue: rgba(255, 255, 255, 0.72);
   --sombra-acento: 0 4px 24px rgba(45, 212, 255, 0.35);
+  // Versión atenuada del acento para bordes/líneas finas (Navbar): más oscura y
+  // semitransparente que --color-acento, para que no se vea como una línea sólida.
+  --color-acento-borde: rgba(45, 212, 255, 0.4);
 }
 
 :root[data-theme='rojo'] {
@@ -24,4 +27,5 @@
   --color-texto: #ffffff;
   --color-texto-tenue: rgba(255, 255, 255, 0.72);
   --sombra-acento: 0 4px 24px rgba(255, 43, 78, 0.35);
+  --color-acento-borde: rgba(255, 43, 78, 0.4);
 }

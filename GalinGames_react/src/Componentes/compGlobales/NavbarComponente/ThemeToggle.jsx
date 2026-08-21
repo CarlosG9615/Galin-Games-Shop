@@ -13,9 +13,8 @@ function ThemeToggle() {
       onClick={toggleTheme}
       aria-pressed={esRojo}
       aria-label={`Cambiar a tema ${esRojo ? 'azul' : 'rojo'}`}
-      title={`Tema actual: ${theme}`}
     >
-      <img className="theme-toggle__logo" src={logoSrc} alt="GG Games" />
+      <img className={`theme-toggle__logo theme-toggle__logo--${theme}`} src={logoSrc} alt="GG Games" />
     </button>
   )
 }

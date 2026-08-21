@@ -13,7 +13,7 @@ const JUEGOS = [
 function GamesGrid() {
   return (
     <section className="games-grid" aria-labelledby="games-grid-titulo">
-      <h2 id="games-grid-titulo" className="visualmente-oculto">Juegos destacados</h2>
+      <h2 id="games-grid-titulo" className="games-grid__titulo">TENDENCIAS ›</h2>
       <div className="games-grid__lista">
         {JUEGOS.map(({ src, alt }) => (
           <GameCard key={src} src={src} alt={alt} />
