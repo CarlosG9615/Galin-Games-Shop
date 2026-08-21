@@ -55,6 +55,11 @@ async function start() {
   });
 }
 
-start();
+// Solo arranca el servidor (conexión a Mongo + listen) cuando se ejecuta directamente
+// (`node server.js` / `npm run dev`), no cuando los tests de integración lo requieren
+// como módulo para montarlo con supertest sobre una base de datos de test aparte.
+if (require.main === module) {
+  start();
+}
 
 module.exports = app;
