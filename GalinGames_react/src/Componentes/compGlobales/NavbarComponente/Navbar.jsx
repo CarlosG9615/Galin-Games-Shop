@@ -1,27 +1,42 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../../hooks/useAuth'
-import { useTheme } from '../../../hooks/useTheme'
 import ThemeToggle from './ThemeToggle'
+import { IconoBusqueda, IconoGlobo, IconoUsuario } from './NavbarIconos'
 import './Navbar.scss'
 
 const ENLACES_PROXIMAMENTE = ['Juegos', 'Novedades', 'Comunidad']
 
 function Navbar() {
   const { isAuthenticated, user, logout } = useAuth()
-  const { theme } = useTheme()
   const [menuAbierto, setMenuAbierto] = useState(false)
+  const [categoriasAbiertas, setCategoriasAbiertas] = useState(false)
 
-  const logoSrc = theme === 'azul' ? '/logo1.png' : '/logo2.png'
-
-  const cerrarMenu = () => setMenuAbierto(false)
+  const cerrarMenu = () => {
+    setMenuAbierto(false)
+    setCategoriasAbiertas(false)
+  }
 
   return (
     <header className="navbar">
       <nav className="navbar__nav" aria-label="Navegación principal">
-        <Link to="/" className="navbar__logo-enlace" onClick={cerrarMenu}>
-          <img className="navbar__logo" src={logoSrc} alt="GG Games" />
-        </Link>
+        <ThemeToggle />
+
+        {/* Solo visible en el tramo intermedio de anchos (ver Navbar.scss): sustituye
+            a los enlaces de categorías por el icono de tres líneas, centrado, para que
+            quepan el logo grande y la zona de sesión sin cortarse. */}
+        <button
+          type="button"
+          className="navbar__toggle-categorias"
+          aria-expanded={categoriasAbiertas}
+          aria-controls="navbar-categorias"
+          aria-label={categoriasAbiertas ? 'Cerrar categorías' : 'Abrir categorías'}
+          onClick={() => setCategoriasAbiertas((prev) => !prev)}
+        >
+          <span className="navbar__toggle-barra" />
+          <span className="navbar__toggle-barra" />
+          <span className="navbar__toggle-barra" />
+        </button>
 
         <button
           type="button"
@@ -37,7 +52,7 @@ function Navbar() {
         </button>
 
         <div id="navbar-menu-movil" className={`navbar__menu-movil ${menuAbierto ? 'navbar__menu-movil--abierto' : ''}`}>
-          <ul className="navbar__enlaces">
+          <ul id="navbar-categorias" className={`navbar__enlaces ${categoriasAbiertas ? 'navbar__enlaces--desplegado' : ''}`}>
             <li>
               <Link to="/" className="navbar__link" onClick={cerrarMenu}>Inicio</Link>
             </li>
@@ -49,7 +64,17 @@ function Navbar() {
           </ul>
 
           <div className="navbar__acciones">
-            <ThemeToggle />
+            <div className="navbar__utilidades">
+              <span className="navbar__icono-utilidad" aria-disabled="true" title="Búsqueda (próximamente)">
+                <IconoBusqueda />
+              </span>
+              <span className="navbar__idioma" aria-disabled="true" title="Idioma (próximamente)">
+                <IconoGlobo />
+                ES
+              </span>
+            </div>
+
+            <span className="navbar__divisor" aria-hidden="true" />
 
             {isAuthenticated ? (
               <div className="navbar__sesion">
@@ -60,7 +85,10 @@ function Navbar() {
               </div>
             ) : (
               <div className="navbar__sesion">
-                <Link to="/login" className="navbar__link" onClick={cerrarMenu}>Iniciar sesión</Link>
+                <Link to="/login" className="navbar__link navbar__link--sesion" onClick={cerrarMenu}>
+                  <IconoUsuario />
+                  Iniciar sesión
+                </Link>
                 <Link to="/registro" className="boton-primario navbar__boton-registro" onClick={cerrarMenu}>
                   Registrarse
                 </Link>

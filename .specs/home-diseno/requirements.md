@@ -70,15 +70,17 @@ Quedan fuera de alcance de este documento: el catálogo de juegos real, el carri
 
 #### Criterios de Aceptación
 
-1. THE Navbar SHALL mostrar el logotipo correspondiente al tema activo (`logo1.png` en Tema Azul, `logo2.png` en Tema Rojo) sin recortes bruscos ni cajas de fondo visibles distintas del propio navbar, independientemente de que el archivo de origen tenga fondo transparente o no.
+1. THE Navbar SHALL mostrar el logotipo correspondiente al tema activo (`logo1.png` en Tema Azul, `logo2.png` en Tema Rojo) de forma grande y claramente visible — pudiendo desbordar visualmente el borde inferior de la barra del Navbar —, sin recortes bruscos ni cajas de fondo visibles distintas del propio navbar, independientemente de que el archivo de origen tenga fondo transparente o no.
 2. THE Navbar SHALL mostrar los enlaces de navegación "Inicio", "Juegos", "Novedades" y "Comunidad".
 3. WHEN el usuario pulsa el enlace "Inicio", THE Sistema SHALL navegar a la ruta `/` sin recargar la página completa.
 4. IF los enlaces "Juegos", "Novedades" y "Comunidad" no tienen todavía una página funcional asociada, THEN THE Navbar SHALL mostrarlos de forma visual y consistente en ambos temas sin provocar errores de navegación ni enlazar a rutas inexistentes (por ejemplo, quedando inertes o marcados como próximamente).
 5. THE Navbar SHALL mantener el mismo conjunto de elementos (logotipo, enlaces de navegación, Selector_Tema y zona de sesión del Requisito 4) en ambos temas, sin incluir iconos de carrito, favoritos o notificaciones, dado que esas funcionalidades no existen todavía en la aplicación.
 6. WHERE el ancho de la ventana es igual o inferior a un breakpoint móvil (768px), THE Navbar SHALL colapsar los enlaces de navegación en un menú accesible (por ejemplo, tipo hamburguesa) sin ocultar el logotipo, el Selector_Tema ni el acceso a inicio de sesión/registro o al usuario autenticado.
+6.1. WHERE el ancho de la ventana está entre el breakpoint móvil y un breakpoint intermedio mayor (donde el logotipo grande, los enlaces de categorías y la zona de sesión ya no caben en una sola fila, pero todavía no hace falta colapsarlo todo), THE Navbar SHALL sustituir únicamente los enlaces de navegación por un icono de tres líneas centrado, manteniendo visibles el logotipo, la búsqueda, el selector de idioma y la zona de sesión en su fila habitual.
 7. THE Navbar SHALL permanecer fijo en la parte superior del viewport durante el scroll de la página (posición `sticky`/`fixed`), permaneciendo visible en todo momento independientemente de la dirección del scroll.
 8. THE Navbar SHALL aplicar un fondo semitransparente (no opaco) que permita distinguir, de forma difuminada, el contenido que se desplaza por debajo suyo mientras permanece fijo.
 9. THE Navbar SHALL implementarse como un componente React genérico e independiente (no acoplado a Home ni a ningún otro componente concreto), importado tanto por Home como por Login_Form y Register_Form, de forma que su lógica y estilos vivan en un único lugar reutilizado por los tres.
+10. THE Navbar SHALL mostrar, junto a la zona de sesión, un icono de búsqueda y un selector de idioma ("ES" con icono de globo) como elementos visuales sin funcionalidad todavía (mismo patrón "próximamente" del Requisito 3.4), separados de la zona de sesión por un divisor vertical decorativo — igual que en las referencias visuales de `markdowns.png`.
 
 ---
 
@@ -92,6 +94,7 @@ Quedan fuera de alcance de este documento: el catálogo de juegos real, el carri
 2. WHILE hay sesión iniciada (`isAuthenticated` es `true`), THE Navbar SHALL mostrar el `username` del AuthContext en lugar de los enlaces de "Iniciar sesión"/"Registrarse".
 3. WHEN el usuario autenticado activa la opción de cerrar sesión desde el Navbar, THE Sistema SHALL invocar `logout()` del AuthContext y permanecer en la página actual si es pública, o redirigir a `/login` si la página requiere sesión.
 4. THE Navbar SHALL aplicar los mismos estilos de la zona de sesión (colores, tipografía) en ambos temas, cambiando únicamente la paleta de acento.
+5. THE enlace "Iniciar sesión" SHALL mostrar un icono de usuario decorativo junto al texto, igual que en las referencias visuales de `markdowns.png`.
 
 ---
 
@@ -102,7 +105,7 @@ Quedan fuera de alcance de este documento: el catálogo de juegos real, el carri
 #### Criterios de Aceptación
 
 1. WHEN cualquier usuario (autenticado o no) accede a la ruta `/`, THE Sistema SHALL renderizar la Home completa sin redirigir a `/login`.
-2. THE Hero_Section SHALL mostrar la etiqueta "TENDENCIAS", el título "LO MÁS JUGADO", un texto descriptivo y un botón "Ver todos".
+2. THE Hero_Section SHALL mostrar el título "LO MÁS JUGADO", un texto descriptivo y un botón "Ver todos" — sin la etiqueta "TENDENCIAS", que pertenece al Grid_Juegos (Requisito 6.6).
 3. THE Hero_Section SHALL mostrar la imagen de mando correspondiente al tema activo (`mando.png` en Tema Azul, `mando2.png` en Tema Rojo).
 4. IF el catálogo real de juegos no existe todavía como página navegable, THEN el botón "Ver todos" SHALL mostrarse de forma visual y consistente en ambos temas sin provocar un error de navegación al pulsarlo (por ejemplo, quedando inerte o marcado como próximamente), de forma análoga al Requisito 3.4.
 5. THE ruta `/` SHALL dejar de estar protegida por `ProtectedRoute`; el componente `Tienda.jsx` y su lógica de bienvenida/logout quedan sustituidos por la Home y por la zona de sesión del Navbar (Requisito 4).
@@ -120,6 +123,7 @@ Quedan fuera de alcance de este documento: el catálogo de juegos real, el carri
 3. WHEN el tema activo cambia, THE GameCard SHALL actualizar únicamente el color de borde/resplandor decorativo, manteniendo la misma imagen de portada.
 4. IF una imagen de portada no puede cargarse (por ejemplo, archivo movido o eliminado), THEN THE GameCard SHALL mostrar un estado de reserva (color de fondo sólido y el `alt` visible) en lugar de un icono de imagen rota, sin romper el layout del resto del grid.
 5. WHERE el ancho de la ventana es igual o inferior a un breakpoint móvil (768px), THE Grid_Juegos SHALL reorganizarse en una sola columna manteniendo la proporción de cada portada.
+6. THE Grid_Juegos SHALL mostrar la etiqueta "TENDENCIAS ›" como título de su propia sección (elemento `<h2>`), en el mismo contenedor padre que las 6 GameCard, posicionado debajo del Hero_Section — no como parte del Hero_Section (corrige el Requisito 5.2 original, donde "TENDENCIAS" aparecía agrupado con "LO MÁS JUGADO").
 
 ---
 
@@ -175,3 +179,5 @@ Quedan fuera de alcance de este documento: el catálogo de juegos real, el carri
 - La decisión de qué método concreto usar para evitar la caja de fondo visible de `logo1.png` (Requisito 3.1) se documentará como decisión técnica en `design.md`.
 - `Tienda.jsx` se retira como página independiente (Requisito 5.5); si su lógica de bienvenida resulta útil más adelante para una zona de usuario autenticado más completa, podrá recuperarse en un spec-driven futuro.
 - Requisito 3.7 (Navbar fijo) se confirmó explícitamente con el usuario: el Navbar permanece anclado arriba en todo momento durante el scroll (no se oculta al bajar ni deja de estar fijo), combinado con el fondo semitransparente del Requisito 3.8.
+- Ajuste solicitado por el usuario tras la Phase 2 (afecta a Requisitos 1.1, 1.4, 3.1): el Selector_Tema y el logotipo del Requisito 3.1 pasan a ser el mismo elemento — el logotipo es el propio control de cambio de tema (con efecto de zoom 3D al pasar el cursor por encima), en vez de un interruptor visual independiente junto al logo. El logotipo deja de navegar a `/`; el enlace "Inicio" (Requisito 3.3) sigue cubriendo esa navegación. Ver decisión técnica en `design.md`.
+- Ronda de ajustes visuales del usuario tras probar la Home real (afecta a Requisitos 3.1, 3.6, 3.10, 4.5, 5.2, 6.6): reparto del Navbar en 3 zonas (logo/enlaces centrados/sesión), logotipo mucho más grande con recorte ajustado por tema para que ambos ocupen la misma caja visual (`logo1.png` con más lienzo vacío se recorta con `cover`, `logo2.png` ya ajustado usa `contain`), nuevo tramo de ancho intermedio donde solo las categorías se sustituyen por un icono de tres líneas, iconos de búsqueda/idioma/usuario añadidos, y "TENDENCIAS" reubicado como título del Grid_Juegos en vez de formar parte del Hero_Section. Detalle técnico completo en `design.md` y en las notas de `tasks.md` sobre las Tasks 7 y 10.

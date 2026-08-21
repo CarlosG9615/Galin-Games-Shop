@@ -1,0 +1,77 @@
+@use '../../../styles/mixins' as *;
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 60vh;
+  padding: 3rem 1.5rem;
+  overflow: hidden;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  &__contenido {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+  }
+
+  &__titulo {
+    color: var(--color-texto);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin: 0 0 1rem;
+    line-height: 1.1;
+  }
+
+  &__texto {
+    color: var(--color-texto-tenue);
+    font-size: 1.05rem;
+    margin: 0 0 1.5rem;
+    max-width: 380px;
+  }
+
+  &__boton {
+    display: inline-block;
+    padding: 0.6rem 1.5rem;
+    border: 2px solid var(--color-acento);
+    border-radius: 999px;
+    color: var(--color-texto);
+    font-weight: 600;
+    cursor: default;
+
+    @include transicion-suave(background-color 0.2s ease);
+
+    &:hover {
+      background-color: var(--color-fondo-elevado);
+    }
+  }
+
+  &__imagen-mando {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: var(--hero-imagen-mando);
+    background-size: cover;
+    background-position: center right;
+    background-repeat: no-repeat;
+    // Se difumina hacia el fondo de la página en el borde izquierdo, para que la
+    // imagen de mando no corte de forma abrupta sobre el texto del hero.
+    mask-image: linear-gradient(to right, transparent 0%, black 35%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 35%);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: auto;
+    padding: 2rem 1.25rem;
+
+    &__imagen-mando {
+      opacity: 0.35;
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+  }
+}

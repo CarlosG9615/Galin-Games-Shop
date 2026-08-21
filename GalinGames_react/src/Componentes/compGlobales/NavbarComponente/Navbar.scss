@@ -4,6 +4,11 @@
 @use '../../../styles/shared' as *;
 
 $navbar-breakpoint-movil: 768px;
+// Tramo intermedio: el logo grande + los 4 enlaces + búsqueda/idioma/sesión ya no
+// caben en una sola fila, pero todavía no hace falta colapsarlo todo en el menú
+// móvil completo — solo las categorías se sustituyen por un icono de tres líneas.
+$navbar-breakpoint-categorias: 1100px;
+$navbar-padding-x: 1.5rem;
 
 .navbar {
   position: sticky;
@@ -13,35 +18,26 @@ $navbar-breakpoint-movil: 768px;
   background: var(--color-fondo-elevado);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--color-acento);
+  // Borde suave en vez de una línea sólida al 100% de opacidad: color atenuado
+  // (--color-acento-borde) + una sombra difuminada del mismo tono, para un brillo
+  // tenue en vez de una línea dura y "cantosa".
+  border-bottom: 1px solid var(--color-acento-borde);
+  box-shadow: 0 2px 10px -2px var(--color-acento-borde);
 
+  // Sin max-width/margin:auto: el logo y los botones de sesión se posicionan pegados
+  // al borde real de la pantalla (a petición del usuario), no al borde de un
+  // contenedor centrado que dejaría hueco en monitores muy anchos.
   &__nav {
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.5rem 1.5rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    position: relative;
+    min-height: 100px;
+    padding: 0.5rem $navbar-padding-x;
+    width: 100%;
   }
 
-  &__logo-enlace {
-    display: block;
-    line-height: 0;
-    flex-shrink: 0;
-  }
-
-  &__logo {
-    display: block;
-    width: 150px;
-    height: 48px;
-    object-fit: cover;
-    object-position: 50% 32%;
-    mix-blend-mode: screen;
-  }
-
-  &__toggle-menu {
+  &__toggle-menu,
+  &__toggle-categorias {
     display: none;
     flex-direction: column;
     justify-content: center;
@@ -54,6 +50,10 @@ $navbar-breakpoint-movil: 768px;
     cursor: pointer;
   }
 
+  &__toggle-menu {
+    margin-left: auto;
+  }
+
   &__toggle-barra {
     display: block;
     width: 100%;
@@ -62,18 +62,24 @@ $navbar-breakpoint-movil: 768px;
     border-radius: 2px;
   }
 
+  // En escritorio, .navbar__menu-movil "desaparece" como caja (display: contents) y
+  // sus hijos (enlaces, acciones) pasan a ser hijos directos del flex de .navbar__nav
+  // — así .navbar__enlaces puede centrarse de forma independiente y .navbar__acciones
+  // empujarse al borde derecho, sin que el wrapper de colapso móvil interfiera.
   &__menu-movil {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex: 1;
-    gap: 1.5rem;
+    display: contents;
   }
 
+  // Centrado real respecto a toda la barra (no al hueco restante entre logo y
+  // acciones): position absolute + translate, igual que el logo en ThemeToggle.scss.
   &__enlaces {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -100,12 +106,54 @@ $navbar-breakpoint-movil: 768px;
         color: var(--color-texto-tenue);
       }
     }
+
+    // Enlace real (Iniciar sesión) con icono decorativo delante.
+    &--sesion {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
   }
 
+  // Sin .navbar__enlaces disputando espacio en el flujo normal (está en absolute),
+  // margin-left: auto empuja .navbar__acciones hasta el borde derecho de la barra.
   &__acciones {
     display: flex;
     align-items: center;
     gap: 1.25rem;
+    margin-left: auto;
+  }
+
+  // Búsqueda + selector de idioma: visuales, sin funcionalidad todavía (mismo
+  // patrón "próximamente" que .navbar__link--proximamente, Requisito 3.4).
+  &__utilidades {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--color-texto-tenue);
+    cursor: default;
+  }
+
+  &__icono-utilidad,
+  &__idioma {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  &__icono {
+    flex-shrink: 0;
+  }
+
+  &__divisor {
+    display: block;
+    width: 1px;
+    height: 22px;
+    background: var(--color-texto-tenue);
+    opacity: 0.5;
   }
 
   &__sesion {
@@ -140,10 +188,49 @@ $navbar-breakpoint-movil: 768px;
   }
 }
 
+// Tramo intermedio (entre el móvil completo y el escritorio ancho): las categorías
+// se sustituyen por un icono de tres líneas centrado; búsqueda/idioma/sesión siguen
+// visibles en su sitio, ya sin los enlaces disputándoles espacio en la misma fila.
+@media (max-width: $navbar-breakpoint-categorias) and (min-width: $navbar-breakpoint-movil + 1) {
+  .navbar {
+    &__toggle-categorias {
+      display: flex;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    &__enlaces {
+      display: none;
+
+      &--desplegado {
+        display: flex;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        background: var(--color-fondo-elevado);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--color-acento-borde);
+      }
+    }
+  }
+}
+
 @media (max-width: $navbar-breakpoint-movil) {
   .navbar {
     &__toggle-menu {
       display: flex;
+    }
+
+    &__toggle-categorias {
+      display: none;
     }
 
     &__menu-movil {
@@ -159,14 +246,18 @@ $navbar-breakpoint-movil: 768px;
       background: var(--color-fondo-elevado);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--color-acento);
+      border-bottom: 1px solid var(--color-acento-borde);
 
       &--abierto {
         display: flex;
       }
     }
 
+    // Revierte el centrado absoluto de escritorio: en el panel móvil los enlaces
+    // vuelven al flujo normal, apilados en columna dentro de .navbar__menu-movil.
     &__enlaces {
+      position: static;
+      transform: none;
       flex-direction: column;
       align-items: flex-start;
       gap: 0.75rem;
@@ -177,6 +268,12 @@ $navbar-breakpoint-movil: 768px;
       align-items: flex-start;
       gap: 1rem;
       width: 100%;
+      margin-left: 0;
+    }
+
+    &__divisor {
+      width: 100%;
+      height: 1px;
     }
 
     &__sesion {
