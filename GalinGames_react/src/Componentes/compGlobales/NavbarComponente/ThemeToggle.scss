@@ -2,7 +2,18 @@
 
 // El logotipo ES el control de cambio de tema (decisión revisada tras la Phase 2,
 // ver design.md): sin pista/pulgar independiente, con efecto de zoom 3D al hover.
+//
+// position: absolute (relativo a .navbar__nav, que tiene position: relative) en vez
+// de un hijo más del flex normal: así el logo puede ser más alto que la barra fina
+// del navbar y crecer con el zoom del hover sin recortarse ni empujar la altura de
+// .navbar__nav — pegado al borde izquierdo real de la pantalla, no al hueco que
+// dejaban los demás elementos del flex.
 .theme-toggle {
+  position: absolute;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   padding: 0;
@@ -10,15 +21,17 @@
   background: transparent;
   cursor: pointer;
   line-height: 0;
-  flex-shrink: 0;
   perspective: 600px;
 
   &__logo {
     display: block;
-    width: 150px;
-    height: 48px;
-    object-fit: cover;
-    object-position: 50% 32%;
+    width: 120px;
+    height: 64px;
+    // contain (no cover): nunca recorta el logotipo, solo lo ajusta dentro de la
+    // caja — logo1.png (retrato) y logo2.png (cuadrado) se ven completos aunque
+    // ocupen distinto ancho dentro de la misma caja.
+    object-fit: contain;
+    object-position: center;
     mix-blend-mode: screen;
     transform-style: preserve-3d;
 

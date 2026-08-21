@@ -4,6 +4,7 @@
 @use '../../../styles/shared' as *;
 
 $navbar-breakpoint-movil: 768px;
+$navbar-padding-x: 1.5rem;
 
 .navbar {
   position: sticky;
@@ -15,17 +16,17 @@ $navbar-breakpoint-movil: 768px;
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--color-acento);
 
+  // Sin max-width/margin:auto: el logo y los botones de sesión se posicionan pegados
+  // al borde real de la pantalla (a petición del usuario), no al borde de un
+  // contenedor centrado que dejaría hueco en monitores muy anchos.
   &__nav {
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.5rem 1.5rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    position: relative;
+    min-height: 64px;
+    padding: 0.5rem $navbar-padding-x;
+    width: 100%;
   }
-
 
   &__toggle-menu {
     display: none;
@@ -38,6 +39,7 @@ $navbar-breakpoint-movil: 768px;
     border: none;
     background: transparent;
     cursor: pointer;
+    margin-left: auto;
   }
 
   &__toggle-barra {
@@ -48,18 +50,24 @@ $navbar-breakpoint-movil: 768px;
     border-radius: 2px;
   }
 
+  // En escritorio, .navbar__menu-movil "desaparece" como caja (display: contents) y
+  // sus hijos (enlaces, acciones) pasan a ser hijos directos del flex de .navbar__nav
+  // — así .navbar__enlaces puede centrarse de forma independiente y .navbar__acciones
+  // empujarse al borde derecho, sin que el wrapper de colapso móvil interfiera.
   &__menu-movil {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex: 1;
-    gap: 1.5rem;
+    display: contents;
   }
 
+  // Centrado real respecto a toda la barra (no al hueco restante entre logo y
+  // acciones): position absolute + translate, igual que el logo en ThemeToggle.scss.
   &__enlaces {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -88,10 +96,13 @@ $navbar-breakpoint-movil: 768px;
     }
   }
 
+  // Sin .navbar__enlaces disputando espacio en el flujo normal (está en absolute),
+  // margin-left: auto empuja .navbar__acciones hasta el borde derecho de la barra.
   &__acciones {
     display: flex;
     align-items: center;
     gap: 1.25rem;
+    margin-left: auto;
   }
 
   &__sesion {
@@ -152,7 +163,11 @@ $navbar-breakpoint-movil: 768px;
       }
     }
 
+    // Revierte el centrado absoluto de escritorio: en el panel móvil los enlaces
+    // vuelven al flujo normal, apilados en columna dentro de .navbar__menu-movil.
     &__enlaces {
+      position: static;
+      transform: none;
       flex-direction: column;
       align-items: flex-start;
       gap: 0.75rem;
@@ -163,6 +178,7 @@ $navbar-breakpoint-movil: 768px;
       align-items: flex-start;
       gap: 1rem;
       width: 100%;
+      margin-left: 0;
     }
 
     &__sesion {
