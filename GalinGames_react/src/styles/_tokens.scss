@@ -1,0 +1,27 @@
+// Design Tokens: paleta de cada tema, expuesta como variables CSS (custom properties)
+// sobre [data-theme]. Ningún otro fichero SCSS del proyecto declara un color de tema
+// directamente — todos leen var(--color-...) definidas aquí (Requisitos 1.6, 1.7, 9.3, 9.6).
+
+// Los valores por defecto en :root (sin atributo) son los del tema azul: es el tema
+// por defecto (Requisito 1.5) y sirve de fallback antes de que ThemeProvider aplique
+// el atributo data-theme en useLayoutEffect.
+:root,
+:root[data-theme='azul'] {
+  --color-fondo: #0b0618;
+  --color-fondo-elevado: rgba(15, 8, 30, 0.55);
+  --color-acento: #2dd4ff;
+  --color-acento-secundario: #7d2ae8;
+  --color-texto: #ffffff;
+  --color-texto-tenue: rgba(255, 255, 255, 0.72);
+  --sombra-acento: 0 4px 24px rgba(45, 212, 255, 0.35);
+}
+
+:root[data-theme='rojo'] {
+  --color-fondo: #0d0505;
+  --color-fondo-elevado: rgba(20, 8, 8, 0.55);
+  --color-acento: #ff2b4e;
+  --color-acento-secundario: #b3121f;
+  --color-texto: #ffffff;
+  --color-texto-tenue: rgba(255, 255, 255, 0.72);
+  --sombra-acento: 0 4px 24px rgba(255, 43, 78, 0.35);
+}

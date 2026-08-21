@@ -1,0 +1,132 @@
+// Clases compartidas entre Home, Login, Registro y ErrorPage. Consumen exclusivamente
+// las variables de _tokens.scss — ningún componente que las use debe declarar un color
+// de tema propio (Requisitos 7.2, 9.3, 9.4, 9.6, 9.8).
+
+@mixin transicion-suave($propiedades...) {
+  @media (prefers-reduced-motion: no-preference) {
+    transition: $propiedades;
+  }
+}
+
+// Sustituye a .fondo-gaming: fondo de página con degradado radial temático, en vez de
+// la imagen SVG fija morada de antes (Requisito 7.2).
+.pagina-tematica {
+  min-height: 100vh;
+  width: 100%;
+  background:
+    radial-gradient(ellipse 80% 60% at 80% 0%, var(--color-acento-secundario) 0%, transparent 60%),
+    var(--color-fondo);
+  background-attachment: fixed;
+  color: var(--color-texto);
+
+  &__contenido {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+}
+
+// Sustituye a .color-fondo + .marginForm + .contenido-registro + .form-box: tarjeta de
+// contenido única, con fondo semitransparente y borde/sombra del acento del tema activo.
+.tarjeta-tema {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 440px;
+  margin: 0;
+  padding: 32px 24px 24px 24px;
+  border-radius: 24px;
+  text-align: left;
+  background: var(--color-fondo-elevado);
+  border: 2px solid var(--color-acento);
+  box-shadow: var(--sombra-acento);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  @include transicion-suave(box-shadow 0.3s, transform 0.3s);
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  h1 {
+    margin-top: 0;
+    margin-bottom: 24px;
+  }
+}
+
+// Sustituye a .videojuego-title
+.titulo-tema {
+  font-family: 'Rajdhani', 'Segoe UI', system-ui, sans-serif;
+  font-weight: 700;
+  color: var(--color-texto);
+  letter-spacing: 1px;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  margin-top: 0;
+  text-align: left;
+}
+
+// Sustituye a .videojuego-text
+.texto-tema {
+  font-family: 'Rajdhani', 'Segoe UI', system-ui, sans-serif;
+  color: var(--color-texto);
+  letter-spacing: 0.5px;
+  font-size: 16px;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+  text-align: left;
+
+  // Sustituye a .videojuego-conditions
+  &--condiciones {
+    color: var(--color-texto-tenue);
+    font-size: 12px;
+    letter-spacing: 0.3px;
+    margin-top: 0;
+  }
+}
+
+// Sustituye a .botonRegistro
+.boton-primario {
+  font-family: 'Rajdhani', 'Segoe UI', system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(180deg, var(--color-acento) 0%, var(--color-acento-secundario) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  box-shadow: var(--sombra-acento);
+  letter-spacing: 1px;
+  padding: 10px 28px;
+  position: relative;
+  z-index: 1;
+
+  @include transicion-suave(all 0.15s ease);
+
+  &:hover,
+  &:focus-visible {
+    background: linear-gradient(180deg, var(--color-acento-secundario) 0%, var(--color-acento) 100%);
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// Foco visible consistente para enlaces, botones y controles interactivos (Requisito 8.2).
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-acento);
+  outline-offset: 2px;
+}
