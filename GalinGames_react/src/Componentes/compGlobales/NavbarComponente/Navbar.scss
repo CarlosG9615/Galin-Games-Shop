@@ -23,7 +23,7 @@ $navbar-padding-x: 1.5rem;
     position: relative;
     display: flex;
     align-items: center;
-    min-height: 64px;
+    min-height: 88px;
     padding: 0.5rem $navbar-padding-x;
     width: 100%;
   }
@@ -94,6 +94,13 @@ $navbar-padding-x: 1.5rem;
         color: var(--color-texto-tenue);
       }
     }
+
+    // Enlace real (Iniciar sesión) con icono decorativo delante.
+    &--sesion {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
   }
 
   // Sin .navbar__enlaces disputando espacio en el flujo normal (está en absolute),
@@ -103,6 +110,38 @@ $navbar-padding-x: 1.5rem;
     align-items: center;
     gap: 1.25rem;
     margin-left: auto;
+  }
+
+  // Búsqueda + selector de idioma: visuales, sin funcionalidad todavía (mismo
+  // patrón "próximamente" que .navbar__link--proximamente, Requisito 3.4).
+  &__utilidades {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--color-texto-tenue);
+    cursor: default;
+  }
+
+  &__icono-utilidad,
+  &__idioma {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  &__icono {
+    flex-shrink: 0;
+  }
+
+  &__divisor {
+    display: block;
+    width: 1px;
+    height: 22px;
+    background: var(--color-texto-tenue);
+    opacity: 0.5;
   }
 
   &__sesion {
@@ -179,6 +218,11 @@ $navbar-padding-x: 1.5rem;
       gap: 1rem;
       width: 100%;
       margin-left: 0;
+    }
+
+    &__divisor {
+      width: 100%;
+      height: 1px;
     }
 
     &__sesion {

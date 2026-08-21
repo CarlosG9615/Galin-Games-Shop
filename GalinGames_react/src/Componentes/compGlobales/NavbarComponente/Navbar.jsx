@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../../hooks/useAuth'
 import ThemeToggle from './ThemeToggle'
+import { IconoBusqueda, IconoGlobo, IconoUsuario } from './NavbarIconos'
 import './Navbar.scss'
 
 const ENLACES_PROXIMAMENTE = ['Juegos', 'Novedades', 'Comunidad']
@@ -43,6 +44,18 @@ function Navbar() {
           </ul>
 
           <div className="navbar__acciones">
+            <div className="navbar__utilidades">
+              <span className="navbar__icono-utilidad" aria-disabled="true" title="Búsqueda (próximamente)">
+                <IconoBusqueda />
+              </span>
+              <span className="navbar__idioma" aria-disabled="true" title="Idioma (próximamente)">
+                <IconoGlobo />
+                ES
+              </span>
+            </div>
+
+            <span className="navbar__divisor" aria-hidden="true" />
+
             {isAuthenticated ? (
               <div className="navbar__sesion">
                 <span className="navbar__usuario">{user?.username}</span>
@@ -52,7 +65,10 @@ function Navbar() {
               </div>
             ) : (
               <div className="navbar__sesion">
-                <Link to="/login" className="navbar__link" onClick={cerrarMenu}>Iniciar sesión</Link>
+                <Link to="/login" className="navbar__link navbar__link--sesion" onClick={cerrarMenu}>
+                  <IconoUsuario />
+                  Iniciar sesión
+                </Link>
                 <Link to="/registro" className="boton-primario navbar__boton-registro" onClick={cerrarMenu}>
                   Registrarse
                 </Link>

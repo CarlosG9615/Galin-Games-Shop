@@ -79,6 +79,7 @@ Quedan fuera de alcance de este documento: el catálogo de juegos real, el carri
 7. THE Navbar SHALL permanecer fijo en la parte superior del viewport durante el scroll de la página (posición `sticky`/`fixed`), permaneciendo visible en todo momento independientemente de la dirección del scroll.
 8. THE Navbar SHALL aplicar un fondo semitransparente (no opaco) que permita distinguir, de forma difuminada, el contenido que se desplaza por debajo suyo mientras permanece fijo.
 9. THE Navbar SHALL implementarse como un componente React genérico e independiente (no acoplado a Home ni a ningún otro componente concreto), importado tanto por Home como por Login_Form y Register_Form, de forma que su lógica y estilos vivan en un único lugar reutilizado por los tres.
+10. THE Navbar SHALL mostrar, junto a la zona de sesión, un icono de búsqueda y un selector de idioma ("ES" con icono de globo) como elementos visuales sin funcionalidad todavía (mismo patrón "próximamente" del Requisito 3.4), separados de la zona de sesión por un divisor vertical decorativo — igual que en las referencias visuales de `markdowns.png`.
 
 ---
 
@@ -92,6 +93,7 @@ Quedan fuera de alcance de este documento: el catálogo de juegos real, el carri
 2. WHILE hay sesión iniciada (`isAuthenticated` es `true`), THE Navbar SHALL mostrar el `username` del AuthContext en lugar de los enlaces de "Iniciar sesión"/"Registrarse".
 3. WHEN el usuario autenticado activa la opción de cerrar sesión desde el Navbar, THE Sistema SHALL invocar `logout()` del AuthContext y permanecer en la página actual si es pública, o redirigir a `/login` si la página requiere sesión.
 4. THE Navbar SHALL aplicar los mismos estilos de la zona de sesión (colores, tipografía) en ambos temas, cambiando únicamente la paleta de acento.
+5. THE enlace "Iniciar sesión" SHALL mostrar un icono de usuario decorativo junto al texto, igual que en las referencias visuales de `markdowns.png`.
 
 ---
 
