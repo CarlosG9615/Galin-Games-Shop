@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../../hooks/useAuth'
-import { useTheme } from '../../../hooks/useTheme'
 import ThemeToggle from './ThemeToggle'
 import './Navbar.scss'
 
@@ -9,19 +8,14 @@ const ENLACES_PROXIMAMENTE = ['Juegos', 'Novedades', 'Comunidad']
 
 function Navbar() {
   const { isAuthenticated, user, logout } = useAuth()
-  const { theme } = useTheme()
   const [menuAbierto, setMenuAbierto] = useState(false)
-
-  const logoSrc = theme === 'azul' ? '/logo1.png' : '/logo2.png'
 
   const cerrarMenu = () => setMenuAbierto(false)
 
   return (
     <header className="navbar">
       <nav className="navbar__nav" aria-label="Navegación principal">
-        <Link to="/" className="navbar__logo-enlace" onClick={cerrarMenu}>
-          <img className="navbar__logo" src={logoSrc} alt="GG Games" />
-        </Link>
+        <ThemeToggle />
 
         <button
           type="button"
@@ -49,8 +43,6 @@ function Navbar() {
           </ul>
 
           <div className="navbar__acciones">
-            <ThemeToggle />
-
             {isAuthenticated ? (
               <div className="navbar__sesion">
                 <span className="navbar__usuario">{user?.username}</span>

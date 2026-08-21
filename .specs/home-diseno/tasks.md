@@ -104,6 +104,7 @@ Plan de implementación de la nueva Home pública de GalinGames con dos temas vi
   - [x] 6.2 Crear `ThemeToggle.scss` (icono/indicador visual del tema activo, usando `var(--color-acento)`)
     - _Requisitos: 1.1_
     - _Nota: se extrajo el mixin `transicion-suave` de `_shared.scss` a un nuevo parcial `src/styles/_mixins.scss` (usado por ambos), para que `ThemeToggle.scss`/`Navbar.scss` no tuvieran que tirar de las clases de `_shared.scss` solo para acceder al mixin — mantiene la separación de `design.md` (Navbar solo depende de tokens/mixins, no de las clases de página de Login/Registro/ErrorPage)._
+    - _**Revisión posterior (a petición del usuario, tras revisar la Phase 2):** el interruptor pista/pulgar se sustituyó por el propio logotipo (`<img>` dentro del botón, `src` según `theme`) con efecto de zoom 3D (`scale` + `rotateY` + `drop-shadow`) en `:hover`/`:focus-visible`. `ThemeToggle.scss` pasó a asumir el recorte/`mix-blend-mode` que antes vivía en `Navbar.scss` → `.navbar__logo`. Ver decisión actualizada en `design.md` y Task 7.1._
 
   - [x]* 6.3 Escribir tests de `ThemeToggle.jsx`
     - Al hacer click invoca `toggleTheme`
@@ -120,12 +121,14 @@ Plan de implementación de la nueva Home pública de GalinGames con dos temas vi
   - [x] 7.1 Implementar la estructura semántica base: `<header className="navbar"><nav>...</nav></header>` con el logotipo (`<img>` dentro de `Link to="/"`, `src` según `theme` — `/logo1.png` en `azul`, `/logo2.png` en `rojo`) y el contenedor de tamaño fijo con `object-fit: cover` para evitar la caja de fondo de `logo1.png` (Req 3.1)
     - _Requisitos: 3.1, 8.5_
     - _Nota: `object-position: 50% 32%` y `mix-blend-mode: screen` como primer ajuste; el recorte fino queda para el checkpoint visual (Task 12.4), tal como anticipaba la nota de `tasks.md`._
+    - _**Revisión posterior (a petición del usuario):** el logotipo ya no vive en `Navbar.jsx` envuelto en `Link to="/"` — se retiró de ahí y pasó a ser el contenido de `ThemeToggle` (Task 6.2), que ahora ocupa la posición donde estaba el logo. El logotipo deja de navegar a `/`; el enlace "Inicio" (Task 7.2) sigue cubriendo esa navegación. Ver Requisitos 1.1/1.4/3.1 actualizados y decisión en `design.md`._
 
   - [x] 7.2 Añadir los enlaces de navegación: `Link to="/"` real para "Inicio"; `<span className="navbar__link navbar__link--proximamente" aria-disabled="true">` para "Juegos", "Novedades" y "Comunidad"
     - _Requisitos: 3.2, 3.3, 3.4_
 
   - [x] 7.3 Integrar `<ThemeToggle />` en el Navbar
     - _Requisitos: 3.5 (mismo conjunto de elementos en ambos temas)_
+    - _Nota: tras la revisión de Task 7.1, `<ThemeToggle />` se renderiza una sola vez, en la posición del logotipo, en vez de (además) dentro de `.navbar__acciones`._
 
   - [x] 7.4 Implementar la zona de sesión: `isAuthenticated ? (username + botón "Cerrar sesión" → logout()) : (Link "Iniciar sesión" a /login + Link "Registrarse" a /registro con clase .boton-primario)`
     - _Requisitos: 4.1, 4.2, 4.3, 4.4_

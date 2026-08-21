@@ -26,20 +26,6 @@ $navbar-breakpoint-movil: 768px;
     position: relative;
   }
 
-  &__logo-enlace {
-    display: block;
-    line-height: 0;
-    flex-shrink: 0;
-  }
-
-  &__logo {
-    display: block;
-    width: 150px;
-    height: 48px;
-    object-fit: cover;
-    object-position: 50% 32%;
-    mix-blend-mode: screen;
-  }
 
   &__toggle-menu {
     display: none;

@@ -4,6 +4,7 @@ import './ThemeToggle.scss'
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme()
   const esRojo = theme === 'rojo'
+  const logoSrc = theme === 'azul' ? '/logo1.png' : '/logo2.png'
 
   return (
     <button
@@ -14,9 +15,7 @@ function ThemeToggle() {
       aria-label={`Cambiar a tema ${esRojo ? 'azul' : 'rojo'}`}
       title={`Tema actual: ${theme}`}
     >
-      <span className="theme-toggle__pista">
-        <span className="theme-toggle__pulgar" />
-      </span>
+      <img className="theme-toggle__logo" src={logoSrc} alt="GG Games" />
     </button>
   )
 }

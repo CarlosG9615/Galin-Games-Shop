@@ -1,44 +1,33 @@
 @use '../../../styles/mixins' as *;
 
+// El logotipo ES el control de cambio de tema (decisión revisada tras la Phase 2,
+// ver design.md): sin pista/pulgar independiente, con efecto de zoom 3D al hover.
 .theme-toggle {
   display: inline-flex;
   align-items: center;
   padding: 0;
-  border: 2px solid var(--color-acento);
-  border-radius: 999px;
+  border: none;
   background: transparent;
   cursor: pointer;
   line-height: 0;
+  flex-shrink: 0;
+  perspective: 600px;
 
-  @include transicion-suave(border-color 0.2s ease);
-
-  &:hover {
-    border-color: var(--color-acento-secundario);
-  }
-
-  &__pista {
-    position: relative;
+  &__logo {
     display: block;
-    width: 44px;
-    height: 22px;
-    border-radius: 999px;
-    background: var(--color-fondo-elevado);
+    width: 150px;
+    height: 48px;
+    object-fit: cover;
+    object-position: 50% 32%;
+    mix-blend-mode: screen;
+    transform-style: preserve-3d;
+
+    @include transicion-suave(transform 0.3s ease, filter 0.3s ease);
   }
 
-  &__pulgar {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, var(--color-acento) 0%, var(--color-acento-secundario) 100%);
-    box-shadow: var(--sombra-acento);
-
-    @include transicion-suave(left 0.2s ease);
+  &:hover &__logo,
+  &:focus-visible &__logo {
+    transform: scale(1.15) rotateY(12deg);
+    filter: drop-shadow(0 6px 16px var(--color-acento));
   }
-}
-
-.theme-toggle[aria-pressed='true'] .theme-toggle__pulgar {
-  left: 24px;
 }

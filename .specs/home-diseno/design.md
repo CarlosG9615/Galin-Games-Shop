@@ -162,29 +162,29 @@ function readThemeFromStorage() {
 
 ### `Navbar.jsx` — contrato
 
-Componente sin props obligatorias (lee todo de `useAuth()` y `useTheme()`):
+Componente sin props obligatorias (lee todo de `useAuth()`; ya no necesita `useTheme()` directamente — esa lógica vive ahora en `ThemeToggle`):
 
 ```js
 function Navbar() {
   const { isAuthenticated, user, logout } = useAuth()
-  const { theme } = useTheme()
-  // logoSrc = theme === 'azul' ? '/logo1.png' : '/logo2.png'
   // ...
 }
 ```
 
 Estructura semántica: `<header className="navbar"><nav className="navbar__nav">...</nav></header>`, con:
-- Logotipo (`<img>` enlazado a `/` vía `Link`).
+- `ThemeToggle` en la posición del logotipo (ver decisión más abajo) — ya no hay un `<Link to="/">` separado envolviendo el logo.
 - Enlaces "Inicio" (Link real a `/`), y "Juegos"/"Novedades"/"Comunidad" como `<span className="navbar__link navbar__link--proximamente" aria-disabled="true">` (Req 3.4, sin `href="#"`).
-- `ThemeToggle` (botón de cambio de tema, Req 1.4).
 - Zona de sesión (Req 4): `isAuthenticated ? <span>{user.username}</span> + botón "Cerrar sesión" (onClick={logout}) : <Link to="/login">Iniciar sesión</Link> + <Link to="/registro" className="boton-primario">Registrarse</Link>`.
 - Botón hamburguesa + panel colapsable solo visible bajo el breakpoint móvil (Req 3.6), controlado con un `useState` local (`menuAbierto`).
 
-### `ThemeToggle.jsx` — contrato
+### `ThemeToggle.jsx` — contrato (revisado)
+
+**Decisión de diseño (ajuste solicitado por el usuario sobre la Phase 2 ya implementada):** el propio logotipo pasa a ser el control de cambio de tema — deja de existir un interruptor visual independiente (pista/pulgar) separado del logo. Al pulsar el logotipo se alterna el tema (persistido en `localStorage`, comportamiento ya cubierto por Requisito 2); al pasar el cursor por encima, un efecto de zoom 3D (`scale` + `rotateY` + sombra de acento) indica que es interactivo. Como contrapartida, el logotipo deja de navegar a `/` — el enlace "Inicio" del propio Navbar ya cubre esa navegación (Requisito 3.3), por lo que no se pierde ninguna vía de acceso al inicio.
 
 ```js
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme()
+  const logoSrc = theme === 'azul' ? '/logo1.png' : '/logo2.png'
   return (
     <button
       type="button"
@@ -193,11 +193,13 @@ function ThemeToggle() {
       aria-pressed={theme === 'rojo'}
       aria-label={`Cambiar a tema ${theme === 'azul' ? 'rojo' : 'azul'}`}
     >
-      {/* icono/indicador visual del tema activo */}
+      <img className="theme-toggle__logo" src={logoSrc} alt="GG Games" />
     </button>
   )
 }
 ```
+
+`ThemeToggle.scss` aplica el recorte/`mix-blend-mode` que antes vivía en `Navbar.scss` → `.navbar__logo` (Requisito 3.1, ya no aplica ahí porque el logo ya no se renderiza en `Navbar.jsx`), más `perspective` en el botón y `transform: scale(1.15) rotateY(10deg)` + `filter: drop-shadow(...)` en `:hover`/`:focus-visible` sobre `.theme-toggle__logo`, envuelto en el mixin `transicion-suave` (Requisito 8.4 — sin animación si `prefers-reduced-motion`).
 
 ### `Home.jsx` / `HeroSection.jsx` / `GamesGrid.jsx` / `GameCard.jsx`
 
@@ -323,6 +325,7 @@ Justificación de la consolidación en la sección Design Decisions.
 | `mando.png`/`mando2.png` como `background-image` de `.hero__imagen-mando` (no `<img>`) | `<img>` con `object-fit` | Igual que en el mockup, la imagen se recorta libremente contra los márgenes del Hero sin dejar espacio en blanco; al ser puramente decorativa no necesita `alt` (Req 8.3 ya cubre esto). |
 | Botón "Ver todos" y enlaces "Juegos"/"Novedades"/"Comunidad" como elementos inertes (`aria-disabled`) en vez de deshabilitar visualmente | Ocultarlos por completo hasta que existan páginas reales | Mantiene la fidelidad visual con el mockup (Requisitos 3.4/5.4 piden "consistente en ambos temas"), a la vez que evita prometer una navegación que no existe todavía. |
 | `sass` como única dependencia nueva, sin cambios en `vite.config.js` | `sass-embedded` o un preprocesador basado en PostCSS/Tailwind | Vite detecta y compila `.scss` automáticamente en cuanto detecta el paquete `sass` instalado; no requiere configuración adicional y es la opción oficialmente documentada por Vite. |
+| El logotipo pasa a ser el propio `ThemeToggle` (con efecto de zoom 3D al hover), en vez de un interruptor visual independiente junto al logo | Mantener el interruptor pista/pulgar de la Phase 2 junto a un logo que solo navega a `/` | Petición explícita del usuario tras revisar la Phase 2: simplifica el Navbar a un único elemento interactivo reconocible en vez de dos controles distintos. El logotipo deja de navegar a `/`, pero el enlace "Inicio" ya cubre esa función (Requisito 3.3), así que no se pierde acceso a la home. |
 
 ---
 
