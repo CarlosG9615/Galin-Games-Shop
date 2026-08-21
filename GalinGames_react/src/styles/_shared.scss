@@ -2,11 +2,7 @@
 // las variables de _tokens.scss — ningún componente que las use debe declarar un color
 // de tema propio (Requisitos 7.2, 9.3, 9.4, 9.6, 9.8).
 
-@mixin transicion-suave($propiedades...) {
-  @media (prefers-reduced-motion: no-preference) {
-    transition: $propiedades;
-  }
-}
+@use 'mixins' as *;
 
 // Sustituye a .fondo-gaming: fondo de página con degradado radial temático, en vez de
 // la imagen SVG fija morada de antes (Requisito 7.2).
