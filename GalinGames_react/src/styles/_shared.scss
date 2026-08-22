@@ -87,6 +87,12 @@
     letter-spacing: 0.3px;
     margin-top: 0;
   }
+
+  // Mensajes de éxito (ej. banner de email verificado en Login) — verde, independiente
+  // del tema activo, igual que el rojo fijo de los mensajes de error en Login.scss.
+  &--exito {
+    color: #4caf50;
+  }
 }
 
 // Sustituye a .botonRegistro
@@ -116,6 +122,221 @@
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+  }
+}
+
+// Layout dividido de Login/Registro (Requisitos 7bis, 7ter): formulario sin tarjeta a
+// la izquierda + downwalker-registro.jpg a la derecha, con ThemeToggle como única
+// cabecera. Centralizado aquí (en vez de duplicado en Login.scss/Registro.scss) porque
+// ambos formularios lo comparten al detalle (Requisito 9.8).
+$pagina-dividida-breakpoint-movil: 768px; // mismo valor que Navbar.scss/GamesGrid.scss
+
+.pagina-dividida {
+  position: relative; // ancla ThemeToggle (top-left)
+  display: flex;
+  // height (no min-height): fija la fila a exactamente el alto del viewport, para que
+  // NUNCA sea más alta que la pantalla — con min-height, un formulario más alto que el
+  // viewport (título + campos + padding del logo) hacía crecer toda la fila y aparecía
+  // scroll de página, empujando la imagen fuera del viewport también.
+  height: 100vh;
+  overflow: hidden; // sin scroll de página: el formulario scrollea internamente si hace falta
+  width: 100%;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+
+  @media (max-width: $pagina-dividida-breakpoint-movil) {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    flex-direction: column;
+  }
+
+  &__formulario {
+    width: 55%;
+    height: 100%;
+    overflow-y: auto; // scroll propio de esta columna si el contenido no cabe en 100vh
+    display: flex;
+    align-items: flex-start; // no "center": con overflow, centrar recorta el principio del contenido
+    // Centra el bloque del formulario dentro de la columna (antes pegado al borde
+    // izquierdo, "position start"): con más columna disponible que su max-width, esto
+    // le da margen real a ambos lados en vez de solo relleno a la derecha.
+    justify-content: center;
+    box-sizing: border-box;
+    // Top generoso: el ThemeToggle vuelve a su tamaño original de Navbar.scss (sin
+    // reescalar, a petición del usuario) — hasta ~208px de alto (tema rojo) + su top
+    // fijo de 0.4rem, así que el formulario necesita bajar bastante más que antes
+    // para no chocar con el título. El padding inferior se recorta (Registro con 6
+    // campos se quedaba más alto que el viewport y aparecía scroll interno).
+    padding: 15rem 3rem 1.5rem;
+
+    @media (max-width: $pagina-dividida-breakpoint-movil) {
+      width: 100%;
+      height: auto;
+      overflow-y: visible;
+    }
+
+    form {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    // Título más compacto solo aquí (Registro/Login): en ErrorPage, .titulo-tema
+    // conserva su tamaño normal — no forma parte de .pagina-dividida.
+    .titulo-tema {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+  }
+
+  // El fondo desenfocado (versión anterior) se veía como un "sombreado" no deseado —
+  // sustituido por `var(--color-fondo)` liso: el mismo color de fondo que el resto de
+  // la página, así que el margen sobrante de `contain` (cuando la proporción del panel
+  // no coincide exactamente con la de la imagen) se funde con la página en vez de
+  // notarse como un recuadro aparte.
+  &__imagen {
+    position: relative; // ancla .pagina-dividida__cerrar
+    width: 45%;
+    height: 100%; // exactamente el alto fijo de .pagina-dividida (100vh), nunca más
+    background: var(--color-fondo) url('/downwalker-registro.jpg') center / contain no-repeat;
+
+    @media (max-width: $pagina-dividida-breakpoint-movil) {
+      width: 100%;
+      height: auto;
+      min-height: 40vh;
+    }
+  }
+
+  &__cerrar {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: none;
+    background: var(--color-fondo-elevado);
+    color: var(--color-texto);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 2; // por encima de las dos capas de imagen de &__imagen
+
+    @include transicion-suave(background-color 0.15s, transform 0.15s);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--color-acento);
+      transform: scale(1.08);
+    }
+  }
+
+  // Botones "Registrarse"/"Entrar": mismo ancho que los InputBox del formulario (100%
+  // hasta los 420px de `form`), en vez de un botón corto pegado a la derecha.
+  &__formulario .boton-primario {
+    width: 100%;
+    text-align: center;
+  }
+
+  &__volver,
+  &__enlace-secundario {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 0.5rem;
+    color: var(--color-texto-tenue);
+
+    &:hover {
+      color: var(--color-acento);
+    }
+  }
+
+  // Fila de accesos sociales (Facebook/Google/Apple/Discord) + separador "o", antes de
+  // los campos del formulario — decorativos, sin backend de OAuth (Requisitos 7bis, 7ter).
+  &__social {
+    display: flex;
+    justify-content: center;
+    gap: 1.75rem;
+    margin-top: 1.5rem;
+  }
+
+  // Forma "píldora" (bordes rectos arriba/abajo, extremos izq/dcha totalmente
+  // redondeados) como en la referencia — un border-radius fijo grande consigue eso;
+  // border-radius: 50% sobre una caja no cuadrada da una elipse (curva por los cuatro
+  // lados), que es justo lo que no se quería.
+  &__social-boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 5.5rem;
+    height: 3.75rem;
+    border-radius: 999px;
+    flex-shrink: 0;
+    cursor: default;
+
+    // El width/height del <svg> es un atributo de presentación (prioridad mínima en
+    // cascada): esta regla los sustituye sin tocar los 4 ficheros de SocialIconos.jsx.
+    svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    &--facebook {
+      background: #1877f2;
+    }
+
+    &--google {
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    &--apple {
+      background: #000;
+    }
+
+    &--discord {
+      background: #5865f2;
+    }
+  }
+
+  &__divisor {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+    color: var(--color-texto-tenue);
+    font-size: 0.85rem;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--color-texto-tenue);
+      opacity: 0.3;
+    }
+  }
+
+  // Fila de enlaces lado a lado (Login: "¿Aún no tienes cuenta?" / "¿Has olvidado tu
+  // contraseña?"), en vez del apilado centrado que usan .pagina-dividida__volver y
+  // Registro para su único enlace suelto.
+  &__enlaces-fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    margin-top: 0.75rem;
+
+    .pagina-dividida__enlace-secundario {
+      width: auto;
+      margin-top: 0;
+      text-align: left;
+    }
   }
 }
 

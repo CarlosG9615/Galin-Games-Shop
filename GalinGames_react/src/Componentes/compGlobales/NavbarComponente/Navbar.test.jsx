@@ -34,24 +34,34 @@ describe('Navbar', () => {
     vi.clearAllMocks()
   })
 
-  it('sin sesión iniciada, muestra "Iniciar sesión" y "Registrarse"', async () => {
+  it('sin sesión iniciada, muestra el icono de usuario (a /login) y el icono de carrito inerte', async () => {
     renderNavbar()
 
-    expect(await screen.findByText('Iniciar sesión')).toBeInTheDocument()
-    expect(screen.getByText('Registrarse')).toBeInTheDocument()
+    const iconoUsuario = await screen.findByLabelText('Iniciar sesión')
+    expect(iconoUsuario).toBeInTheDocument()
+    expect(iconoUsuario.tagName).toBe('A')
+    expect(iconoUsuario).toHaveAttribute('href', '/login')
+
+    const iconoCarrito = screen.getByTitle(/carrito/i)
+    expect(iconoCarrito).toHaveAttribute('aria-disabled', 'true')
   })
 
-  it('con sesión iniciada, muestra el username y el botón de cerrar sesión, que llama a logout', async () => {
+  it('con sesión iniciada, muestra los mismos iconos (carrito + usuario) y el icono de usuario abre un menú con "Cerrar sesión", que llama a logout', async () => {
     localStorage.setItem('session', JSON.stringify({ isLoggedIn: true, userId: '1', username: 'carlos' }))
     authService.silentRefresh.mockResolvedValueOnce({ ok: true, data: { userId: '1', username: 'carlos' } })
     authService.logout.mockResolvedValueOnce({ ok: true })
 
+    const user = userEvent.setup()
     renderNavbar()
 
-    expect(await screen.findByText('carlos')).toBeInTheDocument()
-    expect(screen.queryByText('Iniciar sesión')).not.toBeInTheDocument()
+    const iconoUsuario = await screen.findByLabelText('Menú de usuario')
+    expect(iconoUsuario.tagName).toBe('BUTTON')
+    expect(screen.queryByLabelText('Iniciar sesión')).not.toBeInTheDocument()
+    expect(screen.getByTitle(/carrito/i)).toBeInTheDocument()
 
-    const user = userEvent.setup()
+    expect(screen.queryByText('Cerrar sesión')).not.toBeInTheDocument()
+    await user.click(iconoUsuario)
+
     await user.click(screen.getByText('Cerrar sesión'))
 
     await waitFor(() => expect(authService.logout).toHaveBeenCalledTimes(1))
@@ -71,7 +81,7 @@ describe('Navbar', () => {
 
   it('los enlaces "Juegos", "Novedades" y "Comunidad" no son elementos navegables', async () => {
     renderNavbar()
-    await screen.findByText('Iniciar sesión')
+    await screen.findByLabelText('Iniciar sesión')
 
     for (const texto of ['Juegos', 'Novedades', 'Comunidad']) {
       const elemento = screen.getByText(texto)

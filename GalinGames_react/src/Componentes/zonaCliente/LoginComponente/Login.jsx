@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import InputBox from '../../compGlobales/InputBoxComponente/InputBox'
 import ErrorPage from '../../compGlobales/ErrorPageComponente/ErrorPage'
-import Navbar from '../../compGlobales/NavbarComponente/Navbar'
+import ThemeToggle from '../../compGlobales/NavbarComponente/ThemeToggle'
+import BotonesSocial from '../../compGlobales/SocialLoginComponente/BotonesSocial'
 import { authService } from '../../../servicios/authService'
 import { useAuth } from '../../../hooks/useAuth'
 import './Login.scss'
 
 const USERNAME_MAX_LENGTH = 50
 const PASSWORD_MAX_LENGTH = 128
+const EMAIL_VERIFICADO_DURACION_MS = 60000
 
 function Login() {
   const [campos, setCampos] = useState({ username: '', password: '' })
@@ -20,7 +22,7 @@ function Login() {
   const navigate = useNavigate()
   const authContext = useAuth()
   const [searchParams] = useSearchParams()
-  const emailVerificado = searchParams.get('verificado') === 'true'
+  const [emailVerificado, setEmailVerificado] = useState(() => searchParams.get('verificado') === 'true')
 
   useEffect(() => {
     if (retryCountdown <= 0) return undefined
@@ -29,6 +31,12 @@ function Login() {
     }, 1000)
     return () => clearInterval(intervalId)
   }, [retryCountdown])
+
+  useEffect(() => {
+    if (!emailVerificado) return undefined
+    const timeoutId = setTimeout(() => setEmailVerificado(false), EMAIL_VERIFICADO_DURACION_MS)
+    return () => clearTimeout(timeoutId)
+  }, [emailVerificado])
 
   const handleUsernameChange = (e) => {
     setCampos((prev) => ({ ...prev, username: e.target.value.slice(0, USERNAME_MAX_LENGTH) }))
@@ -84,55 +92,62 @@ function Login() {
   }
 
   return (
-    <>
-      <Navbar />
-      <main className="pagina-tematica">
-        <div className="pagina-tematica__contenido">
-          <div className="tarjeta-tema">
-            <form onSubmit={handleSubmit} autoComplete="off">
-              <h1 className="titulo-tema">Iniciar sesión</h1>
+    <div className="pagina-dividida">
+      <ThemeToggle />
+      <div className="pagina-dividida__formulario">
+        <form onSubmit={handleSubmit} autoComplete="off">
+          <h1 className="titulo-tema">Iniciar sesión</h1>
 
-              {emailVerificado && (
-                <p className="texto-tema" role="status">¡Email verificado correctamente! Ya puedes iniciar sesión.</p>
-              )}
+          <BotonesSocial />
 
-              <InputBox
-                nameInput="username"
-                labelInput="Nombre de usuario"
-                typeInput="text"
-                placeholderInput="Introduce tu nombre de usuario..."
-                eventoOnChange={handleUsernameChange}
-              />
-              <InputBox
-                nameInput="password"
-                labelInput="Contraseña"
-                typeInput="password"
-                placeholderInput="Introduce tu contraseña..."
-                eventoOnChange={handlePasswordChange}
-              />
+          {emailVerificado && (
+            <p className="texto-tema texto-tema--exito" role="status">¡Email verificado correctamente! Ya puedes iniciar sesión.</p>
+          )}
 
-              {error && <p className="texto-tema" role="alert">{error}</p>}
-              {retryCountdown > 0 && (
-                <p className="texto-tema" role="alert">Vuelve a intentarlo en {retryCountdown} segundos.</p>
-              )}
+          <InputBox
+            nameInput="username"
+            labelInput="Nombre de usuario"
+            typeInput="text"
+            placeholderInput="Nombre de usuario"
+            eventoOnChange={handleUsernameChange}
+            ocultarLabel
+          />
+          <InputBox
+            nameInput="password"
+            labelInput="Contraseña"
+            typeInput="password"
+            placeholderInput="Contraseña"
+            eventoOnChange={handlePasswordChange}
+            ocultarLabel
+          />
 
-              <div className="mt-3 w-100 d-flex justify-content-end">
-                <button
-                  type="submit"
-                  className="boton-primario"
-                  disabled={loading || retryCountdown > 0}
-                >
-                  {loading ? 'Entrando...' : 'Entrar'}
-                </button>
-              </div>
-              <div>
-                <Link to="/registro" className="texto-tema texto-tema--condiciones text-decoration-underline">¿No tienes cuenta? Regístrate</Link>
-              </div>
-            </form>
+          {error && <p className="texto-tema" role="alert">{error}</p>}
+          {retryCountdown > 0 && (
+            <p className="texto-tema" role="alert">Vuelve a intentarlo en {retryCountdown} segundos.</p>
+          )}
+
+          <div className="mt-2 w-100 d-flex justify-content-center">
+            <button
+              type="submit"
+              className="boton-primario"
+              disabled={loading || retryCountdown > 0}
+            >
+              {loading ? 'Entrando...' : 'Entrar'}
+            </button>
           </div>
-        </div>
-      </main>
-    </>
+          <div className="pagina-dividida__enlaces-fila">
+            <Link to="/registro" className="texto-tema texto-tema--condiciones pagina-dividida__enlace-secundario">¿Aún no tienes cuenta?</Link>
+            <Link to="#" className="texto-tema texto-tema--condiciones pagina-dividida__enlace-secundario" aria-disabled="true">¿Has olvidado tu contraseña?</Link>
+          </div>
+          <Link to="/" className="pagina-dividida__volver">‹ Volver al inicio</Link>
+        </form>
+      </div>
+      <div className="pagina-dividida__imagen">
+        <button type="button" className="pagina-dividida__cerrar" onClick={() => navigate('/')} aria-label="Volver al inicio">
+          ×
+        </button>
+      </div>
+    </div>
   )
 }
 

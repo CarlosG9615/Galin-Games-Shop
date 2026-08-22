@@ -1,12 +1,12 @@
 import './InputBox.scss';
 
-function InputBox(props){
+function InputBox({ ocultarLabel, ...props }){
     console.log(`valores recibidos desde el componente padre: ${JSON.stringify(props)}`);
     return(
-        <div className="mb-3">
-            <label 
-                htmlFor={props.nameInput} 
-                className="form-label videojuego-text">{props.labelInput}
+        <div className="mb-2">
+            <label
+                htmlFor={props.nameInput}
+                className={`form-label texto-tema${ocultarLabel ? ' visualmente-oculto' : ''}`}>{props.labelInput}
             </label>
             <input 
                 type={props.typeInput} 
