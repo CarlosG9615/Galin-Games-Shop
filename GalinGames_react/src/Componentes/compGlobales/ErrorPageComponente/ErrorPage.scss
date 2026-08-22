@@ -1,0 +1,22 @@
+// Sustituye a .error-page-contenido/.error-page-codigo (colores morados fijos) por
+// reglas anidadas sobre .tarjeta-tema, consumiendo los tokens del tema activo en vez
+// de un color propio (Requisito 9.2).
+@use '../../../styles/shared' as *;
+
+.tarjeta-tema--error {
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.error-page-codigo {
+  font-size: 5rem;
+  margin-bottom: 0;
+  line-height: 1;
+}
+
+@media (max-width: 480px) {
+  .error-page-codigo {
+    font-size: 3rem;
+  }
+}

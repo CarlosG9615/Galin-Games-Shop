@@ -1,20 +1,48 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../../hooks/useAuth'
 import ThemeToggle from './ThemeToggle'
-import { IconoBusqueda, IconoGlobo, IconoUsuario } from './NavbarIconos'
+import { IconoBusqueda, IconoGlobo, IconoUsuario, IconoCarrito } from './NavbarIconos'
 import './Navbar.scss'
 
 const ENLACES_PROXIMAMENTE = ['Juegos', 'Novedades', 'Comunidad']
 
 function Navbar() {
-  const { isAuthenticated, user, logout } = useAuth()
+  const { isAuthenticated, logout } = useAuth()
   const [menuAbierto, setMenuAbierto] = useState(false)
   const [categoriasAbiertas, setCategoriasAbiertas] = useState(false)
+  const [menuUsuarioAbierto, setMenuUsuarioAbierto] = useState(false)
+  const menuUsuarioRef = useRef(null)
 
   const cerrarMenu = () => {
     setMenuAbierto(false)
     setCategoriasAbiertas(false)
+    setMenuUsuarioAbierto(false)
+  }
+
+  useEffect(() => {
+    if (!menuUsuarioAbierto) return undefined
+
+    const handleClickFuera = (e) => {
+      if (menuUsuarioRef.current && !menuUsuarioRef.current.contains(e.target)) {
+        setMenuUsuarioAbierto(false)
+      }
+    }
+    const handleTecla = (e) => {
+      if (e.key === 'Escape') setMenuUsuarioAbierto(false)
+    }
+
+    document.addEventListener('mousedown', handleClickFuera)
+    document.addEventListener('keydown', handleTecla)
+    return () => {
+      document.removeEventListener('mousedown', handleClickFuera)
+      document.removeEventListener('keydown', handleTecla)
+    }
+  }, [menuUsuarioAbierto])
+
+  const handleCerrarSesion = () => {
+    setMenuUsuarioAbierto(false)
+    logout()
   }
 
   return (
@@ -76,24 +104,41 @@ function Navbar() {
 
             <span className="navbar__divisor" aria-hidden="true" />
 
-            {isAuthenticated ? (
-              <div className="navbar__sesion">
-                <span className="navbar__usuario">{user?.username}</span>
-                <button type="button" className="navbar__cerrar-sesion" onClick={logout}>
-                  Cerrar sesión
-                </button>
-              </div>
-            ) : (
-              <div className="navbar__sesion">
-                <Link to="/login" className="navbar__link navbar__link--sesion" onClick={cerrarMenu}>
+            <div className="navbar__sesion">
+              <span className="navbar__icono-carrito" aria-disabled="true" title="Carrito (próximamente)">
+                <IconoCarrito />
+              </span>
+              {isAuthenticated ? (
+                <div className="navbar__menu-usuario" ref={menuUsuarioRef}>
+                  <button
+                    type="button"
+                    className="navbar__icono-usuario"
+                    aria-haspopup="true"
+                    aria-expanded={menuUsuarioAbierto}
+                    aria-label="Menú de usuario"
+                    onClick={() => setMenuUsuarioAbierto((prev) => !prev)}
+                  >
+                    <IconoUsuario />
+                  </button>
+                  {menuUsuarioAbierto && (
+                    <ul className="navbar__dropdown">
+                      <li><span className="navbar__dropdown-link" aria-disabled="true">Soporte</span></li>
+                      <li><span className="navbar__dropdown-link" aria-disabled="true">Mi cuenta</span></li>
+                      <li><span className="navbar__dropdown-link" aria-disabled="true">Mis pedidos</span></li>
+                      <li>
+                        <button type="button" className="navbar__dropdown-link" onClick={handleCerrarSesion}>
+                          Cerrar sesión
+                        </button>
+                      </li>
+                    </ul>
+                  )}
+                </div>
+              ) : (
+                <Link to="/login" className="navbar__icono-usuario" onClick={cerrarMenu} aria-label="Iniciar sesión">
                   <IconoUsuario />
-                  Iniciar sesión
                 </Link>
-                <Link to="/registro" className="boton-primario navbar__boton-registro" onClick={cerrarMenu}>
-                  Registrarse
-                </Link>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </nav>

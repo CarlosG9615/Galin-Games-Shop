@@ -5,6 +5,7 @@ import fc from 'fast-check'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import Login from './Login'
 import { AuthProvider } from '../../../globalState/authContext'
+import { ThemeProvider } from '../../../globalState/themeContext'
 import { authService } from '../../../servicios/authService'
 
 vi.mock('../../../servicios/authService', () => ({
@@ -18,12 +19,14 @@ vi.mock('../../../servicios/authService', () => ({
 function renderLogin(initialEntry = '/login') {
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
-      <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<div>HOME</div>} />
-        </Routes>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<div>HOME</div>} />
+          </Routes>
+        </AuthProvider>
+      </ThemeProvider>
     </MemoryRouter>
   )
 }

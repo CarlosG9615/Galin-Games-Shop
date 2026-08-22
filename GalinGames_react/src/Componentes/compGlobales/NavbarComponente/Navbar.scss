@@ -106,13 +106,6 @@ $navbar-padding-x: 1.5rem;
         color: var(--color-texto-tenue);
       }
     }
-
-    // Enlace real (Iniciar sesión) con icono decorativo delante.
-    &--sesion {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
   }
 
   // Sin .navbar__enlaces disputando espacio en el flujo normal (está en absolute),
@@ -162,29 +155,98 @@ $navbar-padding-x: 1.5rem;
     gap: 1rem;
   }
 
-  &__usuario {
-    color: var(--color-texto);
-    font-weight: 600;
-  }
+  // Icono de carrito: decorativo, sin funcionalidad todavía (mismo patrón "próximamente"
+  // que .navbar__link--proximamente, Requisito 4.2).
+  &__icono-carrito {
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-texto-tenue);
+    cursor: default;
 
-  &__cerrar-sesion {
-    background: transparent;
-    border: 1px solid var(--color-texto-tenue);
-    border-radius: 8px;
-    color: var(--color-texto);
-    padding: 0.35rem 0.85rem;
-    cursor: pointer;
-
-    @include transicion-suave(border-color 0.2s ease);
-
-    &:hover {
-      border-color: var(--color-acento);
+    svg {
+      width: 28px;
+      height: 28px;
     }
   }
 
-  &__boton-registro {
-    padding: 0.4rem 1.25rem;
-    font-size: 0.95rem;
+  // Icono de usuario: sustituye a "Iniciar sesión"/"Registrarse" (Requisito 4.1, 4.3-4.4).
+  // También hace de disparador del menú de usuario cuando hay sesión (por eso resetea
+  // border/padding/font — a diferencia del <Link> sin sesión, aquí es un <button> real
+  // y hereda los estilos de botón por defecto de index.scss si no se anulan).
+  &__icono-usuario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-fondo-elevado);
+    color: var(--color-texto);
+    font: inherit;
+    cursor: pointer;
+
+    svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    @include transicion-suave(background-color 0.2s ease);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--color-acento);
+    }
+  }
+
+  // Envoltorio del disparador + desplegable, con sesión iniciada.
+  &__menu-usuario {
+    position: relative;
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    right: 0;
+    min-width: 190px;
+    margin: 0;
+    padding: 0.5rem 0;
+    list-style: none;
+    background: var(--color-fondo-elevado);
+    border: 1px solid var(--color-acento-borde);
+    border-radius: 12px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 10;
+  }
+
+  &__dropdown-link {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 1.1rem;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-texto);
+    font: inherit;
+    font-size: 0.9rem;
+    text-align: left;
+    cursor: pointer;
+
+    @include transicion-suave(background-color 0.15s ease, color 0.15s ease);
+
+    &[aria-disabled='true'] {
+      color: var(--color-texto-tenue);
+      cursor: default;
+    }
+
+    &:not([aria-disabled='true']):hover,
+    &:not([aria-disabled='true']):focus-visible {
+      background: var(--color-fondo);
+      color: var(--color-acento);
+    }
   }
 }
 

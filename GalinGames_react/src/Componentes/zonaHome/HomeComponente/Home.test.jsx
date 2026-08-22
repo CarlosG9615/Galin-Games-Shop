@@ -30,7 +30,7 @@ describe('Home', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText('Iniciar sesión')).toBeInTheDocument()
+    expect(await screen.findByLabelText('Iniciar sesión')).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 1, name: 'LO MÁS JUGADO' })).toBeInTheDocument()
     expect(screen.getAllByRole('img').filter((img) => img.closest('.game-card'))).toHaveLength(6)
   })

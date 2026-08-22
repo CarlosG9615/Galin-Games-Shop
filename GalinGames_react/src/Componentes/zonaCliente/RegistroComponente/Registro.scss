@@ -1,0 +1,4 @@
+// Registro no tiene ninguna regla propia más allá de las clases ya cubiertas por
+// _shared.scss (.pagina-dividida/.titulo-tema/.texto-tema/.boton-primario); se mantiene
+// el @use para garantizar que esas reglas están disponibles en el bundle (Requisito 9.2).
+@use '../../../styles/shared' as *;

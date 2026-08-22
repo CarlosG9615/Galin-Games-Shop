@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import Registro from './Registro'
+import { ThemeProvider } from '../../../globalState/themeContext'
 import { authService } from '../../../servicios/authService'
 
 vi.mock('../../../servicios/authService', () => ({
@@ -14,10 +15,12 @@ vi.mock('../../../servicios/authService', () => ({
 function renderRegistro() {
   return render(
     <MemoryRouter initialEntries={['/registro']}>
-      <Routes>
-        <Route path="/registro" element={<Registro />} />
-        <Route path="/login" element={<div>LOGIN_PAGE</div>} />
-      </Routes>
+      <ThemeProvider>
+        <Routes>
+          <Route path="/registro" element={<Registro />} />
+          <Route path="/login" element={<div>LOGIN_PAGE</div>} />
+        </Routes>
+      </ThemeProvider>
     </MemoryRouter>
   )
 }
@@ -33,7 +36,6 @@ async function rellenarFormulario(user, overrides = {}) {
     await user.type(screen.getByLabelText(label), valor)
   }
   await user.click(screen.getByLabelText(/términos y condiciones/i))
-  await user.click(screen.getByLabelText(/política de privacidad/i))
 }
 
 describe('Registro', () => {
