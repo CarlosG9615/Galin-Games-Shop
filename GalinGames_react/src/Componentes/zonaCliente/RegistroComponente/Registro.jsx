@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import InputBox from '/src/Componentes/compGlobales/InputBoxComponente/InputBox'
+import ThemeToggle from '../../compGlobales/NavbarComponente/ThemeToggle'
 import { authService } from '../../../servicios/authService'
-import './Registro.css'
+import './Registro.scss'
 
 const CAMPOS_FORM = [
   { name: 'username', label: 'Nombre de usuario', type: 'text' },
@@ -17,8 +18,7 @@ const CAMPOS_INICIALES = { username: '', nombre: '', apellidos: '', email: '', p
 
 function Registro() {
   const [campos, setCampos] = useState(CAMPOS_INICIALES)
-  const [aceptaTerminos, setAceptaTerminos] = useState(false)
-  const [aceptaPrivacidad, setAceptaPrivacidad] = useState(false)
+  const [aceptaCondiciones, setAceptaCondiciones] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
@@ -42,7 +42,7 @@ function Registro() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!aceptaTerminos || !aceptaPrivacidad) {
+    if (!aceptaCondiciones) {
       alert('Debes aceptar los términos y la política de privacidad.')
       return
     }
@@ -103,79 +103,64 @@ function Registro() {
     setError('Ha ocurrido un problema inesperado. Inténtalo de nuevo más tarde.')
   }
 
-  if (successMessage) {
-    return (
-      <div style={{ minHeight: '100vh', width: '100vw', position: 'relative' }}>
-        <div className="fondo-gaming" style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh' }} />
-        <div style={{ minHeight: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 10 }}>
-          <div className="contenido-registro marginForm rounded">
-            <p className="videojuego-text" role="status">{successMessage}</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', position: 'relative' }}>
-      <div className="fondo-gaming" style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh' }} />
-      <div style={{ minHeight: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 10 }}>
-        <div className="contenido-registro form-box">
+    <div className="pagina-dividida">
+      <ThemeToggle />
+      <div className="pagina-dividida__formulario">
+        {successMessage ? (
+          <p className="texto-tema" role="status">{successMessage}</p>
+        ) : (
           <form onSubmit={handleSubmit} autoComplete="off">
-            <div className="mb-3 color-fondo marginForm rounded">
-              <h1 className="videojuego-title">Datos de la cuenta</h1>
-              {CAMPOS_FORM.map(({ name, label, type }) => (
-                <div key={name}>
-                  <InputBox
-                    nameInput={name}
-                    labelInput={label}
-                    typeInput={type}
-                    placeholderInput={`Introduce tu ${label.toLowerCase()}...`}
-                    eventoOnChange={handleFieldChange(name)}
-                  />
-                  {fieldErrors[name] && <p className="videojuego-text" role="alert">{fieldErrors[name]}</p>}
-                </div>
-              ))}
-              <div className="d-flex align-items-center gap-2 mt-3">
-                <input
-                  type="checkbox"
-                  className="form-check-input"
-                  id="comprobarTerminos"
-                  checked={aceptaTerminos}
-                  onChange={e => setAceptaTerminos(e.target.checked)}
-                />
-                <label className="form-check-label videojuego-conditions" htmlFor="comprobarTerminos">Acepto los términos y condiciones</label>
-              </div>
-              <div className="d-flex align-items-center gap-2 mt-2">
-                <input
-                  type="checkbox"
-                  className="form-check-input"
-                  id="comprobarPolitica"
-                  checked={aceptaPrivacidad}
-                  onChange={e => setAceptaPrivacidad(e.target.checked)}
-                />
-                <label className="m-2 form-check-label videojuego-conditions" htmlFor="comprobarPolitica">
-                  He leído y acepto la{' '}
-                  <a href="#" className="text-primary text-decoration-underline">Política de privacidad</a>
-                </label>
-              </div>
+            <h1 className="titulo-tema">Datos de la cuenta</h1>
 
-              {error && <p className="videojuego-text" role="alert">{error}</p>}
-              {retryCountdown > 0 && (
-                <p className="videojuego-text" role="alert">Vuelve a intentarlo en {retryCountdown} segundos.</p>
-              )}
-
-              <div className="mt-3 w-100 d-flex justify-content-end">
-                <button type="submit" className="btn btn-primary botonRegistro" disabled={loading || retryCountdown > 0}>
-                  {loading ? 'Enviando...' : 'Registrarse'}
-                </button>
+            {CAMPOS_FORM.map(({ name, label, type }) => (
+              <div key={name}>
+                <InputBox
+                  nameInput={name}
+                  labelInput={label}
+                  typeInput={type}
+                  placeholderInput={label}
+                  eventoOnChange={handleFieldChange(name)}
+                  ocultarLabel
+                />
+                {fieldErrors[name] && <p className="texto-tema" role="alert">{fieldErrors[name]}</p>}
               </div>
-              <div>
-                <Link to="/login" className="videojuego-conditions text-decoration-underline">¿Ya tienes cuenta? Inicia sesión</Link>
-              </div>
+            ))}
+            <div className="d-flex align-items-center gap-2 mt-2">
+              <input
+                type="checkbox"
+                className="form-check-input"
+                id="comprobarCondiciones"
+                checked={aceptaCondiciones}
+                onChange={e => setAceptaCondiciones(e.target.checked)}
+              />
+              <label className="form-check-label texto-tema texto-tema--condiciones" htmlFor="comprobarCondiciones">
+                Acepto los términos y condiciones y la{' '}
+                <a href="#" className="text-primary text-decoration-underline">política de privacidad</a>
+              </label>
             </div>
+
+            {error && <p className="texto-tema" role="alert">{error}</p>}
+            {retryCountdown > 0 && (
+              <p className="texto-tema" role="alert">Vuelve a intentarlo en {retryCountdown} segundos.</p>
+            )}
+
+            <div className="mt-2 w-100 d-flex justify-content-center">
+              <button type="submit" className="boton-primario" disabled={loading || retryCountdown > 0}>
+                {loading ? 'Enviando...' : 'Registrarse'}
+              </button>
+            </div>
+            <div>
+              <Link to="/login" className="texto-tema texto-tema--condiciones pagina-dividida__enlace-secundario">¿Ya tienes cuenta? Inicia sesión</Link>
+            </div>
+            <Link to="/" className="pagina-dividida__volver">‹ Volver al inicio</Link>
           </form>
-        </div>
+        )}
+      </div>
+      <div className="pagina-dividida__imagen">
+        <button type="button" className="pagina-dividida__cerrar" onClick={() => navigate('/')} aria-label="Volver al inicio">
+          ×
+        </button>
       </div>
     </div>
   )

@@ -1,0 +1,23 @@
+// Sustituye el foco azul por defecto de Bootstrap por el acento del tema activo,
+// sin tocar el comportamiento de InputBox.jsx (required/truncado, Requisito 7.5).
+@use '../../../styles/mixins' as *;
+
+.form-control {
+  background-color: var(--color-fondo-elevado);
+  border: 1px solid var(--color-texto-tenue);
+  color: var(--color-texto);
+
+  @include transicion-suave(border-color 0.15s, box-shadow 0.15s);
+
+  &::placeholder {
+    color: var(--color-texto-tenue);
+    opacity: 1; // Firefox atenúa el placeholder por defecto (~0.54); forzado a full.
+  }
+
+  &:focus {
+    background-color: var(--color-fondo-elevado);
+    color: var(--color-texto);
+    border-color: var(--color-acento);
+    box-shadow: 0 0 0 0.25rem var(--color-acento-borde);
+  }
+}
