@@ -1,3 +1,5 @@
+import './InputBox.scss';
+
 function InputBox(props){
     console.log(`valores recibidos desde el componente padre: ${JSON.stringify(props)}`);
     return(

@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import InputBox from '../../compGlobales/InputBoxComponente/InputBox'
 import ErrorPage from '../../compGlobales/ErrorPageComponente/ErrorPage'
+import Navbar from '../../compGlobales/NavbarComponente/Navbar'
 import { authService } from '../../../servicios/authService'
 import { useAuth } from '../../../hooks/useAuth'
-import './Login.css'
+import './Login.scss'
 
 const USERNAME_MAX_LENGTH = 50
 const PASSWORD_MAX_LENGTH = 128
@@ -83,16 +84,16 @@ function Login() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', position: 'relative' }}>
-      <div className="fondo-gaming" style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh' }} />
-      <div style={{ minHeight: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 10 }}>
-        <div className="contenido-registro form-box">
-          <form onSubmit={handleSubmit} autoComplete="off">
-            <div className="mb-3 color-fondo marginForm rounded">
-              <h1 className="videojuego-title">Iniciar sesión</h1>
+    <>
+      <Navbar />
+      <main className="pagina-tematica">
+        <div className="pagina-tematica__contenido">
+          <div className="tarjeta-tema">
+            <form onSubmit={handleSubmit} autoComplete="off">
+              <h1 className="titulo-tema">Iniciar sesión</h1>
 
               {emailVerificado && (
-                <p className="videojuego-text" role="status">¡Email verificado correctamente! Ya puedes iniciar sesión.</p>
+                <p className="texto-tema" role="status">¡Email verificado correctamente! Ya puedes iniciar sesión.</p>
               )}
 
               <InputBox
@@ -110,28 +111,28 @@ function Login() {
                 eventoOnChange={handlePasswordChange}
               />
 
-              {error && <p className="videojuego-text" role="alert">{error}</p>}
+              {error && <p className="texto-tema" role="alert">{error}</p>}
               {retryCountdown > 0 && (
-                <p className="videojuego-text" role="alert">Vuelve a intentarlo en {retryCountdown} segundos.</p>
+                <p className="texto-tema" role="alert">Vuelve a intentarlo en {retryCountdown} segundos.</p>
               )}
 
               <div className="mt-3 w-100 d-flex justify-content-end">
                 <button
                   type="submit"
-                  className="btn btn-primary botonRegistro"
+                  className="boton-primario"
                   disabled={loading || retryCountdown > 0}
                 >
                   {loading ? 'Entrando...' : 'Entrar'}
                 </button>
               </div>
               <div>
-                <Link to="/registro" className="videojuego-conditions text-decoration-underline">¿No tienes cuenta? Regístrate</Link>
+                <Link to="/registro" className="texto-tema texto-tema--condiciones text-decoration-underline">¿No tienes cuenta? Regístrate</Link>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   )
 }
 

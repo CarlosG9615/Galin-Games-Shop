@@ -1,0 +1,12 @@
+// Sustituye el foco azul por defecto de Bootstrap por el acento del tema activo,
+// sin tocar el comportamiento de InputBox.jsx (required/truncado, Requisito 7.5).
+@use '../../../styles/mixins' as *;
+
+.form-control {
+  @include transicion-suave(border-color 0.15s, box-shadow 0.15s);
+
+  &:focus {
+    border-color: var(--color-acento);
+    box-shadow: 0 0 0 0.25rem var(--color-acento-borde);
+  }
+}

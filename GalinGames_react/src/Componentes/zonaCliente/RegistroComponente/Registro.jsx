@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import InputBox from '/src/Componentes/compGlobales/InputBoxComponente/InputBox'
+import Navbar from '../../compGlobales/NavbarComponente/Navbar'
 import { authService } from '../../../servicios/authService'
-import './Registro.css'
+import './Registro.scss'
 
 const CAMPOS_FORM = [
   { name: 'username', label: 'Nombre de usuario', type: 'text' },
@@ -105,25 +106,27 @@ function Registro() {
 
   if (successMessage) {
     return (
-      <div style={{ minHeight: '100vh', width: '100vw', position: 'relative' }}>
-        <div className="fondo-gaming" style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh' }} />
-        <div style={{ minHeight: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 10 }}>
-          <div className="contenido-registro marginForm rounded">
-            <p className="videojuego-text" role="status">{successMessage}</p>
+      <>
+        <Navbar />
+        <main className="pagina-tematica">
+          <div className="pagina-tematica__contenido">
+            <div className="tarjeta-tema">
+              <p className="texto-tema" role="status">{successMessage}</p>
+            </div>
           </div>
-        </div>
-      </div>
+        </main>
+      </>
     )
   }
 
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', position: 'relative' }}>
-      <div className="fondo-gaming" style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh' }} />
-      <div style={{ minHeight: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 10 }}>
-        <div className="contenido-registro form-box">
-          <form onSubmit={handleSubmit} autoComplete="off">
-            <div className="mb-3 color-fondo marginForm rounded">
-              <h1 className="videojuego-title">Datos de la cuenta</h1>
+    <>
+      <Navbar />
+      <main className="pagina-tematica">
+        <div className="pagina-tematica__contenido">
+          <div className="tarjeta-tema">
+            <form onSubmit={handleSubmit} autoComplete="off">
+              <h1 className="titulo-tema">Datos de la cuenta</h1>
               {CAMPOS_FORM.map(({ name, label, type }) => (
                 <div key={name}>
                   <InputBox
@@ -133,7 +136,7 @@ function Registro() {
                     placeholderInput={`Introduce tu ${label.toLowerCase()}...`}
                     eventoOnChange={handleFieldChange(name)}
                   />
-                  {fieldErrors[name] && <p className="videojuego-text" role="alert">{fieldErrors[name]}</p>}
+                  {fieldErrors[name] && <p className="texto-tema" role="alert">{fieldErrors[name]}</p>}
                 </div>
               ))}
               <div className="d-flex align-items-center gap-2 mt-3">
@@ -144,7 +147,7 @@ function Registro() {
                   checked={aceptaTerminos}
                   onChange={e => setAceptaTerminos(e.target.checked)}
                 />
-                <label className="form-check-label videojuego-conditions" htmlFor="comprobarTerminos">Acepto los términos y condiciones</label>
+                <label className="form-check-label texto-tema texto-tema--condiciones" htmlFor="comprobarTerminos">Acepto los términos y condiciones</label>
               </div>
               <div className="d-flex align-items-center gap-2 mt-2">
                 <input
@@ -154,30 +157,30 @@ function Registro() {
                   checked={aceptaPrivacidad}
                   onChange={e => setAceptaPrivacidad(e.target.checked)}
                 />
-                <label className="m-2 form-check-label videojuego-conditions" htmlFor="comprobarPolitica">
+                <label className="m-2 form-check-label texto-tema texto-tema--condiciones" htmlFor="comprobarPolitica">
                   He leído y acepto la{' '}
                   <a href="#" className="text-primary text-decoration-underline">Política de privacidad</a>
                 </label>
               </div>
 
-              {error && <p className="videojuego-text" role="alert">{error}</p>}
+              {error && <p className="texto-tema" role="alert">{error}</p>}
               {retryCountdown > 0 && (
-                <p className="videojuego-text" role="alert">Vuelve a intentarlo en {retryCountdown} segundos.</p>
+                <p className="texto-tema" role="alert">Vuelve a intentarlo en {retryCountdown} segundos.</p>
               )}
 
               <div className="mt-3 w-100 d-flex justify-content-end">
-                <button type="submit" className="btn btn-primary botonRegistro" disabled={loading || retryCountdown > 0}>
+                <button type="submit" className="boton-primario" disabled={loading || retryCountdown > 0}>
                   {loading ? 'Enviando...' : 'Registrarse'}
                 </button>
               </div>
               <div>
-                <Link to="/login" className="videojuego-conditions text-decoration-underline">¿Ya tienes cuenta? Inicia sesión</Link>
+                <Link to="/login" className="texto-tema texto-tema--condiciones text-decoration-underline">¿Ya tienes cuenta? Inicia sesión</Link>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   )
 }
 

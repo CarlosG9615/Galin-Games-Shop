@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import './ErrorPage.css'
+import Navbar from '../NavbarComponente/Navbar'
+import './ErrorPage.scss'
 
 const ERROR_CONFIG = {
   400: { title: 'Petición incorrecta', message: 'Los datos enviados no son válidos. Revisa el formulario.' },
@@ -44,23 +45,25 @@ function ErrorPage({ code: codeProp, retryAfter }) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', position: 'relative' }}>
-      <div className="fondo-gaming" style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh' }} />
-      <div style={{ minHeight: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 10 }}>
-        <div className="error-page-contenido">
-          <span className="error-page-codigo videojuego-title">{code || '???'}</span>
-          <h1 className="videojuego-title">{config.title}</h1>
-          {code === 429 && retryAfter ? (
-            <p className="videojuego-text">Podrás volver a intentarlo en {countdown} segundos.</p>
-          ) : (
-            <p className="videojuego-text">{config.message}</p>
-          )}
-          <button type="button" className="btn btn-primary botonRegistro" onClick={handleVolver}>
-            Volver al login
-          </button>
+    <>
+      <Navbar />
+      <main className="pagina-tematica">
+        <div className="pagina-tematica__contenido">
+          <div className="tarjeta-tema tarjeta-tema--error">
+            <span className="error-page-codigo titulo-tema">{code || '???'}</span>
+            <h1 className="titulo-tema">{config.title}</h1>
+            {code === 429 && retryAfter ? (
+              <p className="texto-tema">Podrás volver a intentarlo en {countdown} segundos.</p>
+            ) : (
+              <p className="texto-tema">{config.message}</p>
+            )}
+            <button type="button" className="boton-primario" onClick={handleVolver}>
+              Volver al login
+            </button>
+          </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   )
 }
 

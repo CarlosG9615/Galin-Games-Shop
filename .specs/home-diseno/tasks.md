@@ -259,24 +259,27 @@ Plan de implementación de la nueva Home pública de GalinGames con dos temas vi
 
 ---
 
-- [ ] 13. `InputBox.css` → `InputBox.scss`
+- [x] 13. `InputBox.css` → `InputBox.scss`
   **Dependencias:** Task 2
   **Requisitos:** Req 7.5
 
-  - [ ] 13.1 Renombrar `InputBox.css` a `InputBox.scss`; añadir estilos de borde/foco (`border-color: var(--color-acento)` en `:focus`) sustituyendo el foco azul por defecto de Bootstrap, sin modificar `InputBox.jsx` (mismo comportamiento `required`/truncado ya cubierto en `.specs/login-autenticacion/`)
+  - [x] 13.1 Renombrar `InputBox.css` a `InputBox.scss`; añadir estilos de borde/foco (`border-color: var(--color-acento)` en `:focus`) sustituyendo el foco azul por defecto de Bootstrap, sin modificar `InputBox.jsx` (mismo comportamiento `required`/truncado ya cubierto en `.specs/login-autenticacion/`)
     - _Requisitos: 7.5_
+    - _Nota (ajuste sobre la tarea): `InputBox.css` existía pero estaba vacío y no se importaba desde ningún sitio (comprobado por grep) — el nuevo `InputBox.scss` tampoco se habría aplicado nunca sin una línea de `import`. Se añadió `import './InputBox.scss'` en `InputBox.jsx` (única línea tocada del fichero, sin afectar a `required`/truncado/props) para que el estilo de foco realmente tenga efecto._
 
 ---
 
-- [ ] 14. `ErrorPage.css` → `ErrorPage.scss` + `ErrorPage.jsx`
+- [x] 14. `ErrorPage.css` → `ErrorPage.scss` + `ErrorPage.jsx`
   **Dependencias:** Task 7, Task 3
   **Requisitos:** Req 9.2
 
-  - [ ] 14.1 Renombrar `ErrorPage.css` a `ErrorPage.scss`, sustituyendo `.error-page-contenido`/`.error-page-codigo` por reglas anidadas que usen `.tarjeta-tema` y las variables de `_tokens.scss` en vez de los colores morados fijos actuales
+  - [x] 14.1 Renombrar `ErrorPage.css` a `ErrorPage.scss`, sustituyendo `.error-page-contenido`/`.error-page-codigo` por reglas anidadas que usen `.tarjeta-tema` y las variables de `_tokens.scss` en vez de los colores morados fijos actuales
     - _Requisitos: 9.2_
+    - _Nota: `.error-page-contenido` (centrado, fondo morado) se sustituye por `.tarjeta-tema` + un modificador `.tarjeta-tema--error` (align-items/text-align centrados, ya que `.tarjeta-tema` por defecto está alineada a la izquierda para Login/Registro). `.error-page-codigo` se mantiene como clase propia solo para el `font-size: 5rem` (y su variante móvil `3rem`), combinada con `.titulo-tema` para el resto de la tipografía._
 
-  - [ ] 14.2 Modificar `ErrorPage.jsx`: actualizar el import a `./ErrorPage.scss`, incluir `<Navbar />`, y sustituir `fondo-gaming`/`videojuego-title`/`videojuego-text`/`botonRegistro` por `.pagina-tematica`/`.titulo-tema`/`.texto-tema`/`.boton-primario`
+  - [x] 14.2 Modificar `ErrorPage.jsx`: actualizar el import a `./ErrorPage.scss`, incluir `<Navbar />`, y sustituir `fondo-gaming`/`videojuego-title`/`videojuego-text`/`botonRegistro` por `.pagina-tematica`/`.titulo-tema`/`.texto-tema`/`.boton-primario`
     - _Requisitos: 9.2_
+    - _Nota: se sustituyeron también las clases `btn btn-primary` de Bootstrap que envolvían a `botonRegistro` — `.boton-primario` de `_shared.scss` ya define su propio `padding`/`border`/`border-radius`, igual que se hace en `Navbar.jsx` para "Registrarse" (Task 7.4)._
 
 ---
 
@@ -284,15 +287,18 @@ Plan de implementación de la nueva Home pública de GalinGames con dos temas vi
   **Dependencias:** Task 7, Task 3, Task 13
   **Requisitos:** Req 7.1, 7.2, 7.3, 9.2, 9.9
 
-  - [ ] 15.1 Renombrar `Login.css` a `Login.scss`; mover/adaptar la regla de `[role='alert']` existente anidada dentro de la nueva estructura de `.tarjeta-tema`
+  - [x] 15.1 Renombrar `Login.css` a `Login.scss`; mover/adaptar la regla de `[role='alert']` existente anidada dentro de la nueva estructura de `.tarjeta-tema`
     - _Requisitos: 9.2_
 
-  - [ ] 15.2 Modificar `Login.jsx`: incluir `<Navbar />`, sustituir el div `fondo-gaming` + wrapper inline por `.pagina-tematica`/`.pagina-tematica__contenido`/`.tarjeta-tema`, y las clases `videojuego-title`/`videojuego-text`/`botonRegistro`/`contenido-registro`/`marginForm` por sus equivalentes de `_shared.scss`; actualizar el import de estilos a `./Login.scss`
+  - [x] 15.2 Modificar `Login.jsx`: incluir `<Navbar />`, sustituir el div `fondo-gaming` + wrapper inline por `.pagina-tematica`/`.pagina-tematica__contenido`/`.tarjeta-tema`, y las clases `videojuego-title`/`videojuego-text`/`botonRegistro`/`contenido-registro`/`marginForm` por sus equivalentes de `_shared.scss`; actualizar el import de estilos a `./Login.scss`
     - Sin tocar el estado, `handleSubmit`, las llamadas a `authService` ni el manejo de errores/timeout/429 ya implementados
     - _Requisitos: 7.1, 7.2, 7.4, 9.9_
+    - _Nota: el enlace "¿No tienes cuenta? Regístrate" usaba `videojuego-conditions`, mapeado al modificador `.texto-tema--condiciones` de `_shared.scss` — aplicado junto a `.texto-tema` (no solo, ya que `&--condiciones` compila a una clase BEM plana que no hereda por sí sola la tipografía base). Confirmado con `npm run build`/`npm run lint`, ambos sin errores._
+    - _Nota (impacto conocido, no corregido en esta tarea): `Login.test.jsx` todavía envuelve el árbol solo en `MemoryRouter`+`AuthProvider`, sin `ThemeProvider` — al renderizar ahora `<Navbar />` (que usa `useTheme()`), los 8 tests de este fichero fallan con `useTheme debe usarse dentro de ThemeProvider`. Esto es exactamente lo que anticipa `design.md` → "Impacto en tests existentes" y está asignado explícitamente a la Task 17 (Phase 5); no se toca aquí para no adelantar trabajo de otra tarea._
 
   - [ ] 15.3 Checkpoint manual — con `npm run dev`, verificar que `/login` se ve correctamente en ambos temas y que el `ThemeToggle` del Navbar actualiza la tarjeta del formulario de inmediato
     - _Requisitos: 7.3_
+    - _Nota: pendiente de verificación visual real en navegador por el usuario (este entorno no tiene navegador disponible), igual que el checkpoint de la Task 12.4._
 
 ---
 
@@ -300,15 +306,19 @@ Plan de implementación de la nueva Home pública de GalinGames con dos temas vi
   **Dependencias:** Task 7, Task 3, Task 13
   **Requisitos:** Req 7.1, 7.2, 7.3, 9.2, 9.9
 
-  - [ ] 16.1 Renombrar `Registro.css` a `Registro.scss`, anidando `.botonRegistro`/`.videojuego-title`/etc. bajo sus nuevos nombres de `_shared.scss` (ver Task 15.1 como referencia de patrón)
+  - [x] 16.1 Renombrar `Registro.css` a `Registro.scss`, anidando `.botonRegistro`/`.videojuego-title`/etc. bajo sus nuevos nombres de `_shared.scss` (ver Task 15.1 como referencia de patrón)
     - _Requisitos: 9.2_
+    - _Nota: a diferencia de `Login.css`, `Registro.css` no tenía ninguna regla propia más allá de duplicados exactos de lo que ya cubre `_shared.scss` (mismo `.botonRegistro`/`.videojuego-*`/`.marginForm`/etc. que Login, sin ningún `[role='alert']` adicional) — `Registro.scss` queda solo con el `@use` de `_shared` para garantizar que sus clases estén disponibles en el bundle, documentado en el propio fichero._
 
-  - [ ] 16.2 Modificar `Registro.jsx`: incluir `<Navbar />`, aplicar el mismo reemplazo de clases que en Login.jsx (Task 15.2) a los dos `return` del componente (formulario y mensaje de éxito), y actualizar el import de estilos a `./Registro.scss`
+  - [x] 16.2 Modificar `Registro.jsx`: incluir `<Navbar />`, aplicar el mismo reemplazo de clases que en Login.jsx (Task 15.2) a los dos `return` del componente (formulario y mensaje de éxito), y actualizar el import de estilos a `./Registro.scss`
     - Sin tocar el estado, `handleSubmit`, las llamadas a `authService.register` ni el manejo de errores 400/409/429/timeout ya implementados
     - _Requisitos: 7.1, 7.2, 7.4, 9.9_
+    - _Nota: el enlace de "Política de privacidad" (`text-primary text-decoration-underline`, `href="#"`) no forma parte de la lista de clases a sustituir de `design.md`/Task 16.2 y se ha dejado tal cual, fuera de alcance de esta tarea. Confirmado con `npm run build`/`npm run lint`, ambos sin errores._
+    - _Nota (impacto conocido, no corregido en esta tarea): igual que en Login (Task 15.2), `Registro.test.jsx` no envuelve con `ThemeProvider` — sus 4 tests fallan ahora con `useTheme debe usarse dentro de ThemeProvider` al renderizar `<Navbar />`. Corrección asignada a la Task 17 (Phase 5)._
 
   - [ ] 16.3 Checkpoint manual — con `npm run dev`, verificar que `/registro` (incluida la pantalla de éxito tras un registro real) se ve correctamente en ambos temas
     - _Requisitos: 7.3_
+    - _Nota: pendiente de verificación visual real en navegador por el usuario (este entorno no tiene navegador disponible), igual que el checkpoint de la Task 12.4._
 
 ---
 
