@@ -2,13 +2,16 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ThemeProvider } from '../../../globalState/themeContext'
+import { LanguageProvider } from '../../../globalState/languageContext'
 import ThemeToggle from './ThemeToggle'
 
 function renderThemeToggle() {
   return render(
-    <ThemeProvider>
-      <ThemeToggle />
-    </ThemeProvider>,
+    <LanguageProvider>
+      <ThemeProvider>
+        <ThemeToggle />
+      </ThemeProvider>
+    </LanguageProvider>,
   )
 }
 

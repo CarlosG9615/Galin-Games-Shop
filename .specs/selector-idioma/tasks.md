@@ -72,43 +72,43 @@ Plan de implementación de la internacionalización (`react-i18next`) y el selec
 
 ### Fase 4 — Migración de texto por componente
 
-- [ ] 15. Migrar `Navbar.jsx` (resto de texto): namespace `navbar` en `es.json`/`en.json` (`ariaLabel`, enlaces, aria-labels de toggles, `searchTitle`/`cartTitle`, menú de usuario, `loginAria`); `ENLACES_PROXIMAMENTE` pasa a array de claves (`navbar.linkJuegos`, etc.) resueltas con `t()`
+- [x] 15. Migrar `Navbar.jsx` (resto de texto): namespace `navbar` en `es.json`/`en.json` (`ariaLabel`, enlaces, aria-labels de toggles, `searchTitle`/`cartTitle`, menú de usuario, `loginAria`); `ENLACES_PROXIMAMENTE` pasa a array de claves (`navbar.linkJuegos`, etc.) resueltas con `t()`
   **Dependencias:** Tarea 14
   **Requisitos:** 5.1, 5.2, 5.6, 5.7
 
-- [ ] 16. Migrar `ThemeToggle.jsx`: namespace `themeToggle` (`ariaLabelToBlue`, `ariaLabelToRed`, `logoAlt`) en `es.json`/`en.json`; actualizar `ThemeToggle.test.jsx` para envolver con `LanguageProvider`
+- [x] 16. Migrar `ThemeToggle.jsx`: namespace `themeToggle` (`ariaLabelToBlue`, `ariaLabelToRed`, `logoAlt`) en `es.json`/`en.json`; actualizar `ThemeToggle.test.jsx` para envolver con `LanguageProvider`
   **Dependencias:** Tarea 8
   **Requisitos:** 5.1, 5.2, 5.6, 5.7
 
-- [ ] 17. Migrar `HeroSection.jsx`: namespace `hero` (`title`, `discoverSubtitle`, `ctaViewAll`) en `es.json`/`en.json`; actualizar `HeroSection.test.jsx`
+- [x] 17. Migrar `HeroSection.jsx`: namespace `hero` (`title`, `discoverSubtitle`, `ctaViewAll`) en `es.json`/`en.json`; actualizar `HeroSection.test.jsx`
   **Dependencias:** Tarea 8
   **Requisitos:** 5.1, 5.2, 5.6, 5.7
 
-- [ ] 18. Migrar `GamesGrid.jsx`: namespace `gamesGrid` (`title`) en `es.json`/`en.json`, dejando `alt` de cada juego sin traducir (nombres propios); actualizar `GamesGrid.test.jsx`
+- [x] 18. Migrar `GamesGrid.jsx`: namespace `gamesGrid` (`title`) en `es.json`/`en.json`, dejando `alt` de cada juego sin traducir (nombres propios); actualizar `GamesGrid.test.jsx`
   **Dependencias:** Tarea 8
   **Requisitos:** 5.1, 5.2, 5.4, 5.6, 5.7
 
-- [ ] 19. Migrar `BotonesSocial.jsx`: namespace `botonesSocial` (`continueWith` con interpolación `{{proveedor}}`, `orDivider`) en `es.json`/`en.json`, manteniendo los nombres de proveedor (Facebook/Google/Apple/Discord) sin traducir
+- [x] 19. Migrar `BotonesSocial.jsx`: namespace `botonesSocial` (`continueWith` con interpolación `{{proveedor}}`, `orDivider`) en `es.json`/`en.json`, manteniendo los nombres de proveedor (Facebook/Google/Apple/Discord) sin traducir
   **Dependencias:** Tarea 8
   **Requisitos:** 5.1, 5.2, 5.3, 5.6, 5.7
 
-- [ ] 20. Migrar `AppRouter.jsx`: namespace `common` (`loading`) en `es.json`/`en.json`
+- [x] 20. Migrar `AppRouter.jsx`: namespace `common` (`loading`) en `es.json`/`en.json`
   **Dependencias:** Tarea 8
   **Requisitos:** 5.1, 5.2, 5.6, 5.7
 
-- [ ] 21. Migrar `ErrorPage.jsx`: namespace `errorPage` (`backToLogin`, `retryCountdown` con `{{seconds}}`, `unknownCode`, `defaultTitle`, `defaultMessage`, `codes.<código>.title`/`codes.<código>.message` para 400/401/403/404/410/429/500/503) en `es.json`/`en.json`; `ERROR_CONFIG` pasa de objeto estático a función `getErrorConfig(code, t)`; actualizar `ErrorPage.test.jsx` (envolver con `LanguageProvider`, incluido por el `Navbar` que renderiza)
+- [x] 21. Migrar `ErrorPage.jsx`: namespace `errorPage` (`backToLogin`, `retryCountdown` con `{{seconds}}`, `unknownCode`, `defaultTitle`, `defaultMessage`, `codes.<código>.title`/`codes.<código>.message` para 400/401/403/404/410/429/500/503) en `es.json`/`en.json`; `ERROR_CONFIG` pasa de objeto estático a función `getErrorConfig(code, t)`; actualizar `ErrorPage.test.jsx` (envolver con `LanguageProvider`, incluido por el `Navbar` que renderiza)
   **Dependencias:** Tarea 14
   **Requisitos:** 5.1, 5.2, 5.3, 5.5, 5.6, 5.7
 
-- [ ] 22. Migrar `Login.jsx`: namespace `login` (`title`, `emailVerifiedSuccess`, `usernameLabel`, `passwordLabel`, `validationRequired`, `invalidCredentials`, `tooManyAttempts`, `submit`, `submitLoading`, `noAccountYet`, `forgotPassword`) + reutilización de `common.retryIn`/`common.timeoutError`/`common.backToHome`/`common.backToHomeAria` en `es.json`/`en.json`; actualizar `Login.test.jsx` (envolver con `LanguageProvider`)
+- [x] 22. Migrar `Login.jsx`: namespace `login` (`title`, `emailVerifiedSuccess`, `usernameLabel`, `passwordLabel`, `validationRequired`, `invalidCredentials`, `tooManyAttempts`, `submit`, `submitLoading`, `noAccountYet`, `forgotPassword`) + reutilización de `common.retryIn`/`common.timeoutError`/`common.backToHome`/`common.backToHomeAria` en `es.json`/`en.json`; actualizar `Login.test.jsx` (envolver con `LanguageProvider`)
   **Dependencias:** Tarea 8, Tarea 20 (reutiliza `common.*`)
   **Requisitos:** 5.1, 5.2, 5.3, 5.6, 5.7, 7.3
 
-- [ ] 23. Migrar `Registro.jsx`: namespace `registro` (`title`, `fieldUsername`, `fieldNombre`, `fieldApellidos`, `fieldEmail`, `fieldPassword`, `fieldRepetirPassword`, `termsAlert`, `validationRequired`, `passwordMismatch`, `usernameOrEmailInUse`, `reviewFields`, `tooManyRequests`, `unexpectedError`, `successMessage` con `{{username}}`/`{{email}}`, `acceptTerms` vía `<Trans>` con `<1>` embebido, `submit`, `submitLoading`, `alreadyHaveAccount`) + reutilización de `common.*`; `CAMPOS_FORM` pasa a guardar claves de traducción resueltas con `t()` al renderizar; actualizar `Registro.test.jsx` (envolver con `LanguageProvider`)
+- [x] 23. Migrar `Registro.jsx`: namespace `registro` (`title`, `fieldUsername`, `fieldNombre`, `fieldApellidos`, `fieldEmail`, `fieldPassword`, `fieldRepetirPassword`, `termsAlert`, `validationRequired`, `passwordMismatch`, `usernameOrEmailInUse`, `reviewFields`, `tooManyRequests`, `unexpectedError`, `successMessage` con `{{username}}`/`{{email}}`, `acceptTerms` vía `<Trans>` con `<1>` embebido, `submit`, `submitLoading`, `alreadyHaveAccount`) + reutilización de `common.*`; `CAMPOS_FORM` pasa a guardar claves de traducción resueltas con `t()` al renderizar; actualizar `Registro.test.jsx` (envolver con `LanguageProvider`)
   **Dependencias:** Tarea 8, Tarea 20 (reutiliza `common.*`)
   **Requisitos:** 5.1, 5.2, 5.3, 5.6, 5.7, 7.3
 
-- [ ] 24. Verificar `InputBox.jsx`: confirmar que no requiere cambios (recibe `labelInput`/`placeholderInput` ya traducidos desde `Login`/`Registro`) — tarea de verificación, sin cambio de código esperado
+- [x] 24. Verificar `InputBox.jsx`: confirmar que no requiere cambios (recibe `labelInput`/`placeholderInput` ya traducidos desde `Login`/`Registro`) — tarea de verificación, sin cambio de código esperado
   **Dependencias:** Tareas 22, 23
   **Requisitos:** 5.1
 
