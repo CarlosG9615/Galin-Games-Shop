@@ -62,11 +62,11 @@ Plan de implementación de la internacionalización (`react-i18next`) y el selec
 
 ### Fase 3 — Integración del `LanguageToggle` en el Navbar
 
-- [ ] 13. En `Navbar.jsx`, sustituir el bloque estático `<span className="navbar__idioma" aria-disabled="true">...ES</span>` por `<LanguageToggle />` dentro de `navbar__utilidades`
+- [x] 13. En `Navbar.jsx`, sustituir el bloque estático `<span className="navbar__idioma" aria-disabled="true">...ES</span>` por `<LanguageToggle />` dentro de `navbar__utilidades`
   **Dependencias:** Tareas 11, 8
   **Requisitos:** 3.1
 
-- [ ] 14. Actualizar el render helper de `Navbar.test.jsx` (y cualquier otro test que monte `Navbar`, p. ej. `ErrorPage.test.jsx`) para envolver con `<LanguageProvider>`, y añadir un test de que `LanguageToggle` aparece y es funcional dentro del `Navbar`
+- [x] 14. Actualizar el render helper de `Navbar.test.jsx` (y cualquier otro test que monte `Navbar`, p. ej. `ErrorPage.test.jsx`) para envolver con `<LanguageProvider>`, y añadir un test de que `LanguageToggle` aparece y es funcional dentro del `Navbar`
   **Dependencias:** Tarea 13
   **Requisitos:** 3.1 (verificación de integración)
 

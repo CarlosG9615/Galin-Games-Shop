@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../../hooks/useAuth'
 import ThemeToggle from './ThemeToggle'
-import { IconoBusqueda, IconoGlobo, IconoUsuario, IconoCarrito } from './NavbarIconos'
+import LanguageToggle from './LanguageToggle'
+import { IconoBusqueda, IconoUsuario, IconoCarrito } from './NavbarIconos'
 import './Navbar.scss'
 
 const ENLACES_PROXIMAMENTE = ['Juegos', 'Novedades', 'Comunidad']
@@ -96,10 +97,7 @@ function Navbar() {
               <span className="navbar__icono-utilidad" aria-disabled="true" title="Búsqueda (próximamente)">
                 <IconoBusqueda />
               </span>
-              <span className="navbar__idioma" aria-disabled="true" title="Idioma (próximamente)">
-                <IconoGlobo />
-                ES
-              </span>
+              <LanguageToggle />
             </div>
 
             <span className="navbar__divisor" aria-hidden="true" />

@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 import ErrorPage from './ErrorPage'
 import { AuthProvider } from '../../../globalState/authContext'
 import { ThemeProvider } from '../../../globalState/themeContext'
+import { LanguageProvider } from '../../../globalState/languageContext'
 
 vi.mock('../../../servicios/authService', () => ({
   authService: {
@@ -20,11 +21,13 @@ afterEach(() => {
 function renderErrorPage(props) {
   return render(
     <MemoryRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <ErrorPage {...props} />
-        </AuthProvider>
-      </ThemeProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <ErrorPage {...props} />
+          </AuthProvider>
+        </ThemeProvider>
+      </LanguageProvider>
     </MemoryRouter>
   )
 }
