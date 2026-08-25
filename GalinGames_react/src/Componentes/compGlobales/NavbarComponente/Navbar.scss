@@ -90,7 +90,7 @@ $navbar-padding-x: 1.5rem;
     text-decoration: none;
     font-weight: 600;
     letter-spacing: 0.5px;
-    font-size: 0.95rem;
+    font-size: 1.05rem;
 
     @include transicion-suave(color 0.2s ease);
 
@@ -132,7 +132,7 @@ $navbar-padding-x: 1.5rem;
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     font-weight: 600;
     letter-spacing: 0.5px;
   }
