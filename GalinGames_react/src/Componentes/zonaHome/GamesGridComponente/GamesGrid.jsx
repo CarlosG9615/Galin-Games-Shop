@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import GameCard from '../GameCardComponente/GameCard'
 import './GamesGrid.scss'
 
@@ -11,9 +12,11 @@ const JUEGOS = [
 ]
 
 function GamesGrid() {
+  const { t } = useTranslation()
+
   return (
     <section className="games-grid" aria-labelledby="games-grid-titulo">
-      <h2 id="games-grid-titulo" className="games-grid__titulo">TENDENCIAS ›</h2>
+      <h2 id="games-grid-titulo" className="games-grid__titulo">{t('gamesGrid.title')}</h2>
       <div className="games-grid__lista">
         {JUEGOS.map(({ src, alt }) => (
           <GameCard key={src} src={src} alt={alt} />

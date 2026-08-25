@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { AuthProvider } from '../../../globalState/authContext'
 import { ThemeProvider } from '../../../globalState/themeContext'
+import { LanguageProvider } from '../../../globalState/languageContext'
 import { authService } from '../../../servicios/authService'
 import Navbar from './Navbar'
 
@@ -18,11 +19,13 @@ vi.mock('../../../servicios/authService', () => ({
 function renderNavbar() {
   return render(
     <MemoryRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <Navbar />
-        </AuthProvider>
-      </ThemeProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <Navbar />
+          </AuthProvider>
+        </ThemeProvider>
+      </LanguageProvider>
     </MemoryRouter>,
   )
 }
@@ -31,6 +34,7 @@ describe('Navbar', () => {
   beforeEach(() => {
     localStorage.clear()
     document.documentElement.removeAttribute('data-theme')
+    document.documentElement.removeAttribute('lang')
     vi.clearAllMocks()
   })
 
@@ -89,5 +93,20 @@ describe('Navbar', () => {
       expect(elemento.tagName).not.toBe('BUTTON')
       expect(elemento).toHaveAttribute('aria-disabled', 'true')
     }
+  })
+
+  it('el LanguageToggle está presente y permite cambiar de idioma desde el Navbar', async () => {
+    const user = userEvent.setup()
+    renderNavbar()
+    await screen.findByLabelText('Iniciar sesión')
+
+    const botonIdioma = screen.getByRole('button', { name: 'Cambiar idioma' })
+    expect(botonIdioma).toHaveTextContent('ES')
+
+    await user.click(botonIdioma)
+    await user.click(screen.getByRole('menuitem', { name: 'Inglés' }))
+
+    expect(botonIdioma).toHaveTextContent('EN')
+    expect(document.documentElement.getAttribute('lang')).toBe('en')
   })
 })

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { IconoFacebook, IconoGoogle, IconoApple, IconoDiscord } from './SocialIconos'
 
 // Fila de accesos sociales + separador "o", reutilizada tal cual por Login.jsx y
@@ -12,6 +13,8 @@ const PROVEEDORES = [
 ]
 
 function BotonesSocial() {
+  const { t } = useTranslation()
+
   return (
     <>
       <div className="pagina-dividida__social">
@@ -22,7 +25,7 @@ function BotonesSocial() {
               key={proveedor.nombre}
               className={`pagina-dividida__social-boton pagina-dividida__social-boton--${proveedor.clase}`}
               aria-disabled="true"
-              title={`Continuar con ${proveedor.nombre} (próximamente)`}
+              title={t('botonesSocial.continueWith', { proveedor: proveedor.nombre })}
             >
               <IconoProveedor />
             </span>
@@ -30,7 +33,7 @@ function BotonesSocial() {
         })}
       </div>
       <div className="pagina-dividida__divisor">
-        <span>o</span>
+        <span>{t('botonesSocial.orDivider')}</span>
       </div>
     </>
   )

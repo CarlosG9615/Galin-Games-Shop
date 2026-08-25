@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import Registro from './Registro'
 import { ThemeProvider } from '../../../globalState/themeContext'
+import { LanguageProvider } from '../../../globalState/languageContext'
 import { authService } from '../../../servicios/authService'
 
 vi.mock('../../../servicios/authService', () => ({
@@ -15,12 +16,14 @@ vi.mock('../../../servicios/authService', () => ({
 function renderRegistro() {
   return render(
     <MemoryRouter initialEntries={['/registro']}>
-      <ThemeProvider>
-        <Routes>
-          <Route path="/registro" element={<Registro />} />
-          <Route path="/login" element={<div>LOGIN_PAGE</div>} />
-        </Routes>
-      </ThemeProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <Routes>
+            <Route path="/registro" element={<Registro />} />
+            <Route path="/login" element={<div>LOGIN_PAGE</div>} />
+          </Routes>
+        </ThemeProvider>
+      </LanguageProvider>
     </MemoryRouter>
   )
 }

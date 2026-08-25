@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import InputBox from '../../compGlobales/InputBoxComponente/InputBox'
 import ErrorPage from '../../compGlobales/ErrorPageComponente/ErrorPage'
 import ThemeToggle from '../../compGlobales/NavbarComponente/ThemeToggle'
@@ -13,6 +14,7 @@ const PASSWORD_MAX_LENGTH = 128
 const EMAIL_VERIFICADO_DURACION_MS = 60000
 
 function Login() {
+  const { t } = useTranslation()
   const [campos, setCampos] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -51,7 +53,7 @@ function Login() {
     setError('')
 
     if (!campos.username.trim() || !campos.password.trim()) {
-      setError('Rellena tu nombre de usuario y contraseña.')
+      setError(t('login.validationRequired'))
       return
     }
 
@@ -68,19 +70,19 @@ function Login() {
     setLoading(false)
 
     if (result.status === 401) {
-      setError('Credenciales incorrectas.')
+      setError(t('login.invalidCredentials'))
       return
     }
 
     if (result.status === 429) {
       const retryAfter = Number(result.retryAfter) || 0
       setRetryCountdown(retryAfter)
-      setError('Demasiados intentos. Inténtalo de nuevo en unos segundos.')
+      setError(t('login.tooManyAttempts'))
       return
     }
 
     if (result.status === 0) {
-      setError(result.message || 'La petición tardó demasiado. Inténtalo de nuevo.')
+      setError(result.message || t('common.timeoutError'))
       return
     }
 
@@ -96,34 +98,34 @@ function Login() {
       <ThemeToggle />
       <div className="pagina-dividida__formulario">
         <form onSubmit={handleSubmit} autoComplete="off">
-          <h1 className="titulo-tema">Iniciar sesión</h1>
+          <h1 className="titulo-tema">{t('login.title')}</h1>
 
           <BotonesSocial />
 
           {emailVerificado && (
-            <p className="texto-tema texto-tema--exito" role="status">¡Email verificado correctamente! Ya puedes iniciar sesión.</p>
+            <p className="texto-tema texto-tema--exito" role="status">{t('login.emailVerifiedSuccess')}</p>
           )}
 
           <InputBox
             nameInput="username"
-            labelInput="Nombre de usuario"
+            labelInput={t('login.usernameLabel')}
             typeInput="text"
-            placeholderInput="Nombre de usuario"
+            placeholderInput={t('login.usernameLabel')}
             eventoOnChange={handleUsernameChange}
             ocultarLabel
           />
           <InputBox
             nameInput="password"
-            labelInput="Contraseña"
+            labelInput={t('login.passwordLabel')}
             typeInput="password"
-            placeholderInput="Contraseña"
+            placeholderInput={t('login.passwordLabel')}
             eventoOnChange={handlePasswordChange}
             ocultarLabel
           />
 
           {error && <p className="texto-tema" role="alert">{error}</p>}
           {retryCountdown > 0 && (
-            <p className="texto-tema" role="alert">Vuelve a intentarlo en {retryCountdown} segundos.</p>
+            <p className="texto-tema" role="alert">{t('common.retryIn', { seconds: retryCountdown })}</p>
           )}
 
           <div className="mt-2 w-100 d-flex justify-content-center">
@@ -132,18 +134,18 @@ function Login() {
               className="boton-primario"
               disabled={loading || retryCountdown > 0}
             >
-              {loading ? 'Entrando...' : 'Entrar'}
+              {loading ? t('login.submitLoading') : t('login.submit')}
             </button>
           </div>
           <div className="pagina-dividida__enlaces-fila">
-            <Link to="/registro" className="texto-tema texto-tema--condiciones pagina-dividida__enlace-secundario">¿Aún no tienes cuenta?</Link>
-            <Link to="#" className="texto-tema texto-tema--condiciones pagina-dividida__enlace-secundario" aria-disabled="true">¿Has olvidado tu contraseña?</Link>
+            <Link to="/registro" className="texto-tema texto-tema--condiciones pagina-dividida__enlace-secundario">{t('login.noAccountYet')}</Link>
+            <Link to="#" className="texto-tema texto-tema--condiciones pagina-dividida__enlace-secundario" aria-disabled="true">{t('login.forgotPassword')}</Link>
           </div>
-          <Link to="/" className="pagina-dividida__volver">‹ Volver al inicio</Link>
+          <Link to="/" className="pagina-dividida__volver">{t('common.backToHome')}</Link>
         </form>
       </div>
       <div className="pagina-dividida__imagen">
-        <button type="button" className="pagina-dividida__cerrar" onClick={() => navigate('/')} aria-label="Volver al inicio">
+        <button type="button" className="pagina-dividida__cerrar" onClick={() => navigate('/')} aria-label={t('common.backToHomeAria')}>
           ×
         </button>
       </div>
