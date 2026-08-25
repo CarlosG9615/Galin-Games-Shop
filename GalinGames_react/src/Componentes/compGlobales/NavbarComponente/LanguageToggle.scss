@@ -34,8 +34,14 @@
   &__dropdown {
     position: absolute;
     top: calc(100% + 0.75rem);
-    left: 0;
-    min-width: 150px;
+    // Centrado respecto al propio botón trigger (no al ancho fijo del desplegable):
+    // .language-toggle no tiene más anchura que el botón, así que left:50% +
+    // translateX(-50%) deja el desplegable exactamente debajo de él.
+    left: 50%;
+    transform: translateX(-50%);
+    // width: max-content (no min-width fijo): el desplegable se ajusta al ancho de
+    // su opción más larga, sin dejar hueco vacío a la derecha del texto.
+    width: max-content;
     margin: 0;
     padding: 0.5rem 0;
     list-style: none;
@@ -51,14 +57,14 @@
   &__opcion {
     display: block;
     width: 100%;
-    padding: 0.6rem 1.1rem;
+    padding: 0.65rem 1.5rem;
     border: none;
     border-radius: 0;
     background: transparent;
     color: var(--color-texto);
     font: inherit;
-    font-size: 0.9rem;
-    text-align: left;
+    font-size: 1rem;
+    text-align: center;
     cursor: pointer;
 
     @include transicion-suave(background-color 0.15s ease, color 0.15s ease);

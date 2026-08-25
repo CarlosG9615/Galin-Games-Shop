@@ -110,11 +110,15 @@ $navbar-padding-x: 1.5rem;
 
   // Sin .navbar__enlaces disputando espacio en el flujo normal (está en absolute),
   // margin-left: auto empuja .navbar__acciones hasta el borde derecho de la barra.
+  // margin-right adicional (más allá del padding de .navbar__nav): dropdowns como
+  // el de idioma o el de usuario se centran bajo su botón trigger y pueden ser más
+  // anchos que este, así que sin este margen se pegarían al borde de la ventana.
   &__acciones {
     display: flex;
     align-items: center;
     gap: 1.25rem;
     margin-left: auto;
+    margin-right: 2rem;
   }
 
   // Búsqueda + selector de idioma: visuales, sin funcionalidad todavía (mismo
@@ -208,8 +212,14 @@ $navbar-padding-x: 1.5rem;
   &__dropdown {
     position: absolute;
     top: calc(100% + 0.75rem);
-    right: 0;
-    min-width: 190px;
+    // Centrado respecto al propio botón/avatar trigger (no al ancho fijo del
+    // desplegable): .navbar__menu-usuario no tiene más anchura que el botón, así
+    // que left:50% + translateX(-50%) deja el desplegable exactamente debajo de él.
+    left: 50%;
+    transform: translateX(-50%);
+    // width: max-content (no min-width fijo): el desplegable se ajusta al ancho de
+    // su opción más larga, sin dejar hueco vacío a la derecha del texto.
+    width: max-content;
     margin: 0;
     padding: 0.5rem 0;
     list-style: none;
@@ -225,14 +235,14 @@ $navbar-padding-x: 1.5rem;
   &__dropdown-link {
     display: block;
     width: 100%;
-    padding: 0.6rem 1.1rem;
+    padding: 0.65rem 1.5rem;
     border: none;
     border-radius: 0;
     background: transparent;
     color: var(--color-texto);
     font: inherit;
-    font-size: 0.9rem;
-    text-align: left;
+    font-size: 1rem;
+    text-align: center;
     cursor: pointer;
 
     @include transicion-suave(background-color 0.15s ease, color 0.15s ease);
