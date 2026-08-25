@@ -120,7 +120,7 @@ Plan de implementación de la internacionalización (`react-i18next`) y el selec
 
 ### Fase 6 — Verificación final
 
-- [ ] 26. Ejecutar `npm run lint` y `npm test` (`vitest run`) en `GalinGames_react` con todos los cambios aplicados; corregir cualquier regresión antes de dar la feature por completa
+- [x] 26. Ejecutar `npm run lint` y `npm test` (`vitest run`) en `GalinGames_react` con todos los cambios aplicados; corregir cualquier regresión antes de dar la feature por completa
   **Dependencias:** Tareas 15–24
   **Requisitos:** cobertura cruzada de todos los anteriores
 
