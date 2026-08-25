@@ -1,25 +1,28 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Navbar from '../NavbarComponente/Navbar'
 import './ErrorPage.scss'
 
-const ERROR_CONFIG = {
-  400: { title: 'Petición incorrecta', message: 'Los datos enviados no son válidos. Revisa el formulario.' },
-  401: { title: 'No autorizado', message: 'Debes iniciar sesión para acceder a este contenido.' },
-  403: { title: 'Acceso denegado', message: 'No tienes permiso para ver esta página.' },
-  404: { title: 'Página no encontrada', message: 'La página que buscas no existe o ha sido movida.' },
-  410: { title: 'Enlace caducado', message: 'Este enlace de verificación no es válido o ha caducado. Regístrate de nuevo si no llegaste a confirmarlo a tiempo.' },
-  429: { title: 'Demasiadas peticiones', message: 'Has superado el límite de intentos. Espera un momento.' },
-  500: { title: 'Error del servidor', message: 'Algo ha salido mal en nuestro servidor. Inténtalo más tarde.' },
-  503: { title: 'Servicio no disponible', message: 'El servicio está temporalmente fuera de línea. Vuelve pronto.' },
+const CODIGOS_SOPORTADOS = [400, 401, 403, 404, 410, 429, 500, 503]
+
+function getErrorConfig(code, t) {
+  if (CODIGOS_SOPORTADOS.includes(code)) {
+    return {
+      title: t(`errorPage.codes.${code}.title`),
+      message: t(`errorPage.codes.${code}.message`),
+    }
+  }
+  return { title: t('errorPage.defaultTitle'), message: t('errorPage.defaultMessage') }
 }
 
 function ErrorPage({ code: codeProp, retryAfter }) {
+  const { t } = useTranslation()
   const { code: codeParam } = useParams()
   const navigate = useNavigate()
 
   const code = Number(codeProp ?? codeParam)
-  const config = ERROR_CONFIG[code] ?? { title: 'Error', message: 'Ha ocurrido un error inesperado.' }
+  const config = getErrorConfig(code, t)
 
   const [countdown, setCountdown] = useState(retryAfter ?? 0)
 
@@ -50,15 +53,15 @@ function ErrorPage({ code: codeProp, retryAfter }) {
       <main className="pagina-tematica">
         <div className="pagina-tematica__contenido">
           <div className="tarjeta-tema tarjeta-tema--error">
-            <span className="error-page-codigo titulo-tema">{code || '???'}</span>
+            <span className="error-page-codigo titulo-tema">{code || t('errorPage.unknownCode')}</span>
             <h1 className="titulo-tema">{config.title}</h1>
             {code === 429 && retryAfter ? (
-              <p className="texto-tema">Podrás volver a intentarlo en {countdown} segundos.</p>
+              <p className="texto-tema">{t('errorPage.retryCountdown', { seconds: countdown })}</p>
             ) : (
               <p className="texto-tema">{config.message}</p>
             )}
             <button type="button" className="boton-primario" onClick={handleVolver}>
-              Volver al login
+              {t('errorPage.backToLogin')}
             </button>
           </div>
         </div>

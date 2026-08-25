@@ -1,22 +1,24 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { Trans, useTranslation } from 'react-i18next'
 import InputBox from '/src/Componentes/compGlobales/InputBoxComponente/InputBox'
 import ThemeToggle from '../../compGlobales/NavbarComponente/ThemeToggle'
 import { authService } from '../../../servicios/authService'
 import './Registro.scss'
 
 const CAMPOS_FORM = [
-  { name: 'username', label: 'Nombre de usuario', type: 'text' },
-  { name: 'nombre', label: 'Nombre', type: 'text' },
-  { name: 'apellidos', label: 'Apellidos', type: 'text' },
-  { name: 'email', label: 'Email', type: 'email' },
-  { name: 'password', label: 'Contraseña', type: 'password' },
-  { name: 'repetirPassword', label: 'Repetir Contraseña', type: 'password' },
+  { name: 'username', label: 'registro.fieldUsername', type: 'text' },
+  { name: 'nombre', label: 'registro.fieldNombre', type: 'text' },
+  { name: 'apellidos', label: 'registro.fieldApellidos', type: 'text' },
+  { name: 'email', label: 'registro.fieldEmail', type: 'email' },
+  { name: 'password', label: 'registro.fieldPassword', type: 'password' },
+  { name: 'repetirPassword', label: 'registro.fieldRepetirPassword', type: 'password' },
 ]
 
 const CAMPOS_INICIALES = { username: '', nombre: '', apellidos: '', email: '', password: '', repetirPassword: '' }
 
 function Registro() {
+  const { t } = useTranslation()
   const [campos, setCampos] = useState(CAMPOS_INICIALES)
   const [aceptaCondiciones, setAceptaCondiciones] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -43,7 +45,7 @@ function Registro() {
     e.preventDefault()
 
     if (!aceptaCondiciones) {
-      alert('Debes aceptar los términos y la política de privacidad.')
+      alert(t('registro.termsAlert'))
       return
     }
 
@@ -52,12 +54,12 @@ function Registro() {
 
     const algunCampoVacio = CAMPOS_FORM.some(({ name }) => !campos[name].trim())
     if (algunCampoVacio) {
-      setError('Rellena todos los campos.')
+      setError(t('registro.validationRequired'))
       return
     }
 
     if (campos.password !== campos.repetirPassword) {
-      setError('Las contraseñas no coinciden.')
+      setError(t('registro.passwordMismatch'))
       return
     }
 
@@ -66,7 +68,7 @@ function Registro() {
     const result = await authService.register(campos)
 
     if (result.ok) {
-      setSuccessMessage(`¡Ya casi está, ${campos.username}! Te hemos enviado un correo de verificación a ${campos.email}. Confirma tu cuenta para poder iniciar sesión.`)
+      setSuccessMessage(t('registro.successMessage', { username: campos.username, email: campos.email }))
       setTimeout(() => navigate('/login'), 3000)
       return
     }
@@ -74,33 +76,33 @@ function Registro() {
     setLoading(false)
 
     if (result.status === 409) {
-      setError(result.message || 'El nombre de usuario o el email ya está en uso.')
+      setError(result.message || t('registro.usernameOrEmailInUse'))
       return
     }
 
     if (result.status === 400) {
       const errores = {}
       for (const err of result.errors || []) {
-        errores[err.field] = err.message || 'Campo inválido'
+        errores[err.field] = err.message || t('registro.invalidField')
       }
       setFieldErrors(errores)
-      setError('Revisa los campos marcados.')
+      setError(t('registro.reviewFields'))
       return
     }
 
     if (result.status === 429) {
       const retryAfter = Number(result.retryAfter) || 0
       setRetryCountdown(retryAfter)
-      setError('Demasiadas peticiones. Inténtalo de nuevo en unos segundos.')
+      setError(t('registro.tooManyRequests'))
       return
     }
 
     if (result.status === 0) {
-      setError(result.message || 'La petición tardó demasiado. Inténtalo de nuevo.')
+      setError(result.message || t('common.timeoutError'))
       return
     }
 
-    setError('Ha ocurrido un problema inesperado. Inténtalo de nuevo más tarde.')
+    setError(t('registro.unexpectedError'))
   }
 
   return (
@@ -111,15 +113,15 @@ function Registro() {
           <p className="texto-tema" role="status">{successMessage}</p>
         ) : (
           <form onSubmit={handleSubmit} autoComplete="off">
-            <h1 className="titulo-tema">Datos de la cuenta</h1>
+            <h1 className="titulo-tema">{t('registro.title')}</h1>
 
             {CAMPOS_FORM.map(({ name, label, type }) => (
               <div key={name}>
                 <InputBox
                   nameInput={name}
-                  labelInput={label}
+                  labelInput={t(label)}
                   typeInput={type}
-                  placeholderInput={label}
+                  placeholderInput={t(label)}
                   eventoOnChange={handleFieldChange(name)}
                   ocultarLabel
                 />
@@ -135,30 +137,31 @@ function Registro() {
                 onChange={e => setAceptaCondiciones(e.target.checked)}
               />
               <label className="form-check-label texto-tema texto-tema--condiciones" htmlFor="comprobarCondiciones">
-                Acepto los términos y condiciones y la{' '}
-                <a href="#" className="text-primary text-decoration-underline">política de privacidad</a>
+                <Trans i18nKey="registro.acceptTerms">
+                  Acepto los términos y condiciones y la <a href="#" className="text-primary text-decoration-underline">política de privacidad</a>
+                </Trans>
               </label>
             </div>
 
             {error && <p className="texto-tema" role="alert">{error}</p>}
             {retryCountdown > 0 && (
-              <p className="texto-tema" role="alert">Vuelve a intentarlo en {retryCountdown} segundos.</p>
+              <p className="texto-tema" role="alert">{t('common.retryIn', { seconds: retryCountdown })}</p>
             )}
 
             <div className="mt-2 w-100 d-flex justify-content-center">
               <button type="submit" className="boton-primario" disabled={loading || retryCountdown > 0}>
-                {loading ? 'Enviando...' : 'Registrarse'}
+                {loading ? t('registro.submitLoading') : t('registro.submit')}
               </button>
             </div>
             <div>
-              <Link to="/login" className="texto-tema texto-tema--condiciones pagina-dividida__enlace-secundario">¿Ya tienes cuenta? Inicia sesión</Link>
+              <Link to="/login" className="texto-tema texto-tema--condiciones pagina-dividida__enlace-secundario">{t('registro.alreadyHaveAccount')}</Link>
             </div>
-            <Link to="/" className="pagina-dividida__volver">‹ Volver al inicio</Link>
+            <Link to="/" className="pagina-dividida__volver">{t('common.backToHome')}</Link>
           </form>
         )}
       </div>
       <div className="pagina-dividida__imagen">
-        <button type="button" className="pagina-dividida__cerrar" onClick={() => navigate('/')} aria-label="Volver al inicio">
+        <button type="button" className="pagina-dividida__cerrar" onClick={() => navigate('/')} aria-label={t('common.backToHomeAria')}>
           ×
         </button>
       </div>

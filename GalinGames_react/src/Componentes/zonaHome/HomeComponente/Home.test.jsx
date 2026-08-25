@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { AuthProvider } from '../../../globalState/authContext'
 import { ThemeProvider } from '../../../globalState/themeContext'
+import { LanguageProvider } from '../../../globalState/languageContext'
 import Home from './Home'
 
 vi.mock('../../../servicios/authService', () => ({
@@ -22,11 +23,13 @@ describe('Home', () => {
   it('renderiza el Navbar, el Hero y las 6 tarjetas de juego juntos', async () => {
     render(
       <MemoryRouter>
-        <ThemeProvider>
-          <AuthProvider>
-            <Home />
-          </AuthProvider>
-        </ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <Home />
+            </AuthProvider>
+          </ThemeProvider>
+        </LanguageProvider>
       </MemoryRouter>,
     )
 

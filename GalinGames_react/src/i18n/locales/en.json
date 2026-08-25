@@ -1,0 +1,103 @@
+{
+  "languageToggle": {
+    "ariaLabel": "Change language",
+    "menuLabel": "Language selector",
+    "spanish": "Spanish",
+    "english": "English"
+  },
+  "navbar": {
+    "ariaLabel": "Main navigation",
+    "linkInicio": "Home",
+    "linkJuegos": "Games",
+    "linkNovedades": "New releases",
+    "linkComunidad": "Community",
+    "toggleCategoriasOpenAria": "Open categories",
+    "toggleCategoriasCloseAria": "Close categories",
+    "toggleMenuOpenAria": "Open menu",
+    "toggleMenuCloseAria": "Close menu",
+    "searchTitle": "Search (coming soon)",
+    "cartTitle": "Cart (coming soon)",
+    "userMenuAria": "User menu",
+    "loginAria": "Log in",
+    "support": "Support",
+    "myAccount": "My account",
+    "myOrders": "My orders",
+    "logout": "Log out"
+  },
+  "themeToggle": {
+    "ariaLabelToBlue": "Switch to blue theme",
+    "ariaLabelToRed": "Switch to red theme",
+    "logoAlt": "GG Games"
+  },
+  "hero": {
+    "title": "MOST PLAYED",
+    "discoverSubtitle": "Discover what the community is playing right now.",
+    "ctaViewAll": "View all ›"
+  },
+  "gamesGrid": {
+    "title": "TRENDING ›"
+  },
+  "botonesSocial": {
+    "continueWith": "Continue with {{proveedor}} (coming soon)",
+    "orDivider": "or"
+  },
+  "common": {
+    "loading": "Loading...",
+    "backToHome": "‹ Back to home",
+    "backToHomeAria": "Back to home",
+    "retryIn": "Try again in {{seconds}} seconds.",
+    "timeoutError": "The request took too long. Please try again."
+  },
+  "errorPage": {
+    "backToLogin": "Back to login",
+    "retryCountdown": "You can try again in {{seconds}} seconds.",
+    "unknownCode": "???",
+    "defaultTitle": "Error",
+    "defaultMessage": "An unexpected error has occurred.",
+    "codes": {
+      "400": { "title": "Bad request", "message": "The submitted data is not valid. Review the form." },
+      "401": { "title": "Unauthorized", "message": "You must log in to access this content." },
+      "403": { "title": "Access denied", "message": "You don't have permission to view this page." },
+      "404": { "title": "Page not found", "message": "The page you're looking for doesn't exist or has been moved." },
+      "410": { "title": "Expired link", "message": "This verification link is invalid or has expired. Sign up again if you didn't confirm it in time." },
+      "429": { "title": "Too many requests", "message": "You've exceeded the attempt limit. Please wait a moment." },
+      "500": { "title": "Server error", "message": "Something went wrong on our server. Please try again later." },
+      "503": { "title": "Service unavailable", "message": "The service is temporarily offline. Please check back soon." }
+    }
+  },
+  "login": {
+    "title": "Log in",
+    "emailVerifiedSuccess": "Email verified successfully! You can now log in.",
+    "usernameLabel": "Username",
+    "passwordLabel": "Password",
+    "validationRequired": "Fill in your username and password.",
+    "invalidCredentials": "Incorrect credentials.",
+    "tooManyAttempts": "Too many attempts. Please try again in a moment.",
+    "submit": "Log in",
+    "submitLoading": "Logging in...",
+    "noAccountYet": "Don't have an account yet?",
+    "forgotPassword": "Forgot your password?"
+  },
+  "registro": {
+    "title": "Account details",
+    "fieldUsername": "Username",
+    "fieldNombre": "First name",
+    "fieldApellidos": "Last name",
+    "fieldEmail": "Email",
+    "fieldPassword": "Password",
+    "fieldRepetirPassword": "Repeat password",
+    "termsAlert": "You must accept the terms and the privacy policy.",
+    "validationRequired": "Fill in all the fields.",
+    "passwordMismatch": "Passwords don't match.",
+    "usernameOrEmailInUse": "The username or email is already in use.",
+    "invalidField": "Invalid field",
+    "reviewFields": "Review the marked fields.",
+    "tooManyRequests": "Too many requests. Please try again in a moment.",
+    "unexpectedError": "An unexpected problem has occurred. Please try again later.",
+    "successMessage": "Almost there, {{username}}! We've sent a verification email to {{email}}. Confirm your account to be able to log in.",
+    "acceptTerms": "I accept the terms and conditions and the <1>privacy policy</1>",
+    "submit": "Sign up",
+    "submitLoading": "Submitting...",
+    "alreadyHaveAccount": "Already have an account? Log in"
+  }
+}

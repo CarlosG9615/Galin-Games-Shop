@@ -1,0 +1,83 @@
+@use '../../../styles/mixins' as *;
+
+// Reutiliza el mismo lenguaje visual que .navbar__icono-usuario (botón trigger) y
+// .navbar__dropdown/.navbar__dropdown-link (desplegable) en Navbar.scss, en vez de
+// duplicar los mismos valores: mismo radio, blur, sombra y color de texto tenue para
+// la opción deshabilitada.
+.language-toggle {
+  position: relative;
+
+  &__boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.4rem 0.6rem;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-texto-tenue);
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+
+    @include transicion-suave(background-color 0.2s ease, color 0.2s ease);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--color-fondo-elevado);
+      color: var(--color-texto);
+    }
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    // Centrado respecto al propio botón trigger (no al ancho fijo del desplegable):
+    // .language-toggle no tiene más anchura que el botón, así que left:50% +
+    // translateX(-50%) deja el desplegable exactamente debajo de él.
+    left: 50%;
+    transform: translateX(-50%);
+    // width: max-content (no min-width fijo): el desplegable se ajusta al ancho de
+    // su opción más larga, sin dejar hueco vacío a la derecha del texto.
+    width: max-content;
+    margin: 0;
+    padding: 0.5rem 0;
+    list-style: none;
+    background: var(--color-fondo-elevado);
+    border: 1px solid var(--color-acento-borde);
+    border-radius: 12px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 10;
+  }
+
+  &__opcion {
+    display: block;
+    width: 100%;
+    padding: 0.65rem 1.5rem;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-texto);
+    font: inherit;
+    font-size: 1rem;
+    text-align: center;
+    cursor: pointer;
+
+    @include transicion-suave(background-color 0.15s ease, color 0.15s ease);
+
+    &[aria-disabled='true'] {
+      color: var(--color-texto-tenue);
+      cursor: default;
+    }
+
+    &:not([aria-disabled='true']):hover,
+    &:not([aria-disabled='true']):focus-visible {
+      background: var(--color-fondo);
+      color: var(--color-acento);
+    }
+  }
+}

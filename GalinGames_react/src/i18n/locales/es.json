@@ -1,0 +1,103 @@
+{
+  "languageToggle": {
+    "ariaLabel": "Cambiar idioma",
+    "menuLabel": "Selector de idioma",
+    "spanish": "Español",
+    "english": "Inglés"
+  },
+  "navbar": {
+    "ariaLabel": "Navegación principal",
+    "linkInicio": "Inicio",
+    "linkJuegos": "Juegos",
+    "linkNovedades": "Novedades",
+    "linkComunidad": "Comunidad",
+    "toggleCategoriasOpenAria": "Abrir categorías",
+    "toggleCategoriasCloseAria": "Cerrar categorías",
+    "toggleMenuOpenAria": "Abrir menú",
+    "toggleMenuCloseAria": "Cerrar menú",
+    "searchTitle": "Búsqueda (próximamente)",
+    "cartTitle": "Carrito (próximamente)",
+    "userMenuAria": "Menú de usuario",
+    "loginAria": "Iniciar sesión",
+    "support": "Soporte",
+    "myAccount": "Mi cuenta",
+    "myOrders": "Mis pedidos",
+    "logout": "Cerrar sesión"
+  },
+  "themeToggle": {
+    "ariaLabelToBlue": "Cambiar a tema azul",
+    "ariaLabelToRed": "Cambiar a tema rojo",
+    "logoAlt": "GG Games"
+  },
+  "hero": {
+    "title": "LO MÁS JUGADO",
+    "discoverSubtitle": "Descubre lo que la comunidad está jugando ahora mismo.",
+    "ctaViewAll": "Ver todos ›"
+  },
+  "gamesGrid": {
+    "title": "TENDENCIAS ›"
+  },
+  "botonesSocial": {
+    "continueWith": "Continuar con {{proveedor}} (próximamente)",
+    "orDivider": "o"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "backToHome": "‹ Volver al inicio",
+    "backToHomeAria": "Volver al inicio",
+    "retryIn": "Vuelve a intentarlo en {{seconds}} segundos.",
+    "timeoutError": "La petición tardó demasiado. Inténtalo de nuevo."
+  },
+  "errorPage": {
+    "backToLogin": "Volver al login",
+    "retryCountdown": "Podrás volver a intentarlo en {{seconds}} segundos.",
+    "unknownCode": "???",
+    "defaultTitle": "Error",
+    "defaultMessage": "Ha ocurrido un error inesperado.",
+    "codes": {
+      "400": { "title": "Petición incorrecta", "message": "Los datos enviados no son válidos. Revisa el formulario." },
+      "401": { "title": "No autorizado", "message": "Debes iniciar sesión para acceder a este contenido." },
+      "403": { "title": "Acceso denegado", "message": "No tienes permiso para ver esta página." },
+      "404": { "title": "Página no encontrada", "message": "La página que buscas no existe o ha sido movida." },
+      "410": { "title": "Enlace caducado", "message": "Este enlace de verificación no es válido o ha caducado. Regístrate de nuevo si no llegaste a confirmarlo a tiempo." },
+      "429": { "title": "Demasiadas peticiones", "message": "Has superado el límite de intentos. Espera un momento." },
+      "500": { "title": "Error del servidor", "message": "Algo ha salido mal en nuestro servidor. Inténtalo más tarde." },
+      "503": { "title": "Servicio no disponible", "message": "El servicio está temporalmente fuera de línea. Vuelve pronto." }
+    }
+  },
+  "login": {
+    "title": "Iniciar sesión",
+    "emailVerifiedSuccess": "¡Email verificado correctamente! Ya puedes iniciar sesión.",
+    "usernameLabel": "Nombre de usuario",
+    "passwordLabel": "Contraseña",
+    "validationRequired": "Rellena tu nombre de usuario y contraseña.",
+    "invalidCredentials": "Credenciales incorrectas.",
+    "tooManyAttempts": "Demasiados intentos. Inténtalo de nuevo en unos segundos.",
+    "submit": "Entrar",
+    "submitLoading": "Entrando...",
+    "noAccountYet": "¿Aún no tienes cuenta?",
+    "forgotPassword": "¿Has olvidado tu contraseña?"
+  },
+  "registro": {
+    "title": "Datos de la cuenta",
+    "fieldUsername": "Nombre de usuario",
+    "fieldNombre": "Nombre",
+    "fieldApellidos": "Apellidos",
+    "fieldEmail": "Email",
+    "fieldPassword": "Contraseña",
+    "fieldRepetirPassword": "Repetir Contraseña",
+    "termsAlert": "Debes aceptar los términos y la política de privacidad.",
+    "validationRequired": "Rellena todos los campos.",
+    "passwordMismatch": "Las contraseñas no coinciden.",
+    "usernameOrEmailInUse": "El nombre de usuario o el email ya está en uso.",
+    "invalidField": "Campo inválido",
+    "reviewFields": "Revisa los campos marcados.",
+    "tooManyRequests": "Demasiadas peticiones. Inténtalo de nuevo en unos segundos.",
+    "unexpectedError": "Ha ocurrido un problema inesperado. Inténtalo de nuevo más tarde.",
+    "successMessage": "¡Ya casi está, {{username}}! Te hemos enviado un correo de verificación a {{email}}. Confirma tu cuenta para poder iniciar sesión.",
+    "acceptTerms": "Acepto los términos y condiciones y la <1>política de privacidad</1>",
+    "submit": "Registrarse",
+    "submitLoading": "Enviando...",
+    "alreadyHaveAccount": "¿Ya tienes cuenta? Inicia sesión"
+  }
+}

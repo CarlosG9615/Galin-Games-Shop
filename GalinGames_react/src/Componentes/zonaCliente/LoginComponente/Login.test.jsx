@@ -6,6 +6,7 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import Login from './Login'
 import { AuthProvider } from '../../../globalState/authContext'
 import { ThemeProvider } from '../../../globalState/themeContext'
+import { LanguageProvider } from '../../../globalState/languageContext'
 import { authService } from '../../../servicios/authService'
 
 vi.mock('../../../servicios/authService', () => ({
@@ -19,14 +20,16 @@ vi.mock('../../../servicios/authService', () => ({
 function renderLogin(initialEntry = '/login') {
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
-      <ThemeProvider>
-        <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<div>HOME</div>} />
-          </Routes>
-        </AuthProvider>
-      </ThemeProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<div>HOME</div>} />
+            </Routes>
+          </AuthProvider>
+        </ThemeProvider>
+      </LanguageProvider>
     </MemoryRouter>
   )
 }
