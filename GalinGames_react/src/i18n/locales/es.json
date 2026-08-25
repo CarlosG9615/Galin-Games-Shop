@@ -1,1 +1,8 @@
-{}
+{
+  "languageToggle": {
+    "ariaLabel": "Cambiar idioma",
+    "menuLabel": "Selector de idioma",
+    "spanish": "Español",
+    "english": "English"
+  }
+}

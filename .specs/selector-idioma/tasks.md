@@ -44,19 +44,19 @@ Plan de implementación de la internacionalización (`react-i18next`) y el selec
 
 ### Fase 2 — `LanguageToggle`
 
-- [ ] 9. Añadir el namespace `languageToggle` (`ariaLabel`, `menuLabel`, `spanish`, `english`) a `es.json` y `en.json`
+- [x] 9. Añadir el namespace `languageToggle` (`ariaLabel`, `menuLabel`, `spanish`, `english`) a `es.json` y `en.json`
   **Dependencias:** Tarea 2
   **Requisitos:** 5.6, 5.7
 
-- [ ] 10. Crear `LanguageToggle.jsx` (botón con icono de globo + código de idioma activo, dropdown accesible con `role="menu"`/`role="menuitem"`, cierre por click-fuera/`Escape`, opción del idioma activo `disabled`+`aria-disabled`), según el diseño de `design.md`
+- [x] 10. Crear `LanguageToggle.jsx` (botón con icono de globo + código de idioma activo, dropdown accesible con `role="menu"`/`role="menuitem"`, cierre por click-fuera/`Escape`, opción del idioma activo `disabled`+`aria-disabled`), según el diseño de `design.md`
   **Dependencias:** Tareas 6, 9
   **Requisitos:** 2.1, 2.2, 2.3, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 4.1, 4.2, 4.3, 4.4, 4.5
 
-- [ ] 11. Crear `LanguageToggle.scss` (estilos del botón trigger y del dropdown, reutilizando tokens/patrón visual de `navbar__dropdown` y `navbar__icono-usuario`)
+- [x] 11. Crear `LanguageToggle.scss` (estilos del botón trigger y del dropdown, reutilizando tokens/patrón visual de `navbar__dropdown` y `navbar__icono-usuario`)
   **Dependencias:** Tarea 10
   **Requisitos:** 3.1, 3.2, 4.1
 
-- [ ] 12. Crear `LanguageToggle.test.jsx` (estado inicial `ES` con dropdown cerrado, apertura con click/teclado, opción `ES` deshabilitada por defecto, selección de `EN` cambia idioma/`lang`/icono y cierra el dropdown, cierre con `Escape` y con click fuera), mismo esquema que `ThemeToggle.test.jsx`
+- [x] 12. Crear `LanguageToggle.test.jsx` (estado inicial `ES` con dropdown cerrado, apertura con click/teclado, opción `ES` deshabilitada por defecto, selección de `EN` cambia idioma/`lang`/icono y cierra el dropdown, cierre con `Escape` y con click fuera), mismo esquema que `ThemeToggle.test.jsx`
   **Dependencias:** Tarea 11
   **Requisitos:** 2.1, 2.2, 2.3, 3.3, 3.6, 4.1, 4.2, 4.3, 4.4
 
