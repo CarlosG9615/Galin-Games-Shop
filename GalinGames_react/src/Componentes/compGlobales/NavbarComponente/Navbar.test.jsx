@@ -104,7 +104,7 @@ describe('Navbar', () => {
     expect(botonIdioma).toHaveTextContent('ES')
 
     await user.click(botonIdioma)
-    await user.click(screen.getByRole('menuitem', { name: 'English' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Inglés' }))
 
     expect(botonIdioma).toHaveTextContent('EN')
     expect(document.documentElement.getAttribute('lang')).toBe('en')

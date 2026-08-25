@@ -27,7 +27,7 @@ describe('LanguageToggle', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })
 
-  it('al hacer click abre el dropdown con "Español" deshabilitado y "English" seleccionable', async () => {
+  it('al hacer click abre el dropdown con "Español" deshabilitado y "Inglés" seleccionable', async () => {
     const user = userEvent.setup()
     renderLanguageToggle()
 
@@ -35,13 +35,13 @@ describe('LanguageToggle', () => {
 
     expect(screen.getByRole('button', { name: 'Cambiar idioma' })).toHaveAttribute('aria-expanded', 'true')
     const opcionEs = screen.getByRole('menuitem', { name: 'Español' })
-    const opcionEn = screen.getByRole('menuitem', { name: 'English' })
+    const opcionEn = screen.getByRole('menuitem', { name: 'Inglés' })
     expect(opcionEs).toBeDisabled()
     expect(opcionEs).toHaveAttribute('aria-disabled', 'true')
     expect(opcionEn).not.toBeDisabled()
   })
 
-  it('al seleccionar "English" cambia el idioma activo, el lang del html, y cierra el dropdown', async () => {
+  it('al seleccionar "Inglés" cambia el idioma activo, el lang del html, y cierra el dropdown', async () => {
     const user = userEvent.setup()
     renderLanguageToggle()
 
@@ -49,7 +49,7 @@ describe('LanguageToggle', () => {
     // cambiar de idioma, así que no sirve para volver a localizar el botón después.
     const boton = screen.getByRole('button', { name: 'Cambiar idioma' })
     await user.click(boton)
-    await user.click(screen.getByRole('menuitem', { name: 'English' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Inglés' }))
 
     expect(boton).toHaveTextContent('EN')
     expect(boton).toHaveAttribute('aria-label', 'Change language')

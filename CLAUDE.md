@@ -41,3 +41,20 @@ requirements.md, design.md y tasks.md ya generados:
 - `/spec-tasks <feature>` — genera `.specs/<feature>/tasks.md` a partir de `requirements.md` + `design.md`
 - `/spec-execute <feature>` — ejecuta la siguiente tarea pendiente de `tasks.md` y marca su checkbox
 - `/spec-sync <feature>` — tras un cambio en `design.md`, actualiza `tasks.md` preservando las tareas ya completadas
+
+## Internacionalización (i18n)
+
+El proyecto usa `react-i18next`. Todo texto visible para el usuario en
+`GalinGames_react` DEBE resolverse mediante una clave de traducción
+(`useTranslation()` + `t('namespace.clave')`), nunca como literal en el JSX.
+
+- Las claves se escriben en inglés, cortas y descriptivas (ej. `hero.discoverSubtitle`),
+  namespaced por componente/sección (`navbar.*`, `login.*`, `common.*`, ...).
+  Nunca se usa el texto completo como clave.
+- Toda clave nueva se añade en `src/i18n/locales/es.json` (idioma de referencia)
+  **y** en `en.json`, con la misma estructura de claves.
+- Texto con datos dinámicos usa interpolación `{{variable}}` de i18next, no
+  concatenación de strings.
+- Al generar `design.md`/`tasks.md` de una feature nueva, las tareas que
+  introduzcan texto de interfaz deben incluir explícitamente la adición de
+  las claves correspondientes a `es.json`/`en.json`.

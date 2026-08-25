@@ -114,7 +114,7 @@ Plan de implementación de la internacionalización (`react-i18next`) y el selec
 
 ### Fase 5 — Proceso y documentación
 
-- [ ] 25. Actualizar `CLAUDE.md` añadiendo la sección "Internacionalización (i18n)" (regla de claves en vez de texto plano, namespacing, interpolación, y su aplicación a futuras features spec-driven), según el texto propuesto en `design.md`
+- [x] 25. Actualizar `CLAUDE.md` añadiendo la sección "Internacionalización (i18n)" (regla de claves en vez de texto plano, namespacing, interpolación, y su aplicación a futuras features spec-driven), según el texto propuesto en `design.md`
   **Dependencias:** ninguna (documental, puede hacerse en paralelo al resto)
   **Requisitos:** 6.1, 6.2, 6.3
 
@@ -124,7 +124,7 @@ Plan de implementación de la internacionalización (`react-i18next`) y el selec
   **Dependencias:** Tareas 15–24
   **Requisitos:** cobertura cruzada de todos los anteriores
 
-- [ ] 27. Verificación manual con el servidor de desarrollo (`npm run dev`): comprobar que el botón de idioma en el `Navbar` muestra `ES` por defecto, que el dropdown deshabilita `Español` y permite seleccionar `English`, que al seleccionarlo cambia el texto de toda la página, el atributo `lang` del `<html>` y el icono/código mostrado, que la preferencia persiste tras recargar, y que se mantiene al navegar entre `/`, `/login`, `/registro` y una ruta de error (`/error/404`)
+- [x] 27. Verificación manual con el servidor de desarrollo (`npm run dev`): comprobar que el botón de idioma en el `Navbar` muestra `ES` por defecto, que el dropdown deshabilita `Español` y permite seleccionar `English`, que al seleccionarlo cambia el texto de toda la página, el atributo `lang` del `<html>` y el icono/código mostrado, que la preferencia persiste tras recargar, y que se mantiene al navegar entre `/`, `/login`, `/registro` y una ruta de error (`/error/404`)
   **Dependencias:** Tarea 26
   **Requisitos:** 1.1, 1.2, 2.1, 2.2, 2.3, 2.4, 2.5, 3.1–3.6, 4.1–4.5, 7.1, 7.3
 
