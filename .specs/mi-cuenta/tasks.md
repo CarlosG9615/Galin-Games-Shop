@@ -116,11 +116,11 @@ respete las dependencias indicadas.
   **Dependencias:** ninguna
   **Requisitos:** 1.4
 
-- [ ] 23. Modificar `GalinGames_react/src/router/AppRouter.jsx`: rutas `/mi-cuenta` (redirect) y `/mi-cuenta/:seccion` protegida, + tests
+- [x] 23. Modificar `GalinGames_react/src/router/AppRouter.jsx`: rutas `/mi-cuenta` (redirect) y `/mi-cuenta/:seccion` protegida, + tests
   **Dependencias:** Tarea 22, Tarea 26 (importa `<MiCuenta />`; reordenado tras la Tarea 26 en la ejecución real para que cada commit sea auto-consistente)
   **Requisitos:** 1.1, 1.2
 
-- [ ] 24. Modificar `Navbar.jsx`: convertir los `<span aria-disabled>` de "Mi cuenta"/"Mis pedidos" en `<Link>` a `/mi-cuenta/perfil` y `/mi-cuenta/pedidos`, + tests
+- [x] 24. Modificar `Navbar.jsx`: convertir los `<span aria-disabled>` de "Mi cuenta"/"Mis pedidos" en `<Link>` a `/mi-cuenta/perfil` y `/mi-cuenta/pedidos`, + tests
   **Dependencias:** Tarea 23
   **Requisitos:** 1.1, 1.2, 1.5
 
@@ -130,8 +130,8 @@ respete las dependencias indicadas.
 
 ### Frontend — Layout de la vista
 
-- [ ] 26. Crear `MiCuentaComponente/MiCuenta.jsx`, `MenuLateral.jsx` y `MiCuenta.scss` (menú lateral + divisor coloreado por tema + cuadrícula de inputs + integración del `Navbar`), + tests
-  **Dependencias:** Tareas 23, 25
+- [x] 26. Crear `MiCuentaComponente/MiCuenta.jsx`, `MenuLateral.jsx` y `MiCuenta.scss` (menú lateral + divisor coloreado por tema + cuadrícula de inputs + integración del `Navbar`), + tests
+  **Dependencias:** Tareas 23, 25 (implementado antes que la Tarea 23 en la ejecución real: compone los paneles ya creados; el propio `AppRouter` depende de que este componente exista primero)
   **Requisitos:** 1.3, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6
 
 ### Frontend — Mi perfil

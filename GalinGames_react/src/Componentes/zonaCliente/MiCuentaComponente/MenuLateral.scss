@@ -1,0 +1,33 @@
+.menu-lateral {
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  &__item {
+    display: block;
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    color: var(--color-texto-tenue);
+    font-weight: 600;
+    white-space: nowrap;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-texto);
+      background: var(--color-fondo-elevado);
+    }
+
+    // Sección activa resaltada con el color de acento del tema (Requisito 2.4).
+    &--activo,
+    &--activo:hover,
+    &--activo:focus-visible {
+      color: var(--color-fondo);
+      background: var(--color-acento);
+    }
+  }
+}

@@ -71,6 +71,24 @@ describe('Navbar', () => {
     await waitFor(() => expect(authService.logout).toHaveBeenCalledTimes(1))
   })
 
+  it('"Mi cuenta" y "Mis pedidos" del dropdown son enlaces reales a la Vista Mi Cuenta', async () => {
+    localStorage.setItem('session', JSON.stringify({ isLoggedIn: true, userId: '1', username: 'carlos' }))
+    authService.silentRefresh.mockResolvedValueOnce({ ok: true, data: { userId: '1', username: 'carlos' } })
+
+    const user = userEvent.setup()
+    renderNavbar()
+
+    const iconoUsuario = await screen.findByLabelText('Menú de usuario')
+    await user.click(iconoUsuario)
+
+    const enlaceCuenta = screen.getByText('Mi cuenta')
+    const enlacePedidos = screen.getByText('Mis pedidos')
+    expect(enlaceCuenta.tagName).toBe('A')
+    expect(enlaceCuenta).toHaveAttribute('href', '/mi-cuenta/perfil')
+    expect(enlacePedidos.tagName).toBe('A')
+    expect(enlacePedidos).toHaveAttribute('href', '/mi-cuenta/pedidos')
+  })
+
   it('el logotipo cambia de src al pulsar el ThemeToggle', async () => {
     const user = userEvent.setup()
     renderNavbar()

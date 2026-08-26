@@ -1,0 +1,41 @@
+// Layout de la Vista Mi Cuenta: menú lateral + divisor vertical + panel de contenido
+// (Requisitos 2.1, 2.2, 2.6). Solo consume var(--color-...) de _tokens.scss.
+
+.mi-cuenta {
+  padding: 2.5rem 1.5rem 4rem;
+
+  &__contenedor {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+
+    @media (max-width: 800px) {
+      flex-direction: column;
+    }
+  }
+
+  // Línea vertical extensa entre menú y contenido, coloreada según el tema activo
+  // (Requisito 2.2).
+  &__divisor {
+    align-self: stretch;
+    width: 2px;
+    background: var(--color-acento-borde);
+    flex-shrink: 0;
+
+    @media (max-width: 800px) {
+      display: none;
+    }
+  }
+
+  &__panel {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__titulo {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+  }
+}

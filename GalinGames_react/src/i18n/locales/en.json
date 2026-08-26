@@ -105,6 +105,7 @@
   },
   "miCuenta": {
     "menu": {
+      "ariaLabel": "My account menu",
       "perfil": "My profile",
       "direcciones": "Addresses",
       "pedidos": "My orders"
