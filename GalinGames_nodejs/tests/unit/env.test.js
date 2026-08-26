@@ -19,6 +19,9 @@ const VALID_ENV = {
   FRONTEND_URL: 'http://localhost:5173',
   BACKEND_URL: 'http://localhost:3001',
   EMAIL_VERIFICATION_EXPIRES_HOURS: '24',
+  CLOUDINARY_CLOUD_NAME: 'demo-cloud',
+  CLOUDINARY_API_KEY: '123456789012345',
+  CLOUDINARY_API_SECRET: 'cloudinary-secret-de-prueba',
 };
 
 function setEnv(overrides) {
@@ -106,5 +109,32 @@ describe('src/config/env.js', () => {
     const { exitSpy, env } = await loadEnvModule();
     expect(exitSpy).not.toHaveBeenCalled();
     expect(env.EMAIL_VERIFICATION_EXPIRES_HOURS).toBe(24);
+  });
+
+  it('termina el proceso con código 1 si falta CLOUDINARY_CLOUD_NAME', async () => {
+    setEnv({ CLOUDINARY_CLOUD_NAME: '' });
+    const { exitSpy } = await loadEnvModule();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+  });
+
+  it('termina el proceso con código 1 si falta CLOUDINARY_API_KEY', async () => {
+    setEnv({ CLOUDINARY_API_KEY: '' });
+    const { exitSpy } = await loadEnvModule();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+  });
+
+  it('termina el proceso con código 1 si falta CLOUDINARY_API_SECRET', async () => {
+    setEnv({ CLOUDINARY_API_SECRET: '' });
+    const { exitSpy } = await loadEnvModule();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+  });
+
+  it('carga correctamente las tres variables de Cloudinary', async () => {
+    setEnv({});
+    const { exitSpy, env } = await loadEnvModule();
+    expect(exitSpy).not.toHaveBeenCalled();
+    expect(env.CLOUDINARY_CLOUD_NAME).toBe(VALID_ENV.CLOUDINARY_CLOUD_NAME);
+    expect(env.CLOUDINARY_API_KEY).toBe(VALID_ENV.CLOUDINARY_API_KEY);
+    expect(env.CLOUDINARY_API_SECRET).toBe(VALID_ENV.CLOUDINARY_API_SECRET);
   });
 });

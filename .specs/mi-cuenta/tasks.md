@@ -40,19 +40,19 @@ respete las dependencias indicadas.
 
 ### Backend — Servicios
 
-- [ ] 6. Crear `GalinGames_nodejs/src/services/sensitiveActionLockService.js` (`isLocked`, `registerFailedAttempt`, `resetLock` parametrizados por `action`), + tests en `tests/unit/sensitiveActionLockService.test.js`
+- [x] 6. Crear `GalinGames_nodejs/src/services/sensitiveActionLockService.js` (`isLocked`, `registerFailedAttempt`, `resetLock` parametrizados por `action`), + tests en `tests/unit/sensitiveActionLockService.test.js`
   **Dependencias:** Tarea 2
   **Requisitos:** 8.1, 8.2, 8.3, 8.4, 8.5
 
-- [ ] 7. Crear `GalinGames_nodejs/src/services/cloudinaryService.js` (`uploadAvatar`, `deleteAsset`, config vía `env.CLOUDINARY_*`), + tests en `tests/unit/cloudinaryService.test.js` (con SDK mockeado)
+- [x] 7. Crear `GalinGames_nodejs/src/services/cloudinaryService.js` (`uploadAvatar`, `deleteAsset`, config vía `env.CLOUDINARY_*`), + tests en `tests/unit/cloudinaryService.test.js` (con SDK mockeado)
   **Dependencias:** Tarea 1
   **Requisitos:** 6.1, 6.3
 
-- [ ] 8. Añadir `sendEmailChangeVerification` a `GalinGames_nodejs/src/services/emailService.js` (plantilla HTML propia, reutilizando `createEmailService`), + tests en `tests/unit/emailService.test.js`
+- [x] 8. Añadir `sendEmailChangeVerification` a `GalinGames_nodejs/src/services/emailService.js` (plantilla HTML propia, reutilizando `createEmailService`), + tests en `tests/unit/emailService.test.js`
   **Dependencias:** ninguna
   **Requisitos:** 7.5
 
-- [ ] 9. Crear `GalinGames_nodejs/src/middleware/uploadAvatar.js` (multer `memoryStorage`, límite 5MB, `fileFilter` de MIME image/jpeg-png-webp), + tests en `tests/unit/uploadAvatar.test.js`
+- [x] 9. Crear `GalinGames_nodejs/src/middleware/uploadAvatar.js` (multer `memoryStorage`, límite 5MB, `fileFilter` de MIME image/jpeg-png-webp), + tests en `tests/unit/uploadAvatar.test.js`
   **Dependencias:** Tarea 1
   **Requisitos:** 6.2
 

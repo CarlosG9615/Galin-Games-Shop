@@ -7,7 +7,17 @@ function isBlank(value) {
 function loadEnv() {
   dotenv.config();
 
-  const required = ['JWT_SECRET', 'MONGODB_URI', 'EMAIL_USER', 'EMAIL_APP_PASSWORD', 'FRONTEND_URL', 'BACKEND_URL'];
+  const required = [
+    'JWT_SECRET',
+    'MONGODB_URI',
+    'EMAIL_USER',
+    'EMAIL_APP_PASSWORD',
+    'FRONTEND_URL',
+    'BACKEND_URL',
+    'CLOUDINARY_CLOUD_NAME',
+    'CLOUDINARY_API_KEY',
+    'CLOUDINARY_API_SECRET',
+  ];
   for (const key of required) {
     if (isBlank(process.env[key])) {
       console.error(`[FATAL] La variable de entorno ${key} es obligatoria`);
@@ -51,6 +61,9 @@ function loadEnv() {
     FRONTEND_URL: process.env.FRONTEND_URL,
     BACKEND_URL: process.env.BACKEND_URL,
     EMAIL_VERIFICATION_EXPIRES_HOURS: parseInt(process.env.EMAIL_VERIFICATION_EXPIRES_HOURS, 10) || 24,
+    CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   };
 }
 
