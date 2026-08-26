@@ -382,6 +382,16 @@ Sin API: `PedidosPanel.jsx` renderiza directamente
 
 ## Security
 
+- Ningún controlador nuevo fabrica, deriva o adivina un `ObjectId` — toda
+  búsqueda de un documento concreto usa el `_id` real ya generado por Mongo
+  (cuando se dispone de él, p. ej. `req.user.userId` tras `requireAuth`, o
+  el `:id` de una `Address` devuelto en una respuesta anterior) o, si no se
+  dispone de él, el valor único de negocio de esa colección:
+  `checkUsername` busca por `username` (`User.findOne({ username })`, igual
+  que `authController.login`/`register`), `requestEmailChange`/
+  `confirmEmailChange` localizan la solicitud pendiente por `tokenHash`
+  (`PendingEmailChange.findOne({ tokenHash })`, patrón ya usado por
+  `PendingUser`/`emailVerificationService`), nunca por un `_id` supuesto.
 - Todos los endpoints nuevos pasan por `requireAuth`, salvo
   `GET /verify-email-change` (Requisito 16.1).
 - Ningún endpoint acepta un id de usuario del cliente: siempre

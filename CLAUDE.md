@@ -42,6 +42,32 @@ requirements.md, design.md y tasks.md ya generados:
 - `/spec-execute <feature>` — ejecuta la siguiente tarea pendiente de `tasks.md` y marca su checkbox
 - `/spec-sync <feature>` — tras un cambio en `design.md`, actualiza `tasks.md` preservando las tareas ya completadas
 
+## Identificadores MongoDB (ObjectId)
+
+En `GalinGames_nodejs`, el `_id` de un documento es un `ObjectId` que **solo
+existe si Mongo lo ha generado** al crear ese documento (o si proviene de un
+documento ya creado, devuelto al cliente y reenviado tal cual, p. ej. el
+`:id` de una `Address` en `PUT /api/addresses/:id`). Nunca se fabrica,
+deriva o adivina un `ObjectId` a partir de otro dato (email, username, hash,
+fecha, etc.) — ni con `new mongoose.Types.ObjectId(unDatoQueNoEsUnId)`, ni
+concatenando/hasheando algo para que "parezca" un id válido.
+
+- Cuando haya que **encontrar un documento concreto sin tener ya su `_id`
+  real** (login, comprobar disponibilidad de username, verificar un email,
+  identificar a un usuario por su email de recuperación, etc.), la consulta
+  se hace por el **valor único de negocio** que esa colección ya declara
+  como tal: `username`/`email` en `User`, el hash de un token en
+  `PendingUser`/`PendingEmailChange`, etc. — nunca inventando o probando un
+  `_id`.
+- Cuando el `_id` real de un documento ya se conoce (ha sido creado por
+  Mongo y devuelto al cliente en una respuesta anterior, o viene de
+  `req.user.userId` tras verificar el JWT), sí es correcto usarlo
+  directamente en la consulta (`findById`, `findOne({ _id, userId })` para
+  comprobar propiedad, etc.).
+- Antes de programar un controlador/servicio nuevo que necesite "buscar a
+  X", identifica primero cuál es el campo único real de esa colección y
+  úsalo en el `findOne`, en vez de construir o suponer un `_id`.
+
 ## Internacionalización (i18n)
 
 El proyecto usa `react-i18next`. Todo texto visible para el usuario en
