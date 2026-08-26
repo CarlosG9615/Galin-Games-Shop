@@ -34,6 +34,27 @@ const UserSchema = new mongoose.Schema({
     minlength: [60, 'Longitud mínima para hashes bcrypt'],
     select: false,
   },
+  telefono: {
+    type: String,
+    trim: true,
+    maxlength: [30, 'El teléfono no puede superar los 30 caracteres'],
+    default: null,
+  },
+  nacionalidad: {
+    type: String,
+    trim: true,
+    maxlength: [100, 'La nacionalidad no puede superar los 100 caracteres'],
+    default: null,
+  },
+  avatarUrl: {
+    type: String,
+    default: null,
+  },
+  avatarPublicId: {
+    type: String,
+    default: null,
+    select: false,
+  },
   fechaRegistro: {
     type: Date,
     default: Date.now,
@@ -42,6 +63,32 @@ const UserSchema = new mongoose.Schema({
   refreshTokenHash: {
     type: String,
     default: null,
+    select: false,
+  },
+  // Contador de intentos fallidos + bloqueo de 24h (Requisito 8), independiente por
+  // acción para que un bloqueo en una no afecte a las demás. Persistido en Mongo (a
+  // diferencia del Map en memoria de authController.login) porque debe sobrevivir a
+  // un reinicio del proceso.
+  sensitiveActionLocks: {
+    type: {
+      emailChange: {
+        attempts: { type: Number, default: 0 },
+        blockedUntil: { type: Date, default: null },
+      },
+      deleteAccount: {
+        attempts: { type: Number, default: 0 },
+        blockedUntil: { type: Date, default: null },
+      },
+      changePassword: {
+        attempts: { type: Number, default: 0 },
+        blockedUntil: { type: Date, default: null },
+      },
+    },
+    default: () => ({
+      emailChange: { attempts: 0, blockedUntil: null },
+      deleteAccount: { attempts: 0, blockedUntil: null },
+      changePassword: { attempts: 0, blockedUntil: null },
+    }),
     select: false,
   },
 });
