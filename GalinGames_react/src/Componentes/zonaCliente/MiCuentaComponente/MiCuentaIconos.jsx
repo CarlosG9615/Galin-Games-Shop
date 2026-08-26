@@ -1,0 +1,28 @@
+// Iconos decorativos en línea (mismo patrón que NavbarIconos.jsx): stroke="currentColor"
+// para heredar el color del tema activo (rojo/azul) vía CSS `color`, sin declarar
+// colores propios (Requisitos 4.1, 6.3 [icono lápiz], 14.1 [icono predeterminada]).
+
+export function IconoLapiz() {
+  return (
+    <svg className="mi-cuenta__icono" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+    </svg>
+  )
+}
+
+export function IconoCamara() {
+  return (
+    <svg className="mi-cuenta__icono" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+      <circle cx="12" cy="13" r="4" />
+    </svg>
+  )
+}
+
+export function IconoEstrella({ relleno = false }) {
+  return (
+    <svg className="mi-cuenta__icono" viewBox="0 0 24 24" width="18" height="18" fill={relleno ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  )
+}

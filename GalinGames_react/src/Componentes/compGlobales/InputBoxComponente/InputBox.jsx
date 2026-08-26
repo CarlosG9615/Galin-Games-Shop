@@ -8,13 +8,15 @@ function InputBox({ ocultarLabel, ...props }){
                 htmlFor={props.nameInput}
                 className={`form-label texto-tema${ocultarLabel ? ' visualmente-oculto' : ''}`}>{props.labelInput}
             </label>
-            <input 
-                type={props.typeInput} 
-                className="form-control" 
-                id={props.nameInput} 
+            <input
+                type={props.typeInput}
+                className="form-control"
+                id={props.nameInput}
                 // placeholder={`Introduce tu ${props.nameInput}...`}
                 placeholder={props.placeholderInput}
-                onChange={props.eventoOnChange} required />
+                value={props.value}
+                disabled={props.disabled}
+                onChange={props.eventoOnChange} required={props.required !== false} />
         </div>
     )
 
