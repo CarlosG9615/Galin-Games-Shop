@@ -100,31 +100,31 @@ respete las dependencias indicadas.
 
 ### Frontend — Infraestructura y routing
 
-- [ ] 19. Crear `GalinGames_react/src/servicios/httpClient.js` (`get/post/put/patch/del/postForm`, mismo patrón `AbortController`/timeout que `authService.js`), + tests
+- [x] 19. Crear `GalinGames_react/src/servicios/httpClient.js` (`get/post/put/patch/del/postForm`, mismo patrón `AbortController`/timeout que `authService.js`), + tests
   **Dependencias:** ninguna
   **Requisitos:** — (soporte interno)
 
-- [ ] 20. Crear `GalinGames_react/src/servicios/accountService.js` (perfil, avatar, email, password, eliminar cuenta), + tests
+- [x] 20. Crear `GalinGames_react/src/servicios/accountService.js` (perfil, avatar, email, password, eliminar cuenta), + tests
   **Dependencias:** Tarea 19
   **Requisitos:** 3.1, 4.4, 5.1, 6.1, 7.2, 7.5, 9.2, 11.3
 
-- [ ] 21. Crear `GalinGames_react/src/servicios/addressService.js` (listar, crear, editar, marcar predeterminada), + tests
+- [x] 21. Crear `GalinGames_react/src/servicios/addressService.js` (listar, crear, editar, marcar predeterminada), + tests
   **Dependencias:** Tarea 19
   **Requisitos:** 12.1, 13.1, 14.2, 14.4
 
-- [ ] 22. Crear `GalinGames_react/src/router/PrivateRoute.jsx` (usa `useAuth`, redirige a `/login`), + tests
+- [x] 22. Crear `GalinGames_react/src/router/PrivateRoute.jsx` (usa `useAuth`, redirige a `/login`), + tests
   **Dependencias:** ninguna
   **Requisitos:** 1.4
 
 - [ ] 23. Modificar `GalinGames_react/src/router/AppRouter.jsx`: rutas `/mi-cuenta` (redirect) y `/mi-cuenta/:seccion` protegida, + tests
-  **Dependencias:** Tarea 22
+  **Dependencias:** Tarea 22, Tarea 26 (importa `<MiCuenta />`; reordenado tras la Tarea 26 en la ejecución real para que cada commit sea auto-consistente)
   **Requisitos:** 1.1, 1.2
 
 - [ ] 24. Modificar `Navbar.jsx`: convertir los `<span aria-disabled>` de "Mi cuenta"/"Mis pedidos" en `<Link>` a `/mi-cuenta/perfil` y `/mi-cuenta/pedidos`, + tests
   **Dependencias:** Tarea 23
   **Requisitos:** 1.1, 1.2, 1.5
 
-- [ ] 25. Añadir namespace `miCuenta.*` a `GalinGames_react/src/i18n/locales/es.json` y `en.json` (menú, perfil, email/contraseña, direcciones, pedidos, modal)
+- [x] 25. Añadir namespace `miCuenta.*` a `GalinGames_react/src/i18n/locales/es.json` y `en.json` (menú, perfil, email/contraseña, direcciones, pedidos, modal)
   **Dependencias:** ninguna
   **Requisitos:** 2.7
 
