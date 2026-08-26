@@ -1,0 +1,68 @@
+.direcciones-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  &__bloque {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__titulo {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  &__nueva {
+    align-self: flex-start;
+    background: none;
+    border: 1px dashed var(--color-acento-borde);
+    border-radius: 16px;
+    color: var(--color-acento);
+    padding: 0.6rem 1.25rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      border-color: var(--color-acento);
+      background: var(--color-fondo-elevado);
+    }
+  }
+
+  &__reuse-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+  }
+
+  &__reuse-caja {
+    width: 100%;
+    max-width: 380px;
+  }
+
+  &__reuse-acciones {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  &__reuse-cancelar {
+    background: none;
+    border: 1px solid var(--color-texto-tenue);
+    border-radius: 12px;
+    color: var(--color-texto);
+    padding: 8px 20px;
+
+    &:hover,
+    &:focus-visible {
+      border-color: var(--color-acento);
+      color: var(--color-acento);
+    }
+  }
+}

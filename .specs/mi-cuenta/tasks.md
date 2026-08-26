@@ -176,11 +176,11 @@ respete las dependencias indicadas.
 
 ### Frontend — Direcciones
 
-- [ ] 36. Crear `DireccionesPanel.jsx` y `TarjetaDireccion.jsx` (dos bloques envío/facturación, listado con `GET /addresses`, lámina con icono predeterminada + lápiz, botón "+ Nueva dirección"), + tests
-  **Dependencias:** Tareas 21, 26
+- [x] 36. Crear `DireccionesPanel.jsx` y `TarjetaDireccion.jsx` (dos bloques envío/facturación, listado con `GET /addresses`, lámina con icono predeterminada + lápiz, botón "+ Nueva dirección"), + tests
+  **Dependencias:** Tareas 21, 26 (implementado antes que la Tarea 26 en la ejecución real: componente hoja, no depende de `MiCuenta.jsx` para probarse)
   **Requisitos:** 12.1, 12.2, 12.3, 12.4, 12.5, 14.1, 14.2, 14.3
 
-- [ ] 37. Crear `FormularioDireccion.jsx` (crear/editar dirección, validación de campos, pregunta de reutilización entre tipos), + tests
+- [x] 37. Crear `FormularioDireccion.jsx` (crear/editar dirección, validación de campos, pregunta de reutilización entre tipos), + tests
   **Dependencias:** Tarea 36
   **Requisitos:** 13.1, 13.2, 13.3, 13.4, 13.5, 14.4
 
