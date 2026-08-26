@@ -3,8 +3,12 @@
 ## Overview
 
 Esta feature añade una Vista Mi Cuenta protegida (`/mi-cuenta/:seccion`) con
-tres secciones — Mi perfil, Direcciones, Mis pedidos — accesibles desde el
-dropdown del Navbar (`Navbar.jsx`), hoy placeholders no interactivos.
+cuatro secciones — Mi perfil, Email y contraseña, Direcciones, Mis pedidos —
+accesibles desde el dropdown del Navbar (`Navbar.jsx`), hoy placeholders no
+interactivos. "Email y contraseña" es una sección propia del menú (no un
+sub-bloque de "Mi perfil": ajuste tras QA manual sobre la primera versión
+implementada, que la mostraba dentro de la misma pantalla que los datos
+personales).
 
 Se apoya en infraestructura ya existente y no se usa todavía:
 `requireAuth` (`GalinGames_nodejs/src/middleware/authMiddleware.js`), las
@@ -193,11 +197,14 @@ Valida: Requisito 1.4.
 <Route path="/mi-cuenta" element={<Navigate to="/mi-cuenta/perfil" replace />} />
 <Route path="/mi-cuenta/:seccion" element={<PrivateRoute><MiCuenta /></PrivateRoute>} />
 ```
-`MiCuenta.jsx` lee `useParams().seccion` (`'perfil' | 'direcciones' |
-'pedidos'`) para determinar la sección activa y navega con `<Link>` al
-pulsar un ítem del `MenuLateral` — así la URL siempre refleja la sección
-(y "Mis pedidos" del Navbar simplemente enlaza a `/mi-cuenta/pedidos`, sin
-lógica adicional). Valida: Requisitos 1.1, 1.2, 2.4.
+`MiCuenta.jsx` lee `useParams().seccion` (`'perfil' | 'email-password' |
+'direcciones' | 'pedidos'`) para determinar la sección activa y navega con
+`<Link>` al pulsar un ítem del `MenuLateral` — así la URL siempre refleja
+la sección (y "Mis pedidos" del Navbar simplemente enlaza a
+`/mi-cuenta/pedidos`, sin lógica adicional). `EmailPasswordPanel` se
+renderiza únicamente bajo `seccion === 'email-password'`, como sección
+propia del menú — no junto a `PerfilPanel` bajo `'perfil'`. Valida:
+Requisitos 1.1, 1.2, 2.1, 2.4.
 
 `Navbar.jsx`: los `<span aria-disabled>` de `navbar.myAccount` y
 `navbar.myOrders` pasan a `<Link to="/mi-cuenta/perfil">` /

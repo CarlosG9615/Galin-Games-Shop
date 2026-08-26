@@ -107,6 +107,7 @@
     "menu": {
       "ariaLabel": "Menú de mi cuenta",
       "perfil": "Mi perfil",
+      "emailPassword": "Email y contraseña",
       "direcciones": "Direcciones",
       "pedidos": "Mis pedidos"
     },

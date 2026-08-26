@@ -8,7 +8,7 @@ import DireccionesPanel from './DireccionesPanel'
 import PedidosPanel from './PedidosPanel'
 import './MiCuenta.scss'
 
-const SECCIONES_VALIDAS = ['perfil', 'direcciones', 'pedidos']
+const SECCIONES_VALIDAS = ['perfil', 'email-password', 'direcciones', 'pedidos']
 
 // Layout de la Vista Mi Cuenta (Requisito 2): menú lateral + divisor + panel de
 // contenido. El Navbar genérico se sigue mostrando (Requisito 1.3), mismo patrón que
@@ -33,6 +33,11 @@ function MiCuenta() {
               <>
                 <h1 className="titulo-tema mi-cuenta__titulo">{t('miCuenta.menu.perfil')}</h1>
                 <PerfilPanel />
+              </>
+            )}
+            {seccion === 'email-password' && (
+              <>
+                <h1 className="titulo-tema mi-cuenta__titulo">{t('miCuenta.menu.emailPassword')}</h1>
                 <EmailPasswordPanel />
               </>
             )}

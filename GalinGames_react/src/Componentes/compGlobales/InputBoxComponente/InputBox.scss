@@ -20,4 +20,20 @@
     border-color: var(--color-acento);
     box-shadow: 0 0 0 0.25rem var(--color-acento-borde);
   }
+
+  // Bootstrap por defecto pinta los inputs disabled con su propio gris claro y baja
+  // la opacidad del texto — sobre el fondo oscuro de la app eso dejaba el contenido
+  // prácticamente invisible. disabled debe impedir la interacción, no cambiar el
+  // aspecto (mismo fondo/color que un input habilitado, Vista Mi Cuenta).
+  &:disabled {
+    background-color: var(--color-fondo-elevado);
+    color: var(--color-texto);
+    opacity: 1;
+    cursor: not-allowed;
+
+    &::placeholder {
+      color: var(--color-texto-tenue);
+      opacity: 1;
+    }
+  }
 }

@@ -72,6 +72,19 @@ describe('MiCuenta', () => {
     expect(await screen.findByDisplayValue('Carlos')).toBeInTheDocument()
   })
 
+  it('"Email y contraseña" es una sección propia, no se muestra junto a "Mi perfil"', async () => {
+    renderMiCuenta('/mi-cuenta/perfil')
+    await screen.findByDisplayValue('Carlos')
+
+    expect(screen.queryByLabelText('Email')).not.toBeInTheDocument()
+  })
+
+  it('muestra la sección de email y contraseña cuando la ruta es /mi-cuenta/email-password', async () => {
+    renderMiCuenta('/mi-cuenta/email-password')
+
+    expect(await screen.findByDisplayValue('carlos@example.com')).toBeInTheDocument()
+  })
+
   it('muestra la sección de direcciones cuando la ruta es /mi-cuenta/direcciones', async () => {
     renderMiCuenta('/mi-cuenta/direcciones')
 
@@ -98,5 +111,15 @@ describe('MiCuenta', () => {
     await user.click(screen.getByRole('link', { name: 'Direcciones' }))
 
     await waitFor(() => expect(screen.getAllByRole('button', { name: /nueva dirección/i })).toHaveLength(2))
+  })
+
+  it('al pulsar "Email y contraseña" en el menú, cambia el panel de contenido', async () => {
+    const user = userEvent.setup()
+    renderMiCuenta('/mi-cuenta/perfil')
+    await screen.findByDisplayValue('Carlos')
+
+    await user.click(screen.getByRole('link', { name: 'Email y contraseña' }))
+
+    expect(await screen.findByDisplayValue('carlos@example.com')).toBeInTheDocument()
   })
 })

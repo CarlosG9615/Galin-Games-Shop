@@ -2,7 +2,17 @@
 // (Requisitos 2.1, 2.2, 2.6). Solo consume var(--color-...) de _tokens.scss.
 
 .mi-cuenta {
-  padding: 2.5rem 1.5rem 4rem;
+  // padding-top generoso (no 2.5rem): el logo del ThemeToggle es position:absolute y
+  // se deja desbordar deliberadamente por debajo de la caja del navbar (hasta ~208px
+  // de alto en tema rojo, ver ThemeToggle.scss) en vez de fijar la altura del navbar
+  // a su logo más alto. Sin este margen, el menú lateral y el panel quedaban tapados
+  // por el logo — mismo motivo por el que Login/Registro usan padding-top: 15rem en
+  // .pagina-dividida__formulario (_shared.scss).
+  padding: 9rem 1.5rem 4rem;
+
+  @media (max-width: 768px) {
+    padding-top: 7rem;
+  }
 
   &__contenedor {
     display: flex;

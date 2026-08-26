@@ -3,6 +3,14 @@
 // _tokens.scss, ningún color de tema propio (Requisito 9.6 de home-diseno, heredado).
 
 .perfil-panel {
+  // Sin esto, el avatar/separador (centrados vía align-items:center en __avatar-zona)
+  // quedaban centrados en TODO el ancho del panel, mientras la cuadrícula de inputs
+  // (bloque, sin max-width) se pegaba al borde izquierdo — visualmente descuadrado.
+  // Acotar y centrar el panel entero hace que avatar, separador y cuadrícula
+  // compartan el mismo eje (ajuste tras QA manual, Tarea 41).
+  max-width: 640px;
+  margin: 0 auto;
+
   &__avatar-zona {
     display: flex;
     flex-direction: column;

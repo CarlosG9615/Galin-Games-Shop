@@ -4,6 +4,7 @@ import './MenuLateral.scss'
 
 const ITEMS = [
   { seccion: 'perfil', labelKey: 'miCuenta.menu.perfil' },
+  { seccion: 'email-password', labelKey: 'miCuenta.menu.emailPassword' },
   { seccion: 'direcciones', labelKey: 'miCuenta.menu.direcciones' },
   { seccion: 'pedidos', labelKey: 'miCuenta.menu.pedidos' },
 ]

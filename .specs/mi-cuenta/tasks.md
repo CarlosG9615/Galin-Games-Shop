@@ -190,6 +190,20 @@ respete las dependencias indicadas.
   **Dependencias:** Tarea 26
   **Requisitos:** 15.1, 15.2
 
+### Frontend — Ajustes tras QA manual
+
+- [x] 39. Separar "Email y contraseña" como sección propia del menú lateral (ya no se renderiza junto a `PerfilPanel` bajo "Mi perfil"): añadir el 4º ítem a `MenuLateral.jsx`, la clave `miCuenta.menu.emailPassword` en `es.json`/`en.json`, y la rama `seccion === 'email-password'` en `MiCuenta.jsx` (`SECCIONES_VALIDAS` actualizado), + tests
+  **Dependencias:** Tareas 26, 32
+  **Requisitos:** 2.1 (actualizado), 2.4
+
+- [x] 40. Corregir estilos de `.form-control:disabled` en `InputBox.scss` (compartido): el fondo/color por defecto de Bootstrap dejaba el texto ilegible sobre fondo claro; se fuerza el mismo fondo/color oscuro que el resto de la app, solo cambia el cursor — el campo deja de ser clicable pero no cambia visualmente, + tests
+  **Dependencias:** ninguna
+  **Requisitos:** 3.2 (legibilidad de datos ya insertados)
+
+- [x] 41. Centrar y acotar el ancho de `PerfilPanel.jsx`/`EmailPasswordPanel.jsx` (`max-width` + `margin: 0 auto`) para que el avatar, el separador y la cuadrícula de inputs compartan el mismo eje horizontal en vez de que la cuadrícula quede pegada al borde izquierdo mientras avatar/separador aparecen centrados en todo el ancho del panel
+  **Dependencias:** Tareas 27, 32
+  **Requisitos:** 2.5 (cuadrícula), ajuste visual sin requisito EARS dedicado
+
 ## Task Dependency Graph
 
 ```mermaid

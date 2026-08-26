@@ -12,9 +12,10 @@ function renderMenu(seccionActiva) {
 }
 
 describe('MenuLateral', () => {
-  it('renderiza los tres enlaces de sección', () => {
+  it('renderiza los cuatro enlaces de sección', () => {
     renderMenu('perfil')
     expect(screen.getByRole('link', { name: 'Mi perfil' })).toHaveAttribute('href', '/mi-cuenta/perfil')
+    expect(screen.getByRole('link', { name: 'Email y contraseña' })).toHaveAttribute('href', '/mi-cuenta/email-password')
     expect(screen.getByRole('link', { name: 'Direcciones' })).toHaveAttribute('href', '/mi-cuenta/direcciones')
     expect(screen.getByRole('link', { name: 'Mis pedidos' })).toHaveAttribute('href', '/mi-cuenta/pedidos')
   })

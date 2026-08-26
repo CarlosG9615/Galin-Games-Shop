@@ -88,8 +88,8 @@ cuenta.
 #### Criterios de Aceptación
 
 1. THE Vista Mi Cuenta SHALL mostrar un menú lateral izquierdo con las
-   secciones "Mi perfil", "Direcciones" y "Mis pedidos" apiladas verticalmente,
-   y un panel de contenido a la derecha.
+   secciones "Mi perfil", "Email y contraseña", "Direcciones" y "Mis pedidos"
+   apiladas verticalmente, y un panel de contenido a la derecha.
 2. THE Vista Mi Cuenta SHALL mostrar un divisor vertical entre el menú lateral
    y el panel de contenido, cuyo color se corresponde con el color de acento
    del tema activo.
