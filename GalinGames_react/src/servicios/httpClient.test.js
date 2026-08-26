@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { httpClient } from './httpClient'
 
 function mockFetchOnce({ ok, status, json }) {
-  if (!global.fetch || !global.fetch.mock) {
-    global.fetch = vi.fn()
+  if (!globalThis.fetch || !globalThis.fetch.mock) {
+    globalThis.fetch = vi.fn()
   }
-  global.fetch.mockResolvedValueOnce({
+  globalThis.fetch.mockResolvedValueOnce({
     ok,
     status,
     json: vi.fn().mockResolvedValueOnce(json),
@@ -18,7 +18,7 @@ describe('httpClient', () => {
   })
 
   afterEach(() => {
-    delete global.fetch
+    delete globalThis.fetch
   })
 
   it('get() hace fetch con credentials:include y sin body', async () => {
@@ -26,7 +26,7 @@ describe('httpClient', () => {
 
     const result = await httpClient.get('/api/users/me')
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(globalThis.fetch).toHaveBeenCalledWith(
       '/api/users/me',
       expect.objectContaining({ method: 'GET', credentials: 'include' }),
     )
@@ -38,7 +38,7 @@ describe('httpClient', () => {
 
     await httpClient.post('/api/addresses', { titulo: 'Casa' })
 
-    const [, options] = global.fetch.mock.calls[0]
+    const [, options] = globalThis.fetch.mock.calls[0]
     expect(options.method).toBe('POST')
     expect(options.headers).toEqual({ 'Content-Type': 'application/json' })
     expect(JSON.parse(options.body)).toEqual({ titulo: 'Casa' })
@@ -47,15 +47,15 @@ describe('httpClient', () => {
   it('put()/patch()/del() usan el verbo HTTP correcto', async () => {
     mockFetchOnce({ ok: true, status: 200, json: {} })
     await httpClient.put('/api/addresses/1', { titulo: 'X' })
-    expect(global.fetch.mock.calls[0][1].method).toBe('PUT')
+    expect(globalThis.fetch.mock.calls[0][1].method).toBe('PUT')
 
     mockFetchOnce({ ok: true, status: 200, json: {} })
     await httpClient.patch('/api/addresses/1/predeterminada')
-    expect(global.fetch.mock.calls[1][1].method).toBe('PATCH')
+    expect(globalThis.fetch.mock.calls[1][1].method).toBe('PATCH')
 
     mockFetchOnce({ ok: true, status: 200, json: {} })
     await httpClient.del('/api/users/me', { password: 'x' })
-    expect(global.fetch.mock.calls[2][1].method).toBe('DELETE')
+    expect(globalThis.fetch.mock.calls[2][1].method).toBe('DELETE')
   })
 
   it('devuelve ok:false con status/message/errors cuando la respuesta no es ok', async () => {
@@ -83,7 +83,7 @@ describe('httpClient', () => {
   })
 
   it('devuelve reason:"network" (sin message hardcodeado) cuando fetch rechaza', async () => {
-    global.fetch = vi.fn().mockRejectedValueOnce(new Error('fallo de red'))
+    globalThis.fetch = vi.fn().mockRejectedValueOnce(new Error('fallo de red'))
 
     const result = await httpClient.get('/api/users/me')
 
@@ -93,7 +93,7 @@ describe('httpClient', () => {
   it('devuelve reason:"timeout" cuando la petición se aborta', async () => {
     const abortError = new Error('aborted')
     abortError.name = 'AbortError'
-    global.fetch = vi.fn().mockRejectedValueOnce(abortError)
+    globalThis.fetch = vi.fn().mockRejectedValueOnce(abortError)
 
     const result = await httpClient.get('/api/users/me')
 
@@ -107,7 +107,7 @@ describe('httpClient', () => {
 
     const result = await httpClient.postForm('/api/users/me/avatar', formData)
 
-    const [, options] = global.fetch.mock.calls[0]
+    const [, options] = globalThis.fetch.mock.calls[0]
     expect(options.method).toBe('POST')
     expect(options.headers).toBeUndefined()
     expect(options.body).toBe(formData)

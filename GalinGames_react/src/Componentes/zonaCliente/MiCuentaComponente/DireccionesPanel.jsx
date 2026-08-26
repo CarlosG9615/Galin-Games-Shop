@@ -127,7 +127,6 @@ function DireccionesPanel() {
       )}
 
       {reuseInfo && (
-        // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- overlay decorativo, el cierre real son los botones de la caja
         <div className="direcciones-panel__reuse-overlay" onClick={() => setReuseInfo(null)}>
           <div className="direcciones-panel__reuse-caja tarjeta-tema" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
             <p className="texto-tema">

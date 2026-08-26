@@ -49,7 +49,6 @@ function FormularioDireccion({ tipo, direccion, onCancel, onSave, error }) {
   const faltanObligatorios = CAMPOS_OBLIGATORIOS.some((campo) => !valores[campo].trim())
 
   return (
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- overlay decorativo, el cierre real es el botón "Cancelar"
     <div className="formulario-direccion__overlay" onClick={onCancel}>
       <div className="formulario-direccion__caja tarjeta-tema" role="dialog" aria-label={tituloFormulario} onClick={(e) => e.stopPropagation()}>
         <h3 className="titulo-tema formulario-direccion__titulo">{tituloFormulario}</h3>

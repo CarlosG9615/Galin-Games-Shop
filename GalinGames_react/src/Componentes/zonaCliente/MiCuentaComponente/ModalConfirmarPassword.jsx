@@ -25,7 +25,6 @@ function ModalConfirmarPassword({ visible, title, onClose, onSubmit, submitting,
   }
 
   return (
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- overlay decorativo, el cierre real es el botón "X"
     <div className="modal-password__overlay" onClick={onClose}>
       <div
         className="modal-password__caja tarjeta-tema"
