@@ -136,41 +136,41 @@ respete las dependencias indicadas.
 
 ### Frontend — Mi perfil
 
-- [ ] 27. Crear `PerfilPanel.jsx` (parte 1): consulta `GET /me`, pinta imagen redonda + `border-bottom` temático + datos personales en modo lectura, inputs vacíos si no hay dato, + tests
-  **Dependencias:** Tareas 20, 26
+- [x] 27. Crear `PerfilPanel.jsx` (parte 1): consulta `GET /me`, pinta imagen redonda + `border-bottom` temático + datos personales en modo lectura, inputs vacíos si no hay dato, + tests
+  **Dependencias:** Tareas 20, 26 (implementado antes que la Tarea 26 en la ejecución real: componente hoja, no depende de `MiCuenta.jsx` para probarse)
   **Requisitos:** 3.1, 3.2, 3.3, 3.4, 3.5, 3.6
 
-- [ ] 28. Añadir a `PerfilPanel.jsx` el modo edición de datos personales ("Modificar datos personales" + lápiz temático, guardar/cancelar), + tests
+- [x] 28. Añadir a `PerfilPanel.jsx` el modo edición de datos personales ("Modificar datos personales" + lápiz temático, guardar/cancelar), + tests
   **Dependencias:** Tarea 27
   **Requisitos:** 4.1, 4.2, 4.3, 4.4, 4.5
 
-- [ ] 29. Añadir a `PerfilPanel.jsx` la validación en tiempo real del nombre de usuario (mensaje verde/rojo, bloqueo de guardado, caso "sin cambios"), + tests
+- [x] 29. Añadir a `PerfilPanel.jsx` la validación en tiempo real del nombre de usuario (mensaje verde/rojo, bloqueo de guardado, caso "sin cambios"), + tests
   **Dependencias:** Tarea 28
   **Requisitos:** 5.1, 5.2, 5.3, 5.4, 5.5
 
-- [ ] 30. Añadir a `PerfilPanel.jsx` la subida de imagen de perfil (icono, validación de tipo/tamaño en cliente, estado de carga, `POST /me/avatar`), + tests
+- [x] 30. Añadir a `PerfilPanel.jsx` la subida de imagen de perfil (icono, validación de tipo/tamaño en cliente, estado de carga, `POST /me/avatar`), + tests
   **Dependencias:** Tarea 27
   **Requisitos:** 6.1, 6.2, 6.3, 6.4, 6.5
 
 ### Frontend — Email y contraseña
 
-- [ ] 31. Crear `ModalConfirmarPassword.jsx` (modal reutilizable con estilos por tema, X de cierre, mensaje de error, aviso de bloqueo 24h), + tests
+- [x] 31. Crear `ModalConfirmarPassword.jsx` (modal reutilizable con estilos por tema, X de cierre, mensaje de error, aviso de bloqueo 24h), + tests
   **Dependencias:** Tarea 25
   **Requisitos:** 7.2, 7.4, 8.2, 8.3
 
-- [ ] 32. Crear `EmailPasswordPanel.jsx` (parte 1): input de email de solo lectura + flujo "Modificar email" (modal → habilitar input → "validar" → `PUT /me/email`), + tests
-  **Dependencias:** Tareas 20, 26, 31
+- [x] 32. Crear `EmailPasswordPanel.jsx` (parte 1): input de email de solo lectura + flujo "Modificar email" (modal → habilitar input → "validar" → `PUT /me/email`), + tests
+  **Dependencias:** Tareas 20, 26, 31 (implementado antes que la Tarea 26 en la ejecución real: `EmailPasswordPanel` es un componente hoja que no depende de `MiCuenta.jsx` para poder probarse)
   **Requisitos:** 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7
 
-- [ ] 33. Añadir a `EmailPasswordPanel.jsx` el formulario de cambio de contraseña (actual/nueva/repetir, validación de coincidencia, `PUT /me/password`), + tests
+- [x] 33. Añadir a `EmailPasswordPanel.jsx` el formulario de cambio de contraseña (actual/nueva/repetir, validación de coincidencia, `PUT /me/password`), + tests
   **Dependencias:** Tarea 32
   **Requisitos:** 9.1, 9.2, 9.3, 9.4, 9.5
 
-- [ ] 34. Añadir a `EmailPasswordPanel.jsx` el bloque estático de "2FA pendiente", + tests
+- [x] 34. Añadir a `EmailPasswordPanel.jsx` el bloque estático de "2FA pendiente", + tests
   **Dependencias:** Tarea 32
   **Requisitos:** 10.1, 10.2
 
-- [ ] 35. Añadir a `EmailPasswordPanel.jsx` el botón "Eliminar cuenta" (reutiliza `ModalConfirmarPassword`, `DELETE /me`, logout + redirect), + tests
+- [x] 35. Añadir a `EmailPasswordPanel.jsx` el botón "Eliminar cuenta" (reutiliza `ModalConfirmarPassword`, `DELETE /me`, logout + redirect), + tests
   **Dependencias:** Tareas 32, 31
   **Requisitos:** 11.1, 11.2, 11.3, 11.4, 11.5
 
