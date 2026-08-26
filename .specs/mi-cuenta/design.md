@@ -346,8 +346,8 @@ para no confundir este bloqueo de 24h con el rate-limiting de
 |---|---|---|---|---|
 | GET | `/api/addresses` | — | `200 { envio: Address[], facturacion: Address[] }` (predeterminada primero en cada array) | 401 |
 | POST | `/api/addresses` | `{ tipo, titulo, calle, numero, pisoPuerta?, ciudad, provincia, codigoPostal, pais }` | `201 { address, offerReuseForOtherType: boolean }` | 400 |
-| PUT | `/api/addresses/:id` | mismos campos que POST (parciales) | `200 { address }` | 400, 403 (no pertenece al usuario), 404 |
-| PATCH | `/api/addresses/:id/predeterminada` | — | `200 { address }` | 403, 404 |
+| PUT | `/api/addresses/:id` | mismos campos que POST (formulario completo, mismo componente que crear) | `200 { address }` | 400, 404 |
+| PATCH | `/api/addresses/:id/predeterminada` | — | `200 { address }` | 404 |
 
 Valida: Requisitos 12.1–12.5, 13.1–13.5, 14.1–14.5.
 

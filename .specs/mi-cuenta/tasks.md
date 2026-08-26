@@ -84,11 +84,11 @@ respete las dependencias indicadas.
 
 ### Backend — Controlador y rutas de direcciones
 
-- [ ] 16. Crear `addressController.js` — `listAddresses`, `createAddress` (con `offerReuseForOtherType`), `updateAddress`, `setDefaultAddress`, + tests en `tests/unit/addressController.test.js`
+- [x] 16. Crear `addressController.js` — `listAddresses`, `createAddress` (con `offerReuseForOtherType`), `updateAddress`, `setDefaultAddress`, + tests en `tests/unit/addressController.test.js`
   **Dependencias:** Tareas 3, 5
   **Requisitos:** 12.1, 12.2, 12.3, 12.4, 12.5, 13.1, 13.2, 13.3, 13.5, 14.1, 14.2, 14.3, 14.4, 14.5, 16.2, 16.3
 
-- [ ] 17. Crear `GalinGames_nodejs/src/routes/address.routes.js` (bajo `requireAuth`), + tests de integración con `supertest`
+- [x] 17. Crear `GalinGames_nodejs/src/routes/address.routes.js` (bajo `requireAuth`), + tests de integración con `supertest`
   **Dependencias:** Tarea 16
   **Requisitos:** 16.1
 
