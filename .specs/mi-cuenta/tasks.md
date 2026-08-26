@@ -94,7 +94,7 @@ respete las dependencias indicadas.
 
 ### Backend — Wiring final
 
-- [ ] 18. Montar `user.routes.js` y `address.routes.js` en `GalinGames_nodejs/server.js`, ampliar `methods` de CORS a `['GET','POST','PUT','PATCH','DELETE']`
+- [x] 18. Montar `user.routes.js` y `address.routes.js` en `GalinGames_nodejs/server.js`, ampliar `methods` de CORS a `['GET','POST','PUT','PATCH','DELETE']`
   **Dependencias:** Tareas 15, 17
   **Requisitos:** 16.1
 
