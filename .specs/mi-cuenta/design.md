@@ -143,7 +143,7 @@ igual que `authController.login` hace con `refreshTokenHash`.
 expone únicamente lo que el controlador necesita:
 
 ```js
-async function uploadAvatar(buffer, userId)   // → { url, publicId } (carpeta 'avatars/<userId>')
+async function uploadAvatar(buffer, userId)   // → { url, publicId } (carpeta 'users/<userId>' en Cloudinary)
 async function deleteAsset(publicId)          // best-effort, no lanza si publicId es null
 ```
 

@@ -58,27 +58,27 @@ respete las dependencias indicadas.
 
 ### Backend — Controladores y rutas de usuario
 
-- [ ] 10. Crear `userController.js` — `getMe` y `updateMe` (incluye `checkUsername`), con inyección de dependencias tipo `createUserController`, + tests en `tests/unit/userController.test.js`
+- [x] 10. Crear `userController.js` — `getMe` y `updateMe` (incluye `checkUsername`), con inyección de dependencias tipo `createUserController`, + tests en `tests/unit/userController.test.js`
   **Dependencias:** Tareas 2, 5
   **Requisitos:** 3.1, 3.2, 3.6, 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.2, 5.3, 5.4, 5.5, 16.2, 16.3
 
-- [ ] 11. Añadir a `userController.js` el handler `uploadAvatar` (usa `cloudinaryService` + borra `avatarPublicId` anterior), + tests
+- [x] 11. Añadir a `userController.js` el handler `uploadAvatar` (usa `cloudinaryService` + borra `avatarPublicId` anterior), + tests
   **Dependencias:** Tareas 2, 7, 9
   **Requisitos:** 6.1, 6.2, 6.3, 6.4, 6.5
 
-- [ ] 12. Añadir a `userController.js` `verifyPassword`, `requestEmailChange` y `confirmEmailChange` (usa `sensitiveActionLockService`, `PendingEmailChange`, `emailService`), + tests
+- [x] 12. Añadir a `userController.js` `verifyPassword`, `requestEmailChange` y `confirmEmailChange` (usa `sensitiveActionLockService`, `PendingEmailChange`, `emailService`), + tests
   **Dependencias:** Tareas 2, 4, 6, 8
   **Requisitos:** 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 8.1, 8.2, 8.3, 8.4, 8.5
 
-- [ ] 13. Añadir a `userController.js` el handler `changePassword`, + tests
+- [x] 13. Añadir a `userController.js` el handler `changePassword`, + tests
   **Dependencias:** Tareas 2, 5, 6
   **Requisitos:** 9.1, 9.2, 9.3, 9.4, 9.5
 
-- [ ] 14. Añadir a `userController.js` el handler `deleteAccount` (borra también `Address` del usuario y su avatar en Cloudinary, best-effort), + tests
+- [x] 14. Añadir a `userController.js` el handler `deleteAccount` (borra también `Address` del usuario y su avatar en Cloudinary, best-effort), + tests
   **Dependencias:** Tareas 2, 3, 6, 7
   **Requisitos:** 11.1, 11.2, 11.3, 11.4, 11.5
 
-- [ ] 15. Crear `GalinGames_nodejs/src/routes/user.routes.js` (monta todos los endpoints de `userController` bajo `requireAuth`, salvo `GET /verify-email-change`), + tests de integración con `supertest`
+- [x] 15. Crear `GalinGames_nodejs/src/routes/user.routes.js` (monta todos los endpoints de `userController` bajo `requireAuth`, salvo `GET /verify-email-change`), + tests de integración con `supertest`
   **Dependencias:** Tareas 10, 11, 12, 13, 14
   **Requisitos:** 16.1
 

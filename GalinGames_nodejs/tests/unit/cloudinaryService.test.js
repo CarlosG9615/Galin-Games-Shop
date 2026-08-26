@@ -29,15 +29,15 @@ describe('src/services/cloudinaryService.js', () => {
 
   it('uploadAvatar resuelve con url y publicId cuando Cloudinary responde con éxito', async () => {
     const client = buildStreamClient({
-      result: { secure_url: 'https://res.cloudinary.com/demo/avatar.jpg', public_id: 'avatars/user1/abc' },
+      result: { secure_url: 'https://res.cloudinary.com/demo/avatar.jpg', public_id: 'users/user1/abc' },
     });
     const { uploadAvatar } = createCloudinaryService(client);
 
     const result = await uploadAvatar(Buffer.from('fake-image'), 'user1');
 
-    expect(result).toEqual({ url: 'https://res.cloudinary.com/demo/avatar.jpg', publicId: 'avatars/user1/abc' });
+    expect(result).toEqual({ url: 'https://res.cloudinary.com/demo/avatar.jpg', publicId: 'users/user1/abc' });
     expect(client.uploader.upload_stream).toHaveBeenCalledWith(
-      expect.objectContaining({ folder: 'avatars/user1', resource_type: 'image' }),
+      expect.objectContaining({ folder: 'users/user1', resource_type: 'image' }),
       expect.any(Function),
     );
     expect(client.endMock).toHaveBeenCalledWith(Buffer.from('fake-image'));
@@ -63,9 +63,9 @@ describe('src/services/cloudinaryService.js', () => {
     const client = buildStreamClient();
     const { deleteAsset } = createCloudinaryService(client);
 
-    await deleteAsset('avatars/user1/abc');
+    await deleteAsset('users/user1/abc');
 
-    expect(client.uploader.destroy).toHaveBeenCalledWith('avatars/user1/abc');
+    expect(client.uploader.destroy).toHaveBeenCalledWith('users/user1/abc');
   });
 
   it('deleteAsset no lanza si destroy falla (best-effort)', async () => {
@@ -73,7 +73,7 @@ describe('src/services/cloudinaryService.js', () => {
     client.uploader.destroy.mockRejectedValueOnce(new Error('timeout'));
     const { deleteAsset } = createCloudinaryService(client);
 
-    await expect(deleteAsset('avatars/user1/abc')).resolves.toBeUndefined();
+    await expect(deleteAsset('users/user1/abc')).resolves.toBeUndefined();
     expect(consoleErrorSpy).toHaveBeenCalled();
   });
 });

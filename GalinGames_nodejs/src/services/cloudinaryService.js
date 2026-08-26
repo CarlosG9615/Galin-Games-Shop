@@ -13,7 +13,10 @@ function createCloudinaryService(client) {
   async function uploadAvatar(buffer, userId) {
     return new Promise((resolve, reject) => {
       const stream = client.uploader.upload_stream(
-        { folder: `avatars/${userId}`, resource_type: 'image', overwrite: true },
+        // Carpeta 'users' ya creada en el dashboard de Cloudinary para volcar ahí
+        // todas las imágenes de usuario (avatares); un subdirectorio por userId
+        // mantiene los assets de cada usuario agrupados dentro de esa carpeta.
+        { folder: `users/${userId}`, resource_type: 'image', overwrite: true },
         (error, result) => {
           if (error) return reject(error);
           return resolve({ url: result.secure_url, publicId: result.public_id });
