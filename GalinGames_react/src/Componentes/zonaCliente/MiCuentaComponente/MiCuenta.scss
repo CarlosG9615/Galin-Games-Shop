@@ -2,6 +2,13 @@
 // (Requisitos 2.1, 2.2, 2.6). Solo consume var(--color-...) de _tokens.scss.
 
 .mi-cuenta {
+  // Fondo plano, no .pagina-tematica (mismo patrón que Home.scss): el degradado
+  // radial de .pagina-tematica está posicionado "80% 0%" (arriba-derecha) y se
+  // mezclaba con la sombra del border-bottom del Navbar, dando la sensación de que
+  // la sombra "se extendía" más a la derecha — ajuste tras QA manual.
+  min-height: 100vh;
+  background: var(--color-fondo);
+
   // padding-top generoso (no 2.5rem): el logo del ThemeToggle es position:absolute y
   // se deja desbordar deliberadamente por debajo de la caja del navbar (hasta ~208px
   // de alto en tema rojo, ver ThemeToggle.scss) en vez de fijar la altura del navbar
@@ -33,6 +40,9 @@
     width: 2px;
     background: var(--color-acento-borde);
     flex-shrink: 0;
+    // Mismo patrón que el border-bottom del Navbar (Navbar.scss): glow difuso en
+    // vez de línea sólida "a secas" — efecto menos basto, ajuste tras QA manual.
+    box-shadow: 2px 0 8px -1px var(--color-acento-borde), -2px 0 8px -1px var(--color-acento-borde);
 
     @media (max-width: 800px) {
       display: none;

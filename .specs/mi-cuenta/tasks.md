@@ -204,6 +204,15 @@ respete las dependencias indicadas.
   **Dependencias:** Tareas 27, 32
   **Requisitos:** 2.5 (cuadrícula), ajuste visual sin requisito EARS dedicado
 
+- [x] 42. Segunda ronda de ajustes visuales tras QA manual con la app real:
+  - Teléfono/Nacionalidad vuelven a ser editables aunque no tengan valor previo (Requisito 4.3 revisado en requirements.md), y `handleGuardar` de `PerfilPanel.jsx` envía también campos que antes no tenían valor — verificado extremo a extremo contra el backend real (persiste tras recargar).
+  - Columnas de `PerfilPanel__grid` de ancho fijo (240px) + `justify-content:center` en vez de `1fr 1fr`: con columnas elásticas el input (más estrecho que la columna) dejaba un margen distinto a cada lado del divisor central — con columnas fijas el margen es simétrico por construcción.
+  - `MiCuenta.jsx` deja de usar la clase compartida `.pagina-tematica` (degradado radial "80% 0%" pensado para Login/Registro) y pasa a un fondo plano `var(--color-fondo)`, igual que `Home.scss`: el degradado se mezclaba con la sombra del `border-bottom` del Navbar dando la falsa sensación de que la sombra "se extendía" más por un lado.
+  - Sombra difusa (`--sombra-acento` / mismo patrón que el `border-bottom` del Navbar) en el avatar, el icono de cámara, el separador bajo el avatar, el divisor de la cuadrícula de `PerfilPanel` y el divisor vertical de `MiCuenta` entre menú y contenido — en vez de líneas/bordes sólidos "a secas".
+  - `EmailPasswordPanel.jsx` unifica email y contraseña en dos columnas (`__columnas`): email a la izquierda con "Modificar email" debajo, contraseña a la derecha conservando su disposición interna en sub-columnas ("Contraseña actual" | "Nueva contraseña"/"Repetir nueva contraseña", ajustadas para caber en el espacio disponible) con "Cambiar contraseña" debajo — cada botón de acción queda bajo el campo al que corresponde.
+  **Dependencias:** Tareas 28, 39, 41
+  **Requisitos:** 2.5, 4.2, 4.3, 4.4 (revisados)
+
 ## Task Dependency Graph
 
 ```mermaid

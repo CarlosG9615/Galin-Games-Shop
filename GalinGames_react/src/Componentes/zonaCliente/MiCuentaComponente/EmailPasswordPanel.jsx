@@ -172,82 +172,94 @@ function EmailPasswordPanel() {
 
   return (
     <div className="email-password-panel">
-      <div className="email-password-panel__campo-email">
-        <InputBox
-          nameInput="email"
-          labelInput={t('miCuenta.emailPassword.fieldEmail')}
-          typeInput="email"
-          placeholderInput={t('miCuenta.emailPassword.fieldEmail')}
-          eventoOnChange={() => {}}
-          value={email}
-          disabled
-          required={false}
-        />
-        {!emailHabilitado && (
-          <button type="button" className="email-password-panel__modificar" onClick={abrirModalEmail}>
-            <IconoLapiz />
-            {t('miCuenta.emailPassword.modifyEmailButton')}
-          </button>
-        )}
-      </div>
-
-      {emailHabilitado && (
-        <form onSubmit={handleValidarEmail} className="email-password-panel__form-email">
+      <div className="email-password-panel__columnas">
+        <div className="email-password-panel__col-email">
           <InputBox
-            nameInput="nuevoEmail"
-            labelInput={t('miCuenta.emailPassword.fieldNewEmail')}
+            nameInput="email"
+            labelInput={t('miCuenta.emailPassword.fieldEmail')}
             typeInput="email"
-            placeholderInput={t('miCuenta.emailPassword.fieldNewEmail')}
-            eventoOnChange={(e) => setNuevoEmail(e.target.value)}
-            value={nuevoEmail}
+            placeholderInput={t('miCuenta.emailPassword.fieldEmail')}
+            eventoOnChange={() => {}}
+            value={email}
+            disabled
             required={false}
           />
-          <button type="submit" className="boton-primario" disabled={validando || !nuevoEmail.trim()}>
-            {t('miCuenta.emailPassword.validateButton')}
-          </button>
-        </form>
-      )}
-      {emailChangeError && <p className="texto-tema" role="alert">{emailChangeError}</p>}
-      {emailChangeSuccess && <p className="texto-tema texto-tema--exito" role="status">{emailChangeSuccess}</p>}
 
-      <form onSubmit={handleChangePassword} className="email-password-panel__form-password" noValidate>
-        <InputBox
-          nameInput="currentPassword"
-          labelInput={t('miCuenta.emailPassword.fieldCurrentPassword')}
-          typeInput="password"
-          placeholderInput={t('miCuenta.emailPassword.fieldCurrentPassword')}
-          eventoOnChange={(e) => setCurrentPassword(e.target.value)}
-          value={currentPassword}
-          required={false}
-        />
-        <InputBox
-          nameInput="newPassword"
-          labelInput={t('miCuenta.emailPassword.fieldNewPassword')}
-          typeInput="password"
-          placeholderInput={t('miCuenta.emailPassword.fieldNewPassword')}
-          eventoOnChange={(e) => setNewPassword(e.target.value)}
-          value={newPassword}
-          required={false}
-        />
-        <InputBox
-          nameInput="repeatNewPassword"
-          labelInput={t('miCuenta.emailPassword.fieldRepeatNewPassword')}
-          typeInput="password"
-          placeholderInput={t('miCuenta.emailPassword.fieldRepeatNewPassword')}
-          eventoOnChange={(e) => setRepeatNewPassword(e.target.value)}
-          value={repeatNewPassword}
-          required={false}
-        />
-        <button
-          type="submit"
-          className="boton-primario"
-          disabled={cambiandoPassword || !currentPassword || !newPassword || !repeatNewPassword}
-        >
-          {t('miCuenta.emailPassword.changePasswordButton')}
-        </button>
-        {passwordChangeError && <p className="texto-tema" role="alert">{passwordChangeError}</p>}
-        {passwordChangeSuccess && <p className="texto-tema texto-tema--exito" role="status">{passwordChangeSuccess}</p>}
-      </form>
+          {emailHabilitado && (
+            <form onSubmit={handleValidarEmail} className="email-password-panel__form-email">
+              <InputBox
+                nameInput="nuevoEmail"
+                labelInput={t('miCuenta.emailPassword.fieldNewEmail')}
+                typeInput="email"
+                placeholderInput={t('miCuenta.emailPassword.fieldNewEmail')}
+                eventoOnChange={(e) => setNuevoEmail(e.target.value)}
+                value={nuevoEmail}
+                required={false}
+              />
+              <button type="submit" className="boton-primario" disabled={validando || !nuevoEmail.trim()}>
+                {t('miCuenta.emailPassword.validateButton')}
+              </button>
+            </form>
+          )}
+
+          {!emailHabilitado && (
+            <button type="button" className="email-password-panel__modificar" onClick={abrirModalEmail}>
+              <IconoLapiz />
+              {t('miCuenta.emailPassword.modifyEmailButton')}
+            </button>
+          )}
+
+          {emailChangeError && <p className="texto-tema" role="alert">{emailChangeError}</p>}
+          {emailChangeSuccess && <p className="texto-tema texto-tema--exito" role="status">{emailChangeSuccess}</p>}
+        </div>
+
+        <div className="email-password-panel__col-password">
+          <form onSubmit={handleChangePassword} noValidate>
+            <div className="email-password-panel__form-password-columnas">
+              <div className="email-password-panel__form-password-col">
+                <InputBox
+                  nameInput="currentPassword"
+                  labelInput={t('miCuenta.emailPassword.fieldCurrentPassword')}
+                  typeInput="password"
+                  placeholderInput={t('miCuenta.emailPassword.fieldCurrentPassword')}
+                  eventoOnChange={(e) => setCurrentPassword(e.target.value)}
+                  value={currentPassword}
+                  required={false}
+                />
+              </div>
+              <div className="email-password-panel__form-password-col">
+                <InputBox
+                  nameInput="newPassword"
+                  labelInput={t('miCuenta.emailPassword.fieldNewPassword')}
+                  typeInput="password"
+                  placeholderInput={t('miCuenta.emailPassword.fieldNewPassword')}
+                  eventoOnChange={(e) => setNewPassword(e.target.value)}
+                  value={newPassword}
+                  required={false}
+                />
+                <InputBox
+                  nameInput="repeatNewPassword"
+                  labelInput={t('miCuenta.emailPassword.fieldRepeatNewPassword')}
+                  typeInput="password"
+                  placeholderInput={t('miCuenta.emailPassword.fieldRepeatNewPassword')}
+                  eventoOnChange={(e) => setRepeatNewPassword(e.target.value)}
+                  value={repeatNewPassword}
+                  required={false}
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              className="boton-primario email-password-panel__form-password-submit"
+              disabled={cambiandoPassword || !currentPassword || !newPassword || !repeatNewPassword}
+            >
+              {t('miCuenta.emailPassword.changePasswordButton')}
+            </button>
+            {passwordChangeError && <p className="texto-tema" role="alert">{passwordChangeError}</p>}
+            {passwordChangeSuccess && <p className="texto-tema texto-tema--exito" role="status">{passwordChangeSuccess}</p>}
+          </form>
+        </div>
+      </div>
 
       <div className="email-password-panel__twofa">
         <h3 className="texto-tema email-password-panel__twofa-titulo">{t('miCuenta.emailPassword.twoFaTitle')}</h3>

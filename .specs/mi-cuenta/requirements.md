@@ -155,13 +155,18 @@ mantenerlos actualizados.
    coloreado según el tema activo.
 2. WHEN el usuario pulsa "Modificar datos personales" THEN el sistema DEBERÁ
    habilitar para edición los inputs de nombre, apellidos, nombre de usuario,
-   teléfono y nacionalidad que tengan un valor existente.
-3. IF un input de datos personales está vacío (sin valor previo) THEN el
-   sistema DEBERÁ mantenerlo no seleccionable/no editable incluso en modo
-   edición, hasta que dicho dato se inserte por otra vía fuera de esta spec.
+   teléfono y nacionalidad.
+3. IF un input de datos personales está vacío (sin valor previo, p. ej.
+   teléfono o nacionalidad aún no insertados) THEN, en modo edición, el
+   sistema DEBERÁ permitir escribir en él un valor nuevo (Requisito revisado
+   tras validación manual: en la primera versión estos campos quedaban
+   bloqueados hasta insertarse "por otra vía"; ahora se insertan desde el
+   propio formulario de edición).
 4. WHEN el usuario guarda los cambios de datos personales válidos THEN el
    sistema DEBERÁ persistirlos en la base de datos asociados al usuario
-   autenticado y reflejar los valores actualizados en el panel.
+   autenticado (incluyendo campos que antes no tenían valor, como teléfono o
+   nacionalidad insertados por primera vez) y reflejar los valores
+   actualizados en el panel.
 5. IF el usuario cancela la edición sin guardar THEN el sistema DEBERÁ
    descartar los cambios introducidos y volver a mostrar los valores
    previamente persistidos.

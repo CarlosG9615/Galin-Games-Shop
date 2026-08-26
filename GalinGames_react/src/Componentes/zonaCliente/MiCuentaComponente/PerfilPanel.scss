@@ -32,6 +32,9 @@
     object-fit: cover;
     background: var(--color-fondo-elevado);
     border: 2px solid var(--color-acento);
+    // Sombra difusa (mismo --sombra-acento que tarjeta-tema/_shared.scss) en vez de
+    // un borde sólido "a secas" — efecto menos basto, ajuste tras QA manual.
+    box-shadow: var(--sombra-acento);
   }
 
   &__avatar-boton {
@@ -44,6 +47,7 @@
     background: var(--color-fondo-elevado);
     border: 2px solid var(--color-acento);
     color: var(--color-acento);
+    box-shadow: var(--sombra-acento);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -72,42 +76,63 @@
   &__separador {
     border-bottom: 2px solid var(--color-acento);
     margin: 1.25rem auto 1.5rem;
-    max-width: 320px;
+    // Más ancho (antes 320px quedaba corto respecto a la cuadrícula de abajo,
+    // ajuste tras QA manual): se acerca al ancho real del panel.
+    max-width: 480px;
+    // Mismo patrón que el border-bottom del Navbar (Navbar.scss): sombra difusa en
+    // vez de línea sólida "a secas" — efecto menos basto, ajuste tras QA manual.
+    box-shadow: 0 2px 10px -2px var(--color-acento-borde);
   }
 
   &__grid {
+    position: relative;
+    // Reset del text-align:center heredado de __form (Bootstrap .form-label es
+    // inline-block, así que SÍ lo recentraría dejándolo descuadrado respecto al
+    // input, que es block y se queda fijo a la izquierda — bug real de QA).
+    text-align: left;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: 1.5rem;
+    // Columnas de ancho FIJO (igual al max-width del input, no 1fr): con columnas
+    // elásticas, el input (240px, alineado a la izquierda) dejaba un hueco sobrante
+    // dentro de su propia columna antes de llegar al gap, así que el margen hasta
+    // el divisor no era igual en ambos lados (más grande a la izquierda). Con
+    // columnas fijas el input ocupa toda su columna y el gap es simétrico por
+    // construcción (ajuste tras QA manual).
+    grid-template-columns: 240px 240px;
+    justify-content: center;
+    column-gap: 4.5rem;
     row-gap: 0.5rem;
+
+    // Un único divisor continuo entre columnas (Requisito 2.5), no un "|" repetido
+    // por fila: una línea vertical de borde a borde de la cuadrícula, centrada en
+    // el gap simétrico de arriba, como un border-right pintado.
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 1px;
+      background: var(--color-acento-borde);
+      // Glow a ambos lados (mismo patrón que el border-bottom del Navbar, pero
+      // horizontal por ser una línea vertical) — efecto menos basto, ajuste tras
+      // QA manual.
+      box-shadow: 2px 0 8px -1px var(--color-acento-borde), -2px 0 8px -1px var(--color-acento-borde);
+    }
 
     @media (max-width: 700px) {
       grid-template-columns: 1fr;
-    }
-  }
+      justify-content: stretch;
 
-  &__campo {
-    position: relative;
-    padding-right: 1.25rem;
-
-    // Divisor "|" entre columnas (Requisito 2.5): solo en la columna izquierda.
-    &:nth-child(odd)::after {
-      content: '|';
-      position: absolute;
-      right: 0.35rem;
-      top: 0;
-      color: var(--color-acento-borde);
-      font-size: 1.1rem;
-      line-height: 1.6;
-    }
-
-    @media (max-width: 700px) {
-      padding-right: 0;
-
-      &::after {
+      &::before {
         content: none;
       }
     }
+  }
+
+  // Inputs ajustados a la extensión típica de su contenido, no estirados a lo ancho
+  // de la columna de la cuadrícula (ajuste tras QA manual).
+  .form-control {
+    max-width: 240px;
   }
 
   &__username-estado {
@@ -117,6 +142,12 @@
     &--error {
       color: #ff4d4f;
     }
+  }
+
+  // text-align:center centra los botones inline-flex (__editar) del formulario sin
+  // afectar a la cuadrícula (bloque, no inline) — ajuste tras QA manual.
+  &__form {
+    text-align: center;
   }
 
   &__editar {
@@ -138,6 +169,7 @@
 
   &__acciones {
     display: flex;
+    justify-content: center;
     gap: 0.75rem;
     margin-top: 0.75rem;
   }

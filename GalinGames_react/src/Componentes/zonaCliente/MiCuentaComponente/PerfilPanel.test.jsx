@@ -47,7 +47,7 @@ describe('PerfilPanel', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/no se pudieron cargar/i)
   })
 
-  it('al pulsar "Modificar datos personales" habilita los campos con valor pero no los vacíos', async () => {
+  it('al pulsar "Modificar datos personales" habilita todos los campos, incluidos los que estaban vacíos', async () => {
     accountService.getMe.mockResolvedValueOnce({ ok: true, data: datosCompletos })
     const user = userEvent.setup()
     render(<PerfilPanel />)
@@ -56,7 +56,22 @@ describe('PerfilPanel', () => {
     await user.click(screen.getByRole('button', { name: /modificar datos personales/i }))
 
     expect(screen.getByLabelText('Nombre')).not.toBeDisabled()
-    expect(screen.getByLabelText('Teléfono')).toBeDisabled()
+    expect(screen.getByLabelText('Teléfono')).not.toBeDisabled()
+    expect(screen.getByLabelText('Nacionalidad')).not.toBeDisabled()
+  })
+
+  it('al escribir un valor en un campo antes vacío (teléfono) y guardar, lo envía como cambio nuevo', async () => {
+    accountService.getMe.mockResolvedValueOnce({ ok: true, data: datosCompletos })
+    accountService.updateMe.mockResolvedValueOnce({ ok: true, data: { ...datosCompletos, telefono: '600123456' } })
+    const user = userEvent.setup()
+    render(<PerfilPanel />)
+    await screen.findByDisplayValue('Carlos')
+    await user.click(screen.getByRole('button', { name: /modificar datos personales/i }))
+
+    await user.type(screen.getByLabelText('Teléfono'), '600123456')
+    await user.click(screen.getByRole('button', { name: /guardar/i }))
+
+    await waitFor(() => expect(accountService.updateMe).toHaveBeenCalledWith(expect.objectContaining({ telefono: '600123456' })))
   })
 
   it('no consulta disponibilidad si el username no cambia respecto al actual', async () => {

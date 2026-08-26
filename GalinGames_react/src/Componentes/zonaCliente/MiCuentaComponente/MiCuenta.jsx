@@ -24,7 +24,7 @@ function MiCuenta() {
   return (
     <>
       <Navbar />
-      <main className="mi-cuenta pagina-tematica">
+      <main className="mi-cuenta">
         <div className="mi-cuenta__contenedor">
           <MenuLateral seccionActiva={seccion} />
           <div className="mi-cuenta__divisor" aria-hidden="true" />

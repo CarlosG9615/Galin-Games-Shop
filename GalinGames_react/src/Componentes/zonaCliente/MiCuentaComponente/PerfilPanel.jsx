@@ -114,9 +114,9 @@ function PerfilPanel() {
 
     const cambios = {}
     for (const { name } of CAMPOS) {
-      // Solo se envían campos que ya tenían valor (Requisito 4.3: los vacíos no son
-      // editables ni aunque el usuario esté en modo edición).
-      if (datos[name] && valores[name] !== datos[name]) {
+      // Requisito 4.3 (revisado): también se envían campos que antes no tenían
+      // valor (p. ej. teléfono/nacionalidad insertados por primera vez).
+      if (valores[name] !== datos[name]) {
         cambios[name] = valores[name]
       }
     }
@@ -199,8 +199,9 @@ function PerfilPanel() {
       <form onSubmit={handleGuardar} className="perfil-panel__form" noValidate>
         <div className="perfil-panel__grid">
           {CAMPOS.map(({ name, labelKey }) => {
-            const tieneValor = Boolean(datos[name])
-            const puedeEditar = editando && tieneValor
+            // Requisito 4.2/4.3 (revisado): en modo edición, todos los campos son
+            // editables, incluidos los que no tenían valor previo.
+            const puedeEditar = editando
             return (
               <div className="perfil-panel__campo" key={name}>
                 <InputBox
