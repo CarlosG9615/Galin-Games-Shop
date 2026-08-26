@@ -186,7 +186,7 @@ respete las dependencias indicadas.
 
 ### Frontend — Mis pedidos
 
-- [ ] 38. Crear `PedidosPanel.jsx` (mensaje de estado vacío "Aún no tienes ningún pedido registrado"), + tests
+- [x] 38. Crear `PedidosPanel.jsx` (mensaje de estado vacío "Aún no tienes ningún pedido registrado"), + tests
   **Dependencias:** Tarea 26
   **Requisitos:** 15.1, 15.2
 
