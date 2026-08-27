@@ -26,4 +26,37 @@ describe('src/models/User.js', () => {
     expect(usernameIndex[1].unique).toBe(true);
     expect(emailIndex[1].unique).toBe(true);
   });
+
+  it('telefono y nacionalidad son opcionales y no requieren valor', async () => {
+    const user = new User({
+      username: 'carlos',
+      nombre: 'Carlos',
+      apellidos: 'Galindo',
+      email: 'carlos@example.com',
+      password: 'a'.repeat(60),
+    });
+    await expect(user.validate()).resolves.toBeUndefined();
+    expect(user.telefono).toBeNull();
+    expect(user.nacionalidad).toBeNull();
+    expect(user.avatarUrl).toBeNull();
+  });
+
+  it('avatarPublicId y sensitiveActionLocks están marcados como select: false', () => {
+    expect(User.schema.path('avatarPublicId').options.select).toBe(false);
+    expect(User.schema.path('sensitiveActionLocks').options.select).toBe(false);
+  });
+
+  it('sensitiveActionLocks tiene attempts:0 y blockedUntil:null por defecto para las 3 acciones', () => {
+    const user = new User({
+      username: 'carlos',
+      nombre: 'Carlos',
+      apellidos: 'Galindo',
+      email: 'carlos@example.com',
+      password: 'a'.repeat(60),
+    });
+    for (const action of ['emailChange', 'deleteAccount', 'changePassword']) {
+      expect(user.sensitiveActionLocks[action].attempts).toBe(0);
+      expect(user.sensitiveActionLocks[action].blockedUntil).toBeNull();
+    }
+  });
 });

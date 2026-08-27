@@ -1,0 +1,46 @@
+.menu-lateral {
+  // .mi-cuenta__contenedor es align-items:flex-start (Mi_cuenta.scss): sin esto el
+  // menú se queda arriba del todo mientras el divisor (align-self:stretch) ocupa toda
+  // la altura de la fila — centrado vertical respecto al divisor, ajuste tras QA manual.
+  // Solo en el layout de escritorio (fila): por debajo de 800px .mi-cuenta__contenedor
+  // pasa a flex-direction:column (mismo breakpoint que MiCuenta.scss) y este mismo
+  // align-self centraría el menú horizontalmente en vez de dejarlo pegado a la
+  // izquierda — ahí se vuelve a su valor por defecto.
+  align-self: center;
+
+  @media (max-width: 800px) {
+    align-self: auto;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  &__item {
+    display: block;
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    color: var(--color-texto-tenue);
+    font-weight: 600;
+    white-space: nowrap;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-texto);
+      background: var(--color-fondo-elevado);
+    }
+
+    // Sección activa resaltada con el color de acento del tema (Requisito 2.4).
+    &--activo,
+    &--activo:hover,
+    &--activo:focus-visible {
+      color: var(--color-fondo);
+      background: var(--color-acento);
+    }
+  }
+}

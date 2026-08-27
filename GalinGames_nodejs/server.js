@@ -6,6 +6,8 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const connectDB = require('./src/config/db');
 const authRoutes = require('./src/routes/auth.routes');
+const userRoutes = require('./src/routes/user.routes');
+const addressRoutes = require('./src/routes/address.routes');
 const globalErrorHandler = require('./src/middleware/globalErrorHandler');
 const AppError = require('./src/utils/AppError');
 
@@ -24,7 +26,9 @@ app.use(
       }
     },
     credentials: true,
-    methods: ['GET', 'POST'],
+    // PUT/PATCH/DELETE añadidos para perfil, direcciones y cambio de email/contraseña
+    // de mi-cuenta (Requisito 16.1, design.md → Security).
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type'],
   }),
 );
@@ -45,6 +49,8 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/addresses', addressRoutes);
 
 app.use(globalErrorHandler);
 
