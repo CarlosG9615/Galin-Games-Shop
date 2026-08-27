@@ -72,6 +72,9 @@ jobs:
       FRONTEND_URL: http://localhost:5173
       BACKEND_URL: http://localhost:3001
       EMAIL_VERIFICATION_EXPIRES_HOURS: '24'
+      CLOUDINARY_CLOUD_NAME: ci-test-cloud-name
+      CLOUDINARY_API_KEY: ci-test-api-key
+      CLOUDINARY_API_SECRET: ci-test-api-secret
     steps:
       - name: Checkout
         uses: actions/checkout@v7

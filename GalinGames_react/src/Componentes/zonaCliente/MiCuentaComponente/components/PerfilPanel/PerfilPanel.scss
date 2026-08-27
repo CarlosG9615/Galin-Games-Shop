@@ -1,0 +1,224 @@
+// Panel "Mi perfil": avatar redondo centrado + border-bottom temático + cuadrícula de
+// datos personales (Requisitos 3.3, 3.5, 2.5). Solo consume var(--color-...) de
+// _tokens.scss, ningún color de tema propio (Requisito 9.6 de home-diseno, heredado).
+
+.perfil-panel {
+  // Acotar el panel entero (no dejarlo a 100% de .mi-cuenta__panel) hace que avatar,
+  // separador y cuadrícula compartan el mismo eje en vez de que la cuadrícula se
+  // estire sin control (Tarea 41). margin-left:auto (no "0 auto"): el bloque entero
+  // se ancla al borde derecho de .mi-cuenta__panel en vez de centrarse — mismo
+  // ancho y anclaje que EmailPasswordPanel, para que ambas vistas usen mejor el
+  // espacio disponible y el divisor caiga en la misma posición al cambiar de menú
+  // (ajuste tras QA manual).
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: 0;
+
+  &__avatar-zona {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__avatar {
+    position: relative;
+    width: 112px;
+    height: 112px;
+  }
+
+  &__avatar-img,
+  &__avatar-vacio {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--color-fondo-elevado);
+    border: 2px solid var(--color-acento);
+    // Sombra difusa (mismo --sombra-acento que tarjeta-tema/_shared.scss) en vez de
+    // un borde sólido "a secas" — efecto menos basto, ajuste tras QA manual.
+    box-shadow: var(--sombra-acento);
+  }
+
+  &__avatar-boton {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    background: var(--color-fondo-elevado);
+    border: 2px solid var(--color-acento);
+    color: var(--color-acento);
+    box-shadow: var(--sombra-acento);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-within {
+      background: var(--color-acento);
+      color: var(--color-fondo);
+    }
+  }
+
+  // Esquina opuesta a __avatar-boton (cámara, bottom-right), sin círculo ni fondo
+  // (a diferencia de __avatar-boton): solo el icono en rojo fijo (no
+  // var(--color-acento)) porque es una acción destructiva — ajuste tras QA manual,
+  // el círculo competía visualmente con el borde del avatar.
+  &__avatar-borrar {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    padding: 0;
+    background: none;
+    border: none;
+    color: #ff4d4f;
+    display: flex;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      color: #ff8080;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  // Input de fichero oculto visualmente pero accesible (clic delegado por el <label>).
+  &__avatar-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  &__separador {
+    border-bottom: 2px solid var(--color-acento);
+    margin: 1.25rem auto 1.5rem;
+    // Más ancho (antes 320px quedaba corto respecto a la cuadrícula de abajo,
+    // ajuste tras QA manual): se acerca al ancho real del panel.
+    max-width: 480px;
+    // Mismo patrón que el border-bottom del Navbar (Navbar.scss): sombra difusa en
+    // vez de línea sólida "a secas" — efecto menos basto, ajuste tras QA manual.
+    box-shadow: 0 2px 10px -2px var(--color-acento-borde);
+  }
+
+  &__grid {
+    position: relative;
+    // Reset del text-align:center heredado de __form (Bootstrap .form-label es
+    // inline-block, así que SÍ lo recentraría dejándolo descuadrado respecto al
+    // input, que es block y se queda fijo a la izquierda — bug real de QA).
+    text-align: left;
+    display: grid;
+    // Dos columnas fijas del mismo ancho, centradas con justify-content (no una
+    // columna derecha flexible 1fr): así el divisor cae siempre en el centro
+    // geométrico exacto del panel, el mismo punto donde __separador (avatar) ya se
+    // autocentra con margin:auto — con 1fr el punto medio de la cuadrícula no
+    // coincidía con el hueco entre columnas y quedaba descuadrado respecto al
+    // separador del avatar (ajuste tras QA manual).
+    grid-template-columns: 240px 240px;
+    justify-content: center;
+    column-gap: 4rem;
+    row-gap: 0.5rem;
+
+    // Un único divisor continuo entre columnas (Requisito 2.5), no un "|" repetido
+    // por fila: una línea vertical de borde a borde de la cuadrícula, como un
+    // border-right pintado. left:50% (no un calc a partir del ancho de columna):
+    // con las dos columnas centradas, el punto medio de la cuadrícula SÍ coincide
+    // con el hueco entre columnas, igual que el separador del avatar.
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 1px;
+      background: var(--color-acento-borde);
+      // Glow a ambos lados (mismo patrón que el border-bottom del Navbar, pero
+      // horizontal por ser una línea vertical) — efecto menos basto, ajuste tras
+      // QA manual.
+      box-shadow: 2px 0 8px -1px var(--color-acento-borde), -2px 0 8px -1px var(--color-acento-borde);
+    }
+
+    @media (max-width: 700px) {
+      grid-template-columns: 1fr;
+
+      &::before {
+        content: none;
+      }
+    }
+  }
+
+  // Inputs ajustados a la extensión típica de su contenido, no estirados a lo ancho
+  // de la columna de la cuadrícula (ajuste tras QA manual).
+  .form-control {
+    max-width: 240px;
+  }
+
+  // Nacionalidad usa ComboboxSelect (compGlobales/ComboboxSelectComponente, combobox
+  // propio reutilizado también en FormularioDireccion para País/Provincia): un
+  // <select> nativo no permite estilar el popup de opciones abierto, lo pinta el
+  // sistema operativo (bug real de QA, tono muy luminoso al abrirlo).
+
+  &__username-estado {
+    margin: -0.35rem 0 0.5rem 0;
+    font-size: 0.85rem;
+
+    &--error {
+      color: #ff4d4f;
+    }
+  }
+
+  // text-align:center centra los botones inline-flex (__editar) del formulario sin
+  // afectar a la cuadrícula (bloque, no inline) — ajuste tras QA manual.
+  &__form {
+    text-align: center;
+  }
+
+  &__editar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    background: none;
+    border: none;
+    color: var(--color-acento);
+    cursor: pointer;
+    font-size: 0.95rem;
+
+    &:hover,
+    &:focus-visible {
+      text-decoration: underline;
+    }
+  }
+
+  &__acciones {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  &__cancelar {
+    background: none;
+    border: 1px solid var(--color-texto-tenue);
+    border-radius: 12px;
+    color: var(--color-texto);
+    padding: 8px 20px;
+
+    &:hover,
+    &:focus-visible {
+      border-color: var(--color-acento);
+      color: var(--color-acento);
+    }
+  }
+}

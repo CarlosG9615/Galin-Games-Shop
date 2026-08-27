@@ -88,6 +88,14 @@
     margin-top: 0;
   }
 
+  // Variante de menor luminosidad para títulos que no deben competir con el título
+  // principal de la sección: labels de InputBox y subtítulos (p. ej. "Cambiar email"/
+  // "Cambiar contraseña" y "Verificación en dos pasos (2FA)" en Mi Cuenta). Mismo
+  // tamaño que .texto-tema — solo cambia el color, a diferencia de --condiciones.
+  &--tenue {
+    color: var(--color-texto-tenue);
+  }
+
   // Mensajes de éxito (ej. banner de email verificado en Login) — verde, independiente
   // del tema activo, igual que el rojo fijo de los mensajes de error en Login.scss.
   &--exito {
@@ -120,8 +128,41 @@
 
   &:disabled {
     opacity: 0.6;
-    cursor: not-allowed;
     transform: none;
+  }
+}
+
+// Botón circular "×" de cierre, reutilizado por cualquier componente con acción de
+// cerrar (antes duplicado con ligeras variaciones en cada uno, p. ej. ModalConfirmarPassword) —
+// un único sitio para el diseño evita que la "×" quede descentrada al reimplementarlo.
+// El padre que lo use necesita position: relative para que el position: absolute
+// funcione (mismo patrón que .pagina-dividida__imagen).
+.boton-cerrar {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-fondo-elevado);
+  color: var(--color-texto);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+
+  @include transicion-suave(background-color 0.15s, transform 0.15s);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-acento);
+    transform: scale(1.08);
   }
 }
 
@@ -206,33 +247,9 @@ $pagina-dividida-breakpoint-movil: 768px; // mismo valor que Navbar.scss/GamesGr
     }
   }
 
+  // Diseño en .boton-cerrar (_shared.scss) — reutilizado, no redefinido aquí.
   &__cerrar {
-    position: absolute;
-    top: 1.25rem;
-    right: 1.25rem;
-    width: 2.5rem;
-    height: 2.5rem;
-    padding: 0;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    border: none;
-    background: var(--color-fondo-elevado);
-    color: var(--color-texto);
-    font-size: 1.5rem;
-    line-height: 1;
-    cursor: pointer;
-    z-index: 2; // por encima de las dos capas de imagen de &__imagen
-
-    @include transicion-suave(background-color 0.15s, transform 0.15s);
-
-    &:hover,
-    &:focus-visible {
-      background: var(--color-acento);
-      transform: scale(1.08);
-    }
+    @extend .boton-cerrar;
   }
 
   // Botones "Registrarse"/"Entrar": mismo ancho que los InputBox del formulario (100%

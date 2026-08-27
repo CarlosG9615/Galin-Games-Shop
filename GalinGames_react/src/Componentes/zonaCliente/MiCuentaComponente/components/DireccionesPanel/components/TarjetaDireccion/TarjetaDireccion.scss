@@ -1,0 +1,128 @@
+// Lámina de dirección: ancha (no alta), border rounded coloreado por tema
+// (Requisito 12.2). Predeterminada con borde de acento reforzado (Requisito 14.2).
+
+.tarjeta-direccion {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  border-radius: 16px;
+  border: 1px solid var(--color-acento-borde);
+  background: var(--color-fondo-elevado);
+
+  // Verde fijo (no var(--color-acento)/--sombra-acento, que son del tema activo):
+  // mismo verde que el icono de casa/tarjeta cuando es la predeterminada, para que
+  // todo el indicador de "esta es la predeterminada" sea un único color consistente
+  // independiente del tema — ajuste tras petición de usuario.
+  &--predeterminada {
+    border-color: #4caf50;
+    box-shadow: 0 4px 24px rgba(76, 175, 80, 0.35);
+  }
+
+  // Icono de estado (no un botón — el color ya comunica si es la predeterminada,
+  // ajuste tras petición de usuario): verde fijo (mismo verde que .texto-tema--exito
+  // en _shared.scss, independiente del tema) si lo es, --color-texto-tenue si no.
+  &__casa {
+    flex-shrink: 0;
+    display: flex;
+    color: var(--color-texto-tenue);
+
+    &--predeterminada {
+      color: #4caf50;
+    }
+  }
+
+  &__contenido {
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__titulo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-texto);
+    margin: 0;
+  }
+
+  // Colores invertidos respecto al chip sólido original: tipografía y borde en el
+  // color del tema, fondo negro — mismo tratamiento que "+ Nueva dirección"
+  // (.direcciones-panel__nueva) en vez de un chip relleno — petición de usuario.
+  &__badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-acento);
+    background: var(--color-fondo);
+    border: 1px solid var(--color-acento);
+    border-radius: 999px;
+    padding: 1px 9px;
+  }
+
+  &__detalle {
+    font-size: 0.85rem;
+    color: var(--color-texto-tenue);
+    margin: 0.15rem 0 0 0;
+    overflow-wrap: anywhere;
+  }
+
+  // Grupo de botones de acción a la derecha (predeterminada/modificar/eliminar,
+  // ajuste tras petición de usuario: antes vivían a la izquierda).
+  &__acciones {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: auto;
+  }
+
+  &__accion {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    // Sin esto, el padding del reset global de `button` (0.6em 1.2em) se come por
+    // completo el width fijo (box-sizing:border-box de Bootstrap): el icono quedaba
+    // con 0 de ancho calculado — invisible, aunque el botón siguiera siendo clicable
+    // (bug real de QA).
+    padding: 0;
+    border-radius: 50%;
+    border: none;
+    background: none;
+    color: var(--color-texto-tenue);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-acento);
+    }
+
+    &:disabled {
+      cursor: default;
+    }
+
+    // Amarillo fijo siempre (no solo al hacer hover/disabled, ni var(--color-acento)
+    // del tema): el icono de favorito se reconoce igual en cualquier tema y estado —
+    // petición de usuario.
+    &--favorito,
+    &--favorito:hover,
+    &--favorito:focus-visible,
+    &--favorito:disabled {
+      color: #ffc107;
+    }
+
+    // Rojo fijo siempre (no solo al hacer hover, no var(--color-acento)): acción
+    // destructiva, mismo tratamiento que el resto de "eliminar" de Mi Cuenta
+    // (EmailPasswordPanel/PerfilPanel) — petición de usuario.
+    &--eliminar,
+    &--eliminar:hover,
+    &--eliminar:focus-visible {
+      color: #ff4d4f;
+    }
+  }
+}

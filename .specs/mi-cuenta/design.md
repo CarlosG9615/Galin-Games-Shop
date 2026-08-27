@@ -3,8 +3,12 @@
 ## Overview
 
 Esta feature añade una Vista Mi Cuenta protegida (`/mi-cuenta/:seccion`) con
-tres secciones — Mi perfil, Direcciones, Mis pedidos — accesibles desde el
-dropdown del Navbar (`Navbar.jsx`), hoy placeholders no interactivos.
+cuatro secciones — Mi perfil, Email y contraseña, Direcciones, Mis pedidos —
+accesibles desde el dropdown del Navbar (`Navbar.jsx`), hoy placeholders no
+interactivos. "Email y contraseña" es una sección propia del menú (no un
+sub-bloque de "Mi perfil": ajuste tras QA manual sobre la primera versión
+implementada, que la mostraba dentro de la misma pantalla que los datos
+personales).
 
 Se apoya en infraestructura ya existente y no se usa todavía:
 `requireAuth` (`GalinGames_nodejs/src/middleware/authMiddleware.js`), las
@@ -124,6 +128,7 @@ async function listAddresses(req, res, next)           // GET /
 async function createAddress(req, res, next)           // POST /
 async function updateAddress(req, res, next)            // PUT /:id
 async function setDefaultAddress(req, res, next)        // PATCH /:id/predeterminada
+async function deleteAddress(req, res, next)            // DELETE /:id
 ```
 
 `sensitiveActionLockService.js` centraliza la lógica de bloqueo del
@@ -193,11 +198,14 @@ Valida: Requisito 1.4.
 <Route path="/mi-cuenta" element={<Navigate to="/mi-cuenta/perfil" replace />} />
 <Route path="/mi-cuenta/:seccion" element={<PrivateRoute><MiCuenta /></PrivateRoute>} />
 ```
-`MiCuenta.jsx` lee `useParams().seccion` (`'perfil' | 'direcciones' |
-'pedidos'`) para determinar la sección activa y navega con `<Link>` al
-pulsar un ítem del `MenuLateral` — así la URL siempre refleja la sección
-(y "Mis pedidos" del Navbar simplemente enlaza a `/mi-cuenta/pedidos`, sin
-lógica adicional). Valida: Requisitos 1.1, 1.2, 2.4.
+`MiCuenta.jsx` lee `useParams().seccion` (`'perfil' | 'email-password' |
+'direcciones' | 'pedidos'`) para determinar la sección activa y navega con
+`<Link>` al pulsar un ítem del `MenuLateral` — así la URL siempre refleja
+la sección (y "Mis pedidos" del Navbar simplemente enlaza a
+`/mi-cuenta/pedidos`, sin lógica adicional). `EmailPasswordPanel` se
+renderiza únicamente bajo `seccion === 'email-password'`, como sección
+propia del menú — no junto a `PerfilPanel` bajo `'perfil'`. Valida:
+Requisitos 1.1, 1.2, 2.1, 2.4.
 
 `Navbar.jsx`: los `<span aria-disabled>` de `navbar.myAccount` y
 `navbar.myOrders` pasan a `<Link to="/mi-cuenta/perfil">` /
@@ -227,7 +235,7 @@ nuevo `httpClient.js` es la base para los servicios de esta feature.
 | Campo | Tipo | Notas |
 |---|---|---|
 | `telefono` | String, trim, maxlength 30 | opcional, `default: null` |
-| `nacionalidad` | String, trim, maxlength 100 | opcional, `default: null` |
+| `nacionalidad` | String, trim, maxlength 100 | opcional, `default: null` — el frontend envía el código ISO 3166-1 alpha-2 (`"ES"`, `"MX"`...) elegido en el `<select>` de `PerfilPanel.jsx`, pero el modelo no valida contra una lista cerrada: sigue siendo un string libre (ajuste tras QA manual, ver más abajo) |
 | `avatarUrl` | String, `default: null` | URL de Cloudinary |
 | `avatarPublicId` | String, `select: false`, `default: null` | para poder sustituir/borrar en Cloudinary |
 | `sensitiveActionLocks.emailChange` | `{ attempts: Number default 0, blockedUntil: Date default null }`, `select: false` | Requisito 8 |
@@ -251,10 +259,10 @@ usuario — ver tabla de Design Decisions.
 | `calle` | String, required, maxlength 200 | |
 | `numero` | String, required, maxlength 20 | |
 | `pisoPuerta` | String, maxlength 50 | opcional |
-| `ciudad` | String, required, maxlength 100 | |
-| `provincia` | String, required, maxlength 100 | |
+| `ciudad` | String, required, maxlength 100 | texto libre (`InputBox`), no viene de ninguna librería |
+| `provincia` | String, required, maxlength 100 | el frontend lo elige en un `<select>` (`country-region-data`) salvo el país excepcional sin datos de provincia, ver Design Decisions — el modelo sigue sin validar contra una lista cerrada |
 | `codigoPostal` | String, required, maxlength 12 | |
-| `pais` | String, required, maxlength 100 | |
+| `pais` | String, required, maxlength 100 | el frontend lo elige en un `<select>` (`i18n-iso-countries`, mismo origen que `User.nacionalidad`) — el modelo sigue sin validar contra una lista cerrada |
 | `esPredeterminada` | Boolean, `default: false` | |
 | `createdAt` / `updatedAt` | vía `{ timestamps: true }` | |
 
@@ -348,6 +356,7 @@ para no confundir este bloqueo de 24h con el rate-limiting de
 | POST | `/api/addresses` | `{ tipo, titulo, calle, numero, pisoPuerta?, ciudad, provincia, codigoPostal, pais }` | `201 { address, offerReuseForOtherType: boolean }` | 400 |
 | PUT | `/api/addresses/:id` | mismos campos que POST (formulario completo, mismo componente que crear) | `200 { address }` | 400, 404 |
 | PATCH | `/api/addresses/:id/predeterminada` | — | `200 { address }` | 404 |
+| DELETE | `/api/addresses/:id` | — | `200 { message }` | 404 |
 
 Valida: Requisitos 12.1–12.5, 13.1–13.5, 14.1–14.5.
 
@@ -450,6 +459,16 @@ a mensaje/estado de UI igual que `Registro.jsx` ya hace con 400/409/429.
 | Reutilización de dirección al otro tipo: segundo `POST` desde el frontend con los mismos datos | Endpoint dedicado `POST /:id/duplicar` | Evita una ruta extra solo para copiar campos que el frontend ya tiene en el formulario | 13.2–13.4 |
 | HTTP 423 para el bloqueo de 24h | Reutilizar 429 (como el login) | 429 ya lo usa `express-rate-limit` para ventanas cortas (15 min); usar el mismo código confundiría "espera unos minutos" con "espera 24 horas" en el frontend | 8.2, 8.3 |
 | `httpClient.js` nuevo en vez de ampliar `authService.js` | Añadir `get/put/patch/del` directamente dentro de `authService.js` | `authService.js` es específico de login/registro/refresh/logout; extraer el cliente HTTP genérico evita tocar un módulo ya probado y lo deja reutilizable para futuras features | — (calidad interna) |
+| Nacionalidad alimentada por el paquete npm `i18n-iso-countries` (datos ISO 3166-1 locales, `code` alpha-2 como valor, nombre oficial localizado como texto) | Llamar a una API pública de países en cada carga del panel | Sin llamada de red ni límite de rate en cada visita a "Mi perfil"; los nombres ya salen en el idioma activo de la app reutilizando el propio `i18next` en vez de otro mecanismo de i18n; el backend no cambia (sigue siendo el mismo `String` libre del modelo `User`) | 4.2, 4.3 (ajuste tras QA manual) |
+| `ComboboxSelect.jsx` (combobox propio: botón + `<ul role="listbox">`, en `compGlobales/ComboboxSelectComponente/` — antes `NacionalidadSelect.jsx` en Mi Cuenta, generalizado en la Tarea 46 al reutilizarse también para País/Provincia) en vez de un `<select>` nativo | `<select>` nativo con `<option>` | El popup de opciones de un `<select>` nativo lo pinta el sistema operativo, no el CSS de la página — en Windows salía con fondo claro pese a que la caja cerrada sí heredaba el estilo oscuro de `.form-control` (bug real de QA); un listbox propio es HTML/CSS normal, así que su fondo sí es controlable. `getNacionalidades()` no cambia, solo cambia qué componente pinta la lista | 4.2, 4.3 (ajuste tras QA manual) |
+| Provincia de `FormularioDireccion.jsx` alimentada por el paquete npm `country-region-data` (MIT, país→región/provincia, datos locales) | `country-state-city` (país→provincia→ciudad en un único paquete, cubriría también Ciudad) | `country-state-city` es GPL-3.0 (copyleft): empaquetarlo podría obligar a licenciar el proyecto entero bajo GPL. `country-region-data` es MIT y ~630KB (frente a los ~17MB de `country-state-city`). No cubre ciudad — no existe una librería pequeña y con licencia permisiva equivalente para ~250 países completos (las que sí tienen datos de ciudad, p. ej. `cities.json`/`all-the-cities`, son bases de datos mundiales de varios MB) — Ciudad se queda como `InputBox` de texto libre, decisión explícita del usuario | 13.1–13.4 (ajuste tras petición de usuario) |
+| `Address.pais`/`Address.provincia` guardan el nombre visible (no el código ISO alpha-2), a diferencia de `User.nacionalidad` (Tarea 44, guarda el código) | Guardar también el código ISO en Address, igual que en User | `TarjetaDireccion.jsx` ya muestra `pais`/`provincia` tal cual, sin ningún lookup código→nombre en ningún otro punto de la app (a diferencia de Nacionalidad, que sí necesita sobrevivir a un cambio de idioma) — guardar el nombre evita ese lookup en cada sitio que lo muestre, a costa de un `find()` en `nacionalidades` cuando `FormularioDireccion.jsx` necesita el código para consultar `country-region-data` (que indexa por `countryShortCode`) | 13.1–13.4 |
+| Confirmación de "eliminar dirección" con `window.confirm` nativo (en `TarjetaDireccion.jsx`, mismo criterio que "eliminar avatar" en `PerfilPanel.jsx`) | Modal de confirmación propio (`ModalConfirmarPassword.jsx` reutilizado o uno nuevo) | Borrar una dirección no es una "sensitive action" del Requisito 8 (no hay bloqueo de intentos ni reverificación de contraseña) — un modal a medida sería sobre-ingeniería para una confirmación simple | — (petición de usuario) |
+| Verde fijo (`#4caf50`) para el indicador de "predeterminada" (icono + borde de `TarjetaDireccion`), no `var(--color-acento)` del tema activo | Mantener el color de acento del tema, como el resto de la Vista Mi Cuenta | Petición explícita de usuario: un único color reconocible para "predeterminada" en las dos tarjetas a la vez (envío y facturación), independiente de si el tema activo ya usa ese mismo tono de rojo/azul para otras cosas de la interfaz | — (petición de usuario) |
+| Solo una dirección de facturación por usuario, forzado ocultando el botón "+ Nueva dirección" del bloque de facturación en el frontend (`permiteNueva`) en vez de validarlo también en el backend | Rechazar en `POST /api/addresses` con 409/400 si ya existe una dirección de facturación | El backend no impedía crear una segunda de todas formas antes de esta decisión; añadir la validación ahí es trabajo futuro razonable pero no lo pidió el usuario — el camino normal (UI) ya no lo permite, quedaría como hueco solo alcanzable llamando a la API directamente | — (petición de usuario) |
+| Primera dirección de cada tipo (envío/facturación) marcada `esPredeterminada:true` automáticamente en `createAddress` | Dejarlo en `false` y exigir un `PATCH .../predeterminada` manual tras crearla (comportamiento original) | Petición de usuario: con una única dirección de un tipo, no tiene sentido que el usuario tenga que marcarla como predeterminada a mano en un paso aparte — cubre tanto el alta por el modal como la reutilización para el otro tipo (mismo controlador) | — (petición de usuario) |
+| ~~`@formkit/auto-animate` para animar el reordenamiento~~ — **revertido** (Tarea 49): instalado y verificado funcionando (Tarea 48), pero el usuario decidió no seguir adelante con la animación y pidió quitar toda la lógica. Desinstalado, sin rastro en `package.json` ni en el código | — | Decisión explícita de usuario tras ver el resultado, no un problema técnico — la animación llegó a funcionar (verificado con `Element.prototype.animate` y forzando `disrespectUserMotionPreference`) | — (petición de usuario) |
+| `DireccionesPanel.cargar({ mostrarCargando })`: solo la carga inicial desmonta el árbol para el "Cargando...", los refrescos tras una acción no | Mantener un único `loading` para toda carga (comportamiento original) | Bug real de QA: con un único `loading`, cada refresco (predeterminada/eliminar/guardar) desmontaba y remontaba `<TarjetaDireccion>` desde cero, así que ni la reconciliación por `key` de React ni `auto-animate` podían detectar el reordenamiento — la animación de arriba no se veía por esto, no por la librería en sí | — (petición de usuario, encontrado depurando la Tarea 48) |
 
 ## Cobertura de Requisitos
 
@@ -469,6 +488,7 @@ a mensaje/estado de UI igual que `Registro.jsx` ya hace con 400/409/429.
 | 12. Listado de direcciones | `GET /api/addresses`, `DireccionesPanel.jsx`, `TarjetaDireccion.jsx` |
 | 13. Crear + reutilizar entre tipos | `POST /api/addresses`, `FormularioDireccion.jsx` |
 | 14. Predeterminada + editar | `PATCH /:id/predeterminada`, `PUT /:id` |
+| — Eliminar dirección (fuera de requirements.md, petición directa de usuario) | `DELETE /api/addresses/:id`, `TarjetaDireccion.jsx` (confirmación con `window.confirm`) |
 | 15. Mis pedidos (vacío) | `PedidosPanel.jsx` |
 | 16. Protección de datos | `requireAuth` en todos los routers nuevos, `req.user.userId` en todos los controladores |
 

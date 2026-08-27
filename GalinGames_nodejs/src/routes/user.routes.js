@@ -14,6 +14,7 @@ router.get('/me', requireAuth, userController.getMe);
 router.patch('/me', requireAuth, validateUpdateProfileInput, userController.updateMe);
 router.get('/me/check-username', requireAuth, userController.checkUsername);
 router.post('/me/avatar', requireAuth, handleAvatarUpload, userController.uploadAvatar);
+router.delete('/me/avatar', requireAuth, userController.deleteAvatar);
 router.post('/me/verify-password', requireAuth, userController.verifyPassword);
 router.put('/me/email', requireAuth, userController.requestEmailChange);
 router.put('/me/password', requireAuth, validateChangePasswordInput, userController.changePassword);

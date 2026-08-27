@@ -38,6 +38,7 @@ describe('routes/user.routes.js — wiring (middleware por ruta)', () => {
     ['patch', '/me', 'updateMe'],
     ['get', '/me/check-username', 'checkUsername'],
     ['post', '/me/avatar', 'uploadAvatar'],
+    ['delete', '/me/avatar', 'deleteAvatar'],
     ['post', '/me/verify-password', 'verifyPassword'],
     ['put', '/me/email', 'requestEmailChange'],
     ['put', '/me/password', 'changePassword'],
@@ -78,6 +79,7 @@ describe('routes/user.routes.js — ejecución real de requireAuth y validadores
       request(app).patch('/api/users/me').send({ nombre: 'X' }),
       request(app).get('/api/users/me/check-username?username=x'),
       request(app).post('/api/users/me/avatar'),
+      request(app).delete('/api/users/me/avatar'),
       request(app).post('/api/users/me/verify-password').send({ password: 'x', action: 'emailChange' }),
       request(app).put('/api/users/me/email').send({ password: 'x', newEmail: 'a@b.com' }),
       request(app)

@@ -35,7 +35,14 @@ function createAddressController({ Address }) {
       // no tiene ya ninguna dirección de ese otro tipo.
       const otherTypeCount = await Address.countDocuments({ userId: req.user.userId, tipo: otherTypeOf(data.tipo) });
 
-      const address = await Address.create({ ...data, userId: req.user.userId });
+      // La primera dirección de cada tipo (envío o facturación) se marca predeterminada
+      // automáticamente — sin esto, un usuario con una única dirección de un tipo no
+      // tendría forma de que apareciera como predeterminada sin un paso manual extra
+      // (petición directa de usuario, ver Design Decisions). Cubre tanto la creación
+      // normal (modal) como la reutilización para el otro tipo: ambas pasan por aquí.
+      const sameTypeCount = await Address.countDocuments({ userId: req.user.userId, tipo: data.tipo });
+
+      const address = await Address.create({ ...data, userId: req.user.userId, esPredeterminada: sameTypeCount === 0 });
 
       return res.status(201).json({ address, offerReuseForOtherType: otherTypeCount === 0 });
     } catch (err) {
@@ -92,7 +99,24 @@ function createAddressController({ Address }) {
     }
   }
 
-  return { listAddresses, createAddress, updateAddress, setDefaultAddress };
+  async function deleteAddress(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      // findOne({ _id, userId }) antes de borrar, mismo criterio que updateAddress/
+      // setDefaultAddress: nunca se confía en un :id ajeno (Requisito 16.2/16.3).
+      const address = await Address.findOne({ _id: id, userId: req.user.userId });
+      if (!address) return next(new AppError('Dirección no encontrada', 404));
+
+      await Address.deleteOne({ _id: id });
+
+      return res.status(200).json({ message: 'Dirección eliminada correctamente' });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  return { listAddresses, createAddress, updateAddress, setDefaultAddress, deleteAddress };
 }
 
 module.exports = createAddressController({ Address: defaultAddress });

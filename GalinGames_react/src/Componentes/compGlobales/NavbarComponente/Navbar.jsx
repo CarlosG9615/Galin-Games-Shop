@@ -123,8 +123,16 @@ function Navbar() {
                   {menuUsuarioAbierto && (
                     <ul className="navbar__dropdown">
                       <li><span className="navbar__dropdown-link" aria-disabled="true">{t('navbar.support')}</span></li>
-                      <li><span className="navbar__dropdown-link" aria-disabled="true">{t('navbar.myAccount')}</span></li>
-                      <li><span className="navbar__dropdown-link" aria-disabled="true">{t('navbar.myOrders')}</span></li>
+                      <li>
+                        <Link to="/mi-cuenta/perfil" className="navbar__dropdown-link" onClick={cerrarMenu}>
+                          {t('navbar.myAccount')}
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/mi-cuenta/pedidos" className="navbar__dropdown-link" onClick={cerrarMenu}>
+                          {t('navbar.myOrders')}
+                        </Link>
+                      </li>
                       <li>
                         <button type="button" className="navbar__dropdown-link" onClick={handleCerrarSesion}>
                           {t('navbar.logout')}
