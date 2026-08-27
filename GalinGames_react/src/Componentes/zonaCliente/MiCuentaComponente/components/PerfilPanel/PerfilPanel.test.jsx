@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import PerfilPanel from './PerfilPanel'
-import { accountService } from '../../../servicios/accountService'
+import { accountService } from '../../../../../servicios/accountService'
 
-vi.mock('../../../servicios/accountService', () => ({
+vi.mock('../../../../../servicios/accountService', () => ({
   accountService: {
     getMe: vi.fn(),
     updateMe: vi.fn(),

@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import InputBox from '../../compGlobales/InputBoxComponente/InputBox'
-import { IconoLapiz, IconoCamara, IconoPapelera } from './MiCuentaIconos'
-import { accountService } from '../../../servicios/accountService'
-import { getNacionalidades } from './nacionalidades'
-import NacionalidadSelect from './NacionalidadSelect'
+import InputBox from '../../../../compGlobales/InputBoxComponente/InputBox'
+import { IconoLapiz, IconoCamara, IconoPapelera } from '../../icons/MiCuentaIconos'
+import { accountService } from '../../../../../servicios/accountService'
+import { getNacionalidades } from '../../data/nacionalidades'
+import ComboboxSelect from '../../../../compGlobales/ComboboxSelectComponente/ComboboxSelect'
 import './PerfilPanel.scss'
 
 const CAMPOS = [
@@ -240,7 +240,7 @@ function PerfilPanel() {
                     <label htmlFor={name} className="form-label texto-tema texto-tema--tenue">
                       {t(labelKey)}
                     </label>
-                    <NacionalidadSelect
+                    <ComboboxSelect
                       id={name}
                       value={valores.nacionalidad || ''}
                       onChange={(code) => handleChange(name)({ target: { value: code } })}

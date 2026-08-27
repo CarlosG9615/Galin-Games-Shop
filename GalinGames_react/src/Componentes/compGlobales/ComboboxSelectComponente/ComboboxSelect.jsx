@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import './NacionalidadSelect.scss'
+import './ComboboxSelect.scss'
 
 const ALTURA_LISTA_PX = 240 // 15rem, tope "deseado" — se recorta si el viewport no tiene sitio
 const ALTURA_MINIMA_PX = 120
@@ -9,18 +9,19 @@ const MARGEN_VIEWPORT_PX = 8
 // Combobox propio (patrón ARIA "select-only combobox": foco se queda en el botón,
 // aria-activedescendant marca la opción resaltada) en vez de un <select> nativo — un
 // <select> nativo no permite estilar el popup de opciones cuando está abierto (lo
-// pinta el sistema operativo, ver PerfilPanel.scss → historial), así que aquí SÍ
-// controlamos ese fondo con CSS normal. Las opciones (options) siguen viniendo de
-// getNacionalidades() (i18n-iso-countries) — este componente no las genera, solo las
-// pinta.
+// pinta el sistema operativo), así que aquí SÍ controlamos ese fondo con CSS normal.
+// Genérico: no genera las `options` ([{code, nombre}]), solo las pinta — quien lo usa
+// decide de dónde salen (i18n-iso-countries para Nacionalidad/País, country-region-data
+// para Provincia, etc.), ver PerfilPanel.jsx y FormularioDireccion.jsx.
 //
 // La lista se porta a document.body con position:fixed calculado desde
 // getBoundingClientRect() del botón (no position:absolute normal dentro del propio
 // componente): así no queda nunca recortada por el overflow de un antecesor ni
 // desincronizada del botón al hacer scroll de la página, y su alto máximo se ajusta
-// al hueco real del viewport en vez de un valor fijo que podía no caber (bug real de
-// QA: "se corta por el tamaño de la página").
-function NacionalidadSelect({ id, value, onChange, options, disabled, placeholder }) {
+// al hueco real del viewport en vez de un valor fijo que podía no caber. Siempre se
+// abre hacia abajo (nunca "flip" hacia arriba) — el padding-bottom del contenedor que
+// lo usa debe dejar hueco de scroll real debajo (ver MiCuenta.scss).
+function ComboboxSelect({ id, value, onChange, options, disabled, placeholder }) {
   const [abierto, setAbierto] = useState(false)
   const [indiceActivo, setIndiceActivo] = useState(-1)
   const [posicion, setPosicion] = useState(null)
@@ -31,9 +32,6 @@ function NacionalidadSelect({ id, value, onChange, options, disabled, placeholde
 
   const seleccionado = options.find((o) => o.code === value) || null
 
-  // Siempre hacia abajo (nunca "flip" hacia arriba, ajuste tras QA manual: quedaba
-  // feo) — .mi-cuenta tiene suficiente padding-bottom (MiCuenta.scss) para que
-  // siempre haya hueco de scroll real bajo el botón.
   const calcularPosicion = useCallback(() => {
     if (!botonRef.current) return
     const rect = botonRef.current.getBoundingClientRect()
@@ -64,8 +62,7 @@ function NacionalidadSelect({ id, value, onChange, options, disabled, placeholde
     calcularPosicion()
 
     // capture:true — hace falta para enterarse también del scroll de un ancestro con
-    // su propio overflow (no solo window), aunque en esta vista el scroll es siempre
-    // de la página.
+    // su propio overflow (no solo window).
     window.addEventListener('scroll', calcularPosicion, true)
     window.addEventListener('resize', calcularPosicion)
     return () => {
@@ -94,8 +91,8 @@ function NacionalidadSelect({ id, value, onChange, options, disabled, placeholde
   }
 
   // Salta a la primera opción cuyo nombre empiece por lo escrito, igual que el
-  // comportamiento nativo de un <select> al teclear (Requisito de paridad con el
-  // widget que sustituye, con ~250 países no hay hueco para escanearlos a ojo).
+  // comportamiento nativo de un <select> al teclear — con listas largas (~250 países)
+  // no hay hueco para escanearlas a ojo.
   const buscarPorTecleo = (letra) => {
     const ref = typeaheadRef.current
     clearTimeout(ref.timeoutId)
@@ -156,12 +153,12 @@ function NacionalidadSelect({ id, value, onChange, options, disabled, placeholde
   const opcionActivaId = indiceActivo >= 0 && options[indiceActivo] ? `${id}-opcion-${options[indiceActivo].code}` : undefined
 
   return (
-    <div className="nacionalidad-select" ref={raizRef}>
+    <div className="combobox-select" ref={raizRef}>
       <button
         type="button"
         id={id}
         ref={botonRef}
-        className="form-control nacionalidad-select__boton"
+        className="form-control combobox-select__boton"
         role="combobox"
         aria-haspopup="listbox"
         aria-expanded={abierto}
@@ -171,14 +168,14 @@ function NacionalidadSelect({ id, value, onChange, options, disabled, placeholde
         onClick={() => setAbierto((a) => !a)}
         onKeyDown={handleKeyDown}
       >
-        <span className={seleccionado ? '' : 'nacionalidad-select__placeholder'}>
+        <span className={seleccionado ? '' : 'combobox-select__placeholder'}>
           {seleccionado ? seleccionado.nombre : placeholder}
         </span>
       </button>
 
       {abierto && posicion && createPortal(
         <ul
-          className="nacionalidad-select__lista"
+          className="combobox-select__lista"
           role="listbox"
           id={`${id}-listbox`}
           ref={listaRef}
@@ -195,7 +192,7 @@ function NacionalidadSelect({ id, value, onChange, options, disabled, placeholde
               id={`${id}-opcion-${opcion.code}`}
               role="option"
               aria-selected={opcion.code === value}
-              className={`nacionalidad-select__opcion${idx === indiceActivo ? ' nacionalidad-select__opcion--activa' : ''}`}
+              className={`combobox-select__opcion${idx === indiceActivo ? ' combobox-select__opcion--activa' : ''}`}
               onMouseEnter={() => setIndiceActivo(idx)}
               onMouseDown={(e) => {
                 e.preventDefault() // evita el blur del botón antes de procesar la elección
@@ -212,4 +209,4 @@ function NacionalidadSelect({ id, value, onChange, options, disabled, placeholde
   )
 }
 
-export default NacionalidadSelect
+export default ComboboxSelect

@@ -17,8 +17,8 @@
   // .pagina-dividida__formulario (_shared.scss).
   // padding-bottom generoso (no 4rem): deja hueco de scroll real bajo el contenido en
   // todas las vistas de Mi Cuenta, para que popups que se abren hacia abajo (p. ej.
-  // NacionalidadSelect) tengan sitio cómodo sin tener que abrirse hacia arriba
-  // (ajuste tras QA manual: abrir hacia arriba quedaba feo).
+  // ComboboxSelect, ver compGlobales/ComboboxSelectComponente) tengan sitio cómodo
+  // sin tener que abrirse hacia arriba (ajuste tras QA manual: quedaba feo).
   padding: 9rem 1.5rem 18rem;
 
   @media (max-width: 768px) {

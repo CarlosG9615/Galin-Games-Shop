@@ -48,6 +48,7 @@ describe('routes/address.routes.js — wiring (middleware por ruta)', () => {
     ['post', '/', 'createAddress'],
     ['put', '/:id', 'updateAddress'],
     ['patch', '/:id/predeterminada', 'setDefaultAddress'],
+    ['delete', '/:id', 'deleteAddress'],
   ])('%s %s pasa por requireAuth y termina en %s', (method, path, handlerName) => {
     const names = middlewareNames(method, path);
     expect(names).toContain('requireAuth');
@@ -76,6 +77,7 @@ describe('routes/address.routes.js — ejecución real de requireAuth y validate
       request(app).post('/api/addresses').send(validAddressBody),
       request(app).put('/api/addresses/abc').send(validAddressBody),
       request(app).patch('/api/addresses/abc/predeterminada'),
+      request(app).delete('/api/addresses/abc'),
     ]);
 
     for (const res of responses) {

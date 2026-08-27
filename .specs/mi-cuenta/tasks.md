@@ -180,8 +180,7 @@ respete las dependencias indicadas.
   **Dependencias:** Tareas 21, 26 (implementado antes que la Tarea 26 en la ejecución real: componente hoja, no depende de `MiCuenta.jsx` para probarse)
   **Requisitos:** 12.1, 12.2, 12.3, 12.4, 12.5, 14.1, 14.2, 14.3
 
-- [x] 37. Crear `FormularioDireccion.jsx` (crear/editar dirección, validación de campos, aplica margin right entre el input del email y el separador para que el separador quede mas centralizado en el medio y haya la misma separacion entre input email e imput contraseña y el separador quede bien alineado
-pregunta de reutilización entre tipos), + tests
+- [x] 37. Crear `FormularioDireccion.jsx` (crear/editar dirección, validación de campos, pregunta de reutilización entre tipos), + tests
   **Dependencias:** Tarea 36
   **Requisitos:** 13.1, 13.2, 13.3, 13.4, 13.5, 14.4
 
@@ -234,6 +233,42 @@ pregunta de reutilización entre tipos), + tests
   - `MenuLateral.jsx` centrado verticalmente respecto al divisor (`align-self: center` en `.menu-lateral`, reseteado a `auto` por debajo de 800px donde `.mi-cuenta__contenedor` pasa a columna) — antes quedaba pegado arriba mientras el divisor (que sí estira) creció con el nuevo `min-height` del panel.
   **Dependencias:** Tarea 44
   **Requisitos:** 2.2, 2.4, 4.2, 4.3 (ajuste tras QA manual)
+
+- [x] 46. País/Provincia/Ciudad encadenados en `FormularioDireccion.jsx` (Direcciones):
+  - `NacionalidadSelect.jsx` (Tarea 45) generalizado y movido a `ComboboxSelect.jsx`/`.scss`/`.test.jsx` en `compGlobales/ComboboxSelectComponente/` (deja de ser específico de Mi Cuenta): mismo combobox, ahora reutilizado por `PerfilPanel.jsx` (Nacionalidad) y `FormularioDireccion.jsx` (País, Provincia).
+  - `provincias.js` (nuevo, `getProvincias(paisCodigoIso)`): datos locales de la librería npm `country-region-data` (MIT, sin llamada a API externa), sin problema de licencia a diferencia de `country-state-city` (GPL-3.0, descartada, ver Design Decisions). Solo cubre país→provincia, no ciudad — `country-region-data` no tiene datos de ciudad y no existe una librería equivalente pequeña con licencia permisiva para ~250 países completos.
+  - Orden de `CAMPOS_DIRECCION` cambiado: País antes que Provincia y Ciudad (antes iban al final) — la cascada obliga a elegir País primero.
+  - Provincia empieza deshabilitada hasta elegir País; Ciudad (sigue siendo `InputBox` de texto libre, no select) empieza deshabilitada hasta elegir Provincia. Cambiar de País resetea Provincia y Ciudad; cambiar de Provincia resetea Ciudad.
+  - `Address.pais`/`Address.provincia` guardan el nombre visible (no un código ISO): a diferencia de `User.nacionalidad` (guarda el alpha-2, ver Tarea 44), aquí no hay ningún otro sitio de la app que necesite un código estable, y así `TarjetaDireccion.jsx` sigue mostrando el string tal cual sin tener que traducir un código a nombre. `getProvincias` sí necesita el código ISO del país elegido para consultar `country-region-data` (que indexa por `countryShortCode`, no por nombre) — se recupera con un `find` sobre la lista de `getNacionalidades()`.
+  - Edge case real (1 de 250 países sin datos en `country-region-data`, ver `provincias.js`): Provincia cae a `InputBox` de texto libre en vez de un select vacío sin nada que elegir.
+  - `ComboboxSelect.scss`: texto largo de placeholder/opción ("Selecciona una provincia") ya no envuelve a dos líneas (`white-space:nowrap` + `text-overflow:ellipsis`) — inflaba la altura del botón por encima del resto de inputs de la fila. z-index del popup subido a 1100 (antes 1000, igual que `.formulario-direccion__overlay`) para no depender solo del orden del DOM al usarse dentro de un modal.
+  **Dependencias:** Tarea 45, Tarea 37 (`FormularioDireccion.jsx`)
+  **Requisitos:** 13.1–13.4 (formulario de dirección), ajuste tras petición de usuario — ver Design Decisions
+
+- [x] 47. Eliminar dirección + rediseño de `TarjetaDireccion.jsx` (petición directa de usuario, fuera de requirements.md):
+  - `DELETE /api/addresses/:id` (nuevo, `addressController.deleteAddress` + ruta): mismo criterio `findOne({ _id, userId })` antes de borrar que `updateAddress`/`setDefaultAddress` (Requisito 16.2/16.3). `addressService.deleteAddress(id)` en el frontend.
+  - `TarjetaDireccion.jsx` rediseñada: icono de estado a la izquierda (casa para envío, tarjeta de pago — `IconoTarjeta`, nuevo — para facturación, más identificativa que repetir la casa) en vez de los botones de acción que antes vivían ahí; los tres botones (predeterminada/modificar/**eliminar**, nuevo, con `window.confirm`) pasan a la derecha (`margin-left: auto`).
+  - Icono de estado y borde de la tarjeta en verde fijo (`#4caf50`, no `var(--color-acento)` del tema) cuando `esPredeterminada`, `--color-texto-tenue` si no — un único color de "esto es lo predeterminado" independiente del tema activo.
+  - Bug real de QA solo visible con la app real, no en el harness de HTML estático de la Tarea 46: `.tarjeta-direccion__accion` no reseteaba `padding` — heredaba `0.6em 1.2em` del reset global de `button` (`index.scss`), que con `box-sizing:border-box` (Bootstrap) se comía por completo el `width:2rem` fijo, dejando el icono con 0px de ancho calculado (invisible pero clicable). `padding:0` explícito lo arregla; se revisaron el resto de botones circulares de tamaño fijo de Mi Cuenta y ninguno más tenía este bug.
+  - `addressController.createAddress`: la primera dirección de cada tipo (envío o facturación) que crea un usuario se marca `esPredeterminada:true` automáticamente (antes quedaba en `false` hasta un `PATCH .../predeterminada` manual) — cubre tanto el alta normal por el modal como la reutilización para el otro tipo, al pasar ambas por el mismo controlador.
+  - Solo puede existir una dirección de facturación: el botón "+ Nueva dirección" del bloque de facturación desaparece (`permiteNueva` en `BloqueDirecciones`) en cuanto ya hay una — el de envío no tiene este límite.
+  **Dependencias:** Tarea 36, Tarea 37
+  **Requisitos:** 12.1–12.5, 13.2/13.3 (reutilización), 14.1–14.2 (predeterminada), 16.2/16.3 (ownership) — ajuste tras petición directa de usuario para el resto (eliminar, iconos, colores, límite de facturación)
+
+- [x] 48. Icono de favorito amarillo fijo + animación al reordenar `TarjetaDireccion.jsx` (petición de usuario):
+  - `&--favorito` (nuevo modificador, icono de predeterminada) en amarillo fijo (`#ffc107`) siempre, no solo en `:hover`/`:disabled`; `&--eliminar` (Tarea 47) pasa del mismo criterio (rojo solo en hover) a rojo fijo siempre. Ninguno de los dos usa ya `var(--color-acento)` del tema.
+  - `@formkit/auto-animate` (nuevo, MIT, ~59KB sin comprimir/pocos KB minificado, sin dependencias) en el contenedor de cada `BloqueDirecciones` (`useAutoAnimate()` de `@formkit/auto-animate/react`): anima con FLIP el reordenamiento cuando una dirección pasa a predeterminada (sube a la primera posición) en vez de un salto instantáneo — la única librería de animación de listas para React de este tamaño con licencia permisiva encontrada, no necesita CSS ni lógica de posiciones a mano.
+  - Bug real de QA (encontrado con la app real, no reproducible en un harness sin la lógica de carga real): `DireccionesPanel.cargar()` ponía `loading:true` en **cada** refresco, incluido tras marcar predeterminada/eliminar/guardar — con `loading:true` el componente sustituye todo `<div className="direcciones-panel">` por un `<p>Cargando...</p>` y lo vuelve a montar desde cero al terminar, así que React destruye y recrea todos los `<div>` de las tarjetas en cada acción en vez de moverlos (verificado con un marcador en el DOM: no sobrevivía al refresco). Sin el nodo contenedor persistiendo, ni la reconciliación por `key` de React ni `auto-animate` (que depende de un `MutationObserver` sobre un contenedor que no se desmonte) podían detectar el reordenamiento — de ahí que el cambio de posición pasara "de golpe" pese a tener la librería instalada. `cargar({ mostrarCargando })` (nuevo parámetro, `true` por defecto) deja `mostrarCargando:false` en los refrescos tras una acción; solo la carga inicial (montaje del componente) sigue mostrando "Cargando...".
+  **Dependencias:** Tarea 47
+  **Requisitos:** 14.1–14.2 (predeterminada) — ajuste tras petición directa de usuario
+
+- [x] 49. Revertida la animación de reordenamiento de la Tarea 48 (petición directa de usuario: "no la vamos a hacer"):
+  - `@formkit/auto-animate` desinstalado (`npm uninstall`), sin rastro en `package.json`/`package-lock.json`.
+  - `BloqueDirecciones` (`DireccionesPanel.jsx`) vuelve a mapear las tarjetas directamente, sin el `<div>` contenedor ni `useAutoAnimate()`.
+  - Se conserva `cargar({ mostrarCargando })` (Tarea 48): evitar el parpadeo de "Cargando..." en los refrescos tras una acción sigue siendo una mejora válida independiente de la animación.
+  - El icono de favorito amarillo fijo y el de eliminar rojo fijo (Tarea 48) tampoco dependían de la animación — se mantienen.
+  **Dependencias:** Tarea 48
+  **Requisitos:** — (petición de usuario)
 
 ## Task Dependency Graph
 

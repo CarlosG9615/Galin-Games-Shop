@@ -8,6 +8,7 @@ vi.mock('./httpClient', () => ({
     post: vi.fn().mockResolvedValue({ ok: true, data: {} }),
     put: vi.fn().mockResolvedValue({ ok: true, data: {} }),
     patch: vi.fn().mockResolvedValue({ ok: true, data: {} }),
+    del: vi.fn().mockResolvedValue({ ok: true, data: {} }),
   },
 }))
 
@@ -32,5 +33,10 @@ describe('addressService', () => {
   it('setDefaultAddress() llama a PATCH /api/addresses/:id/predeterminada', async () => {
     await addressService.setDefaultAddress('addr-1')
     expect(httpClient.patch).toHaveBeenCalledWith('/api/addresses/addr-1/predeterminada')
+  })
+
+  it('deleteAddress() llama a DELETE /api/addresses/:id', async () => {
+    await addressService.deleteAddress('addr-1')
+    expect(httpClient.del).toHaveBeenCalledWith('/api/addresses/addr-1')
   })
 })

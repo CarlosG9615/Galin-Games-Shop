@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import InputBox from '../../compGlobales/InputBoxComponente/InputBox'
-import ModalConfirmarPassword from './ModalConfirmarPassword'
-import { IconoLapiz } from './MiCuentaIconos'
-import { accountService } from '../../../servicios/accountService'
-import { useAuth } from '../../../hooks/useAuth'
+import InputBox from '../../../../compGlobales/InputBoxComponente/InputBox'
+import ModalConfirmarPassword from './components/ModalConfirmarPassword/ModalConfirmarPassword'
+import { IconoLapiz } from '../../icons/MiCuentaIconos'
+import { accountService } from '../../../../../servicios/accountService'
+import { useAuth } from '../../../../../hooks/useAuth'
 import './EmailPasswordPanel.scss'
 
 function EmailPasswordPanel() {

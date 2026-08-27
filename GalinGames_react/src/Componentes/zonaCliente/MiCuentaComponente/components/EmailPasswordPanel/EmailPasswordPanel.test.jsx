@@ -2,12 +2,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { AuthProvider } from '../../../globalState/authContext'
-import { accountService } from '../../../servicios/accountService'
-import { authService } from '../../../servicios/authService'
+import { AuthProvider } from '../../../../../globalState/authContext'
+import { accountService } from '../../../../../servicios/accountService'
+import { authService } from '../../../../../servicios/authService'
 import EmailPasswordPanel from './EmailPasswordPanel'
 
-vi.mock('../../../servicios/accountService', () => ({
+vi.mock('../../../../../servicios/accountService', () => ({
   accountService: {
     getMe: vi.fn(),
     verifyPassword: vi.fn(),
@@ -17,7 +17,7 @@ vi.mock('../../../servicios/accountService', () => ({
   },
 }))
 
-vi.mock('../../../servicios/authService', () => ({
+vi.mock('../../../../../servicios/authService', () => ({
   authService: {
     login: vi.fn(),
     logout: vi.fn().mockResolvedValue({ ok: true }),

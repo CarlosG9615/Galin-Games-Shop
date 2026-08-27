@@ -1,9 +1,10 @@
-// Combobox propio de Nacionalidad: el <select> nativo que sustituye no permite estilar
-// el popup de opciones cuando está abierto (lo pinta el sistema operativo, no el CSS de
-// la página) — aquí el popup es un <ul> normal, así que su fondo sí es el mismo oscuro
-// que el resto de inputs en cualquier SO/navegador.
+// Combobox propio: un <select> nativo no permite estilar el popup de opciones cuando
+// está abierto (lo pinta el sistema operativo, no el CSS de la página) — aquí el popup
+// es un <ul> normal, así que su fondo sí es el mismo oscuro que el resto de inputs en
+// cualquier SO/navegador. Genérico (Nacionalidad, País, Provincia, ...): quien lo usa
+// pone `max-width` propio si el de por defecto no encaja.
 
-.nacionalidad-select {
+.combobox-select {
   position: relative;
   width: 100%;
   max-width: 240px;
@@ -13,6 +14,10 @@
     box-sizing: border-box;
     text-align: left;
     cursor: pointer;
+    // Sin esto, un placeholder/opción largo ("Selecciona una provincia") envuelve a
+    // dos líneas e infla la altura del botón por encima de la del resto de inputs de
+    // la misma fila (bug real de QA) — se trunca con "…" en vez de envolver.
+    overflow: hidden;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23b3b3b3' d='M8 11 2.5 5.5h11z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.65rem center;
@@ -24,29 +29,36 @@
     }
   }
 
+  &__boton span {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   &__placeholder {
     color: var(--color-texto-tenue);
   }
 
   // position:fixed (no absolute) + top/left/width/maxHeight vía inline style
-  // (NacionalidadSelect.jsx calcula el hueco real del viewport): así nunca queda
+  // (ComboboxSelect.jsx calcula el hueco real del viewport): así nunca queda
   // recortado por el tamaño de la página ni por el overflow de un antecesor, y se
-  // reposiciona solo al hacer scroll (bug real de QA). Portal a document.body, por
-  // eso no hereda estilos de .perfil-panel salvo los que pone esta clase. Siempre se
-  // abre hacia abajo (nunca "flip" hacia arriba, ajuste tras QA manual: quedaba feo) —
-  // .mi-cuenta tiene padding-bottom de sobra (MiCuenta.scss) para que siempre haya
-  // hueco real de scroll debajo.
+  // reposiciona solo al hacer scroll. Portal a document.body, por eso no hereda
+  // estilos del componente que lo usa salvo los que pone esta clase. Siempre se abre
+  // hacia abajo (nunca "flip" hacia arriba).
   &__lista {
     position: fixed;
-    z-index: 1000;
+    // Por encima de cualquier overlay de modal (p. ej. .formulario-direccion__overlay,
+    // z-index:1000): este combobox se usa también dentro de modales (FormularioDireccion
+    // → País/Provincia), así que no puede quedar por debajo del overlay que lo contiene.
+    z-index: 1100;
     overflow-y: auto;
     margin: 0;
     padding: 0.25rem 0;
     list-style: none;
     // Fondo sólido (no var(--color-fondo-elevado), que es semitransparente): el popup
     // flota sobre contenido arbitrario de la página, no sobre una capa oscurecida como
-    // un modal, así que necesita ser opaco de verdad (bug real de QA: "se ve lo de
-    // debajo").
+    // un modal, así que necesita ser opaco de verdad.
     background: var(--color-fondo);
     border: 1px solid var(--color-texto-tenue);
     border-radius: 8px;

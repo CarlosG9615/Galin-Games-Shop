@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import NacionalidadSelect from './NacionalidadSelect'
+import ComboboxSelect from './ComboboxSelect'
 
 const OPCIONES = [
   { code: 'ES', nombre: 'España' },
@@ -12,8 +12,8 @@ const OPCIONES = [
 function setup(props = {}) {
   const onChange = vi.fn()
   render(
-    <NacionalidadSelect
-      id="nacionalidad"
+    <ComboboxSelect
+      id="pais"
       value=""
       onChange={onChange}
       options={OPCIONES}
@@ -25,13 +25,13 @@ function setup(props = {}) {
   return { onChange }
 }
 
-describe('NacionalidadSelect', () => {
+describe('ComboboxSelect', () => {
   it('muestra el placeholder cuando no hay valor seleccionado', () => {
     setup()
     expect(screen.getByRole('combobox')).toHaveTextContent('Selecciona un país')
   })
 
-  it('muestra el nombre del país cuando ya hay un valor', () => {
+  it('muestra el nombre de la opción cuando ya hay un valor', () => {
     setup({ value: 'ES' })
     expect(screen.getByRole('combobox')).toHaveTextContent('España')
   })
@@ -85,8 +85,8 @@ describe('NacionalidadSelect', () => {
     const user = userEvent.setup()
     render(
       <div>
-        <NacionalidadSelect
-          id="nacionalidad"
+        <ComboboxSelect
+          id="pais"
           value=""
           onChange={vi.fn()}
           options={OPCIONES}

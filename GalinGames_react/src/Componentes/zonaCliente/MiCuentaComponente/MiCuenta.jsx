@@ -1,11 +1,11 @@
 import { useParams, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Navbar from '../../compGlobales/NavbarComponente/Navbar'
-import MenuLateral from './MenuLateral'
-import PerfilPanel from './PerfilPanel'
-import EmailPasswordPanel from './EmailPasswordPanel'
-import DireccionesPanel from './DireccionesPanel'
-import PedidosPanel from './PedidosPanel'
+import MenuLateral from './components/MenuLateral/MenuLateral'
+import PerfilPanel from './components/PerfilPanel/PerfilPanel'
+import EmailPasswordPanel from './components/EmailPasswordPanel/EmailPasswordPanel'
+import DireccionesPanel from './components/DireccionesPanel/DireccionesPanel'
+import PedidosPanel from './components/PedidosPanel/PedidosPanel'
 import './MiCuenta.scss'
 
 const SECCIONES_VALIDAS = ['perfil', 'email-password', 'direcciones', 'pedidos']

@@ -16,4 +16,8 @@ async function setDefaultAddress(id) {
   return httpClient.patch(`/api/addresses/${id}/predeterminada`)
 }
 
-export const addressService = { listAddresses, createAddress, updateAddress, setDefaultAddress }
+async function deleteAddress(id) {
+  return httpClient.del(`/api/addresses/${id}`)
+}
+
+export const addressService = { listAddresses, createAddress, updateAddress, setDefaultAddress, deleteAddress }

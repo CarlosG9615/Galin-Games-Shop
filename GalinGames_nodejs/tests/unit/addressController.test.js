@@ -34,6 +34,7 @@ function buildController(overrides = {}) {
     create: vi.fn(),
     countDocuments: vi.fn(),
     updateMany: vi.fn().mockResolvedValue(undefined),
+    deleteOne: vi.fn().mockResolvedValue(undefined),
     ...overrides.Address,
   };
 
@@ -93,7 +94,9 @@ describe('addressController.listAddresses', () => {
 describe('addressController.createAddress', () => {
   it('crea la dirección y devuelve 201 con offerReuseForOtherType:true si no hay ninguna del otro tipo', async () => {
     const { controller, Address } = buildController();
-    Address.countDocuments.mockResolvedValueOnce(0);
+    // Orden real de las dos consultas en el controlador: otherTypeCount (tipo
+    // contrario) primero, sameTypeCount (mismo tipo, para esPredeterminada) después.
+    Address.countDocuments.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
     const created = buildAddressDoc();
     Address.create.mockResolvedValueOnce(created);
 
@@ -103,7 +106,8 @@ describe('addressController.createAddress', () => {
 
     await controller.createAddress(req, res, next);
 
-    expect(Address.countDocuments).toHaveBeenCalledWith({ userId: 'user-1', tipo: 'facturacion' });
+    expect(Address.countDocuments).toHaveBeenNthCalledWith(1, { userId: 'user-1', tipo: 'facturacion' });
+    expect(Address.countDocuments).toHaveBeenNthCalledWith(2, { userId: 'user-1', tipo: 'envio' });
     expect(Address.create).toHaveBeenCalledWith(expect.objectContaining({ ...validBody, userId: 'user-1' }));
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({ address: created, offerReuseForOtherType: true });
@@ -111,7 +115,7 @@ describe('addressController.createAddress', () => {
 
   it('devuelve offerReuseForOtherType:false si ya existe una dirección del otro tipo', async () => {
     const { controller, Address } = buildController();
-    Address.countDocuments.mockResolvedValueOnce(1);
+    Address.countDocuments.mockResolvedValueOnce(1).mockResolvedValueOnce(0);
     Address.create.mockResolvedValueOnce(buildAddressDoc());
 
     const req = { user: { userId: 'user-1' }, body: { ...validBody, tipo: 'facturacion' } };
@@ -120,8 +124,37 @@ describe('addressController.createAddress', () => {
 
     await controller.createAddress(req, res, next);
 
-    expect(Address.countDocuments).toHaveBeenCalledWith({ userId: 'user-1', tipo: 'envio' });
+    expect(Address.countDocuments).toHaveBeenNthCalledWith(1, { userId: 'user-1', tipo: 'envio' });
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ offerReuseForOtherType: false }));
+  });
+
+  it('marca esPredeterminada:true si es la primera dirección de ese tipo (petición de usuario)', async () => {
+    const { controller, Address } = buildController();
+    Address.countDocuments.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
+    Address.create.mockResolvedValueOnce(buildAddressDoc());
+
+    const req = { user: { userId: 'user-1' }, body: { ...validBody } };
+    const res = mockRes();
+    const next = vi.fn();
+
+    await controller.createAddress(req, res, next);
+
+    expect(Address.countDocuments).toHaveBeenNthCalledWith(2, { userId: 'user-1', tipo: 'envio' });
+    expect(Address.create).toHaveBeenCalledWith(expect.objectContaining({ esPredeterminada: true }));
+  });
+
+  it('marca esPredeterminada:false si ya hay otra dirección del mismo tipo', async () => {
+    const { controller, Address } = buildController();
+    Address.countDocuments.mockResolvedValueOnce(0).mockResolvedValueOnce(2);
+    Address.create.mockResolvedValueOnce(buildAddressDoc());
+
+    const req = { user: { userId: 'user-1' }, body: { ...validBody } };
+    const res = mockRes();
+    const next = vi.fn();
+
+    await controller.createAddress(req, res, next);
+
+    expect(Address.create).toHaveBeenCalledWith(expect.objectContaining({ esPredeterminada: false }));
   });
 });
 
@@ -196,5 +229,37 @@ describe('addressController.setDefaultAddress', () => {
     expect(address.save).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ address });
+  });
+});
+
+describe('addressController.deleteAddress', () => {
+  it('llama a next con AppError 404 si la dirección no existe o no es del usuario', async () => {
+    const { controller, Address } = buildController();
+    Address.findOne.mockResolvedValueOnce(null);
+
+    const req = { user: { userId: 'user-1' }, params: { id: 'no-existe' } };
+    const res = mockRes();
+    const next = vi.fn();
+
+    await controller.deleteAddress(req, res, next);
+
+    expect(next.mock.calls[0][0].status).toBe(404);
+    expect(Address.deleteOne).not.toHaveBeenCalled();
+  });
+
+  it('borra la dirección propia y devuelve 200', async () => {
+    const { controller, Address } = buildController();
+    const address = buildAddressDoc();
+    Address.findOne.mockResolvedValueOnce(address);
+
+    const req = { user: { userId: 'user-1' }, params: { id: 'address-1' } };
+    const res = mockRes();
+    const next = vi.fn();
+
+    await controller.deleteAddress(req, res, next);
+
+    expect(Address.findOne).toHaveBeenCalledWith({ _id: 'address-1', userId: 'user-1' });
+    expect(Address.deleteOne).toHaveBeenCalledWith({ _id: 'address-1' });
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 });

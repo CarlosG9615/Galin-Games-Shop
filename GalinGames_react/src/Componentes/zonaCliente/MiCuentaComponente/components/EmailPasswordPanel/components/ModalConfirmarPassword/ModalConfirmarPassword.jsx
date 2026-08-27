@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import InputBox from '../../compGlobales/InputBoxComponente/InputBox'
+import InputBox from '../../../../../../compGlobales/InputBoxComponente/InputBox'
 import './ModalConfirmarPassword.scss'
 
 // Modal reutilizado por "Modificar email" y "Eliminar cuenta" (Requisitos 7.2, 11.2):

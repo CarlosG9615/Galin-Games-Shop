@@ -31,6 +31,27 @@ export function IconoPapelera() {
   )
 }
 
+export function IconoCasa() {
+  return (
+    <svg className="mi-cuenta__icono" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 11.5 12 4l9 7.5" />
+      <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" />
+    </svg>
+  )
+}
+
+// Dirección de facturación: tarjeta de pago, más identificativa de "facturación" que
+// el icono de casa (que se reserva para envío) — ajuste tras petición de usuario.
+export function IconoTarjeta() {
+  return (
+    <svg className="mi-cuenta__icono" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <path d="M2 10h20" />
+      <path d="M6 15h4" />
+    </svg>
+  )
+}
+
 export function IconoEstrella({ relleno = false }) {
   return (
     <svg className="mi-cuenta__icono" viewBox="0 0 24 24" width="18" height="18" fill={relleno ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

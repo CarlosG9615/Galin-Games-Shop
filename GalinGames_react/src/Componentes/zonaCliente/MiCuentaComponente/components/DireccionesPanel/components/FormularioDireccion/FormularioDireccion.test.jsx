@@ -32,10 +32,17 @@ describe('FormularioDireccion', () => {
     await user.type(screen.getByLabelText('Título'), 'Casa')
     await user.type(screen.getByLabelText('Calle'), 'Calle Falsa')
     await user.type(screen.getByLabelText('Número'), '123')
+
+    // País → Provincia → Ciudad en cascada: Provincia empieza deshabilitada hasta
+    // elegir país, Ciudad hasta elegir provincia (Requisito de la cascada).
+    await user.click(screen.getByRole('combobox', { name: 'País' }))
+    await user.click(screen.getByRole('option', { name: 'España' }))
+
+    await user.click(screen.getByRole('combobox', { name: 'Provincia' }))
+    await user.click(screen.getByRole('option', { name: 'Madrid' }))
+
     await user.type(screen.getByLabelText('Ciudad'), 'Madrid')
-    await user.type(screen.getByLabelText('Provincia'), 'Madrid')
     await user.type(screen.getByLabelText('Código postal'), '28080')
-    await user.type(screen.getByLabelText('País'), 'España')
 
     const boton = screen.getByRole('button', { name: /crear/i })
     expect(boton).not.toBeDisabled()
@@ -44,6 +51,31 @@ describe('FormularioDireccion', () => {
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({ titulo: 'Casa', calle: 'Calle Falsa', numero: '123', pisoPuerta: '', ciudad: 'Madrid', provincia: 'Madrid', codigoPostal: '28080', pais: 'España' }),
     )
+  })
+
+  it('Provincia y Ciudad empiezan deshabilitadas hasta elegir el campo anterior', async () => {
+    render(<FormularioDireccion tipo="envio" direccion={null} onCancel={vi.fn()} onSave={vi.fn()} />)
+
+    expect(screen.getByRole('combobox', { name: 'Provincia' })).toBeDisabled()
+    expect(screen.getByLabelText('Ciudad')).toBeDisabled()
+  })
+
+  it('cambiar de país resetea la provincia y la ciudad ya elegidas', async () => {
+    const user = userEvent.setup()
+    render(<FormularioDireccion tipo="envio" direccion={null} onCancel={vi.fn()} onSave={vi.fn()} />)
+
+    await user.click(screen.getByRole('combobox', { name: 'País' }))
+    await user.click(screen.getByRole('option', { name: 'España' }))
+    await user.click(screen.getByRole('combobox', { name: 'Provincia' }))
+    await user.click(screen.getByRole('option', { name: 'Madrid' }))
+    await user.type(screen.getByLabelText('Ciudad'), 'Madrid')
+
+    await user.click(screen.getByRole('combobox', { name: 'País' }))
+    await user.click(screen.getByRole('option', { name: 'México' }))
+
+    expect(screen.getByRole('combobox', { name: 'Provincia' })).toHaveTextContent(/selecciona una provincia/i)
+    expect(screen.getByLabelText('Ciudad')).toHaveValue('')
+    expect(screen.getByLabelText('Ciudad')).toBeDisabled()
   })
 
   it('llama a onCancel al pulsar "Cancelar"', async () => {

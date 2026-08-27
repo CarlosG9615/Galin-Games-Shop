@@ -164,9 +164,10 @@
     max-width: 240px;
   }
 
-  // Nacionalidad usa NacionalidadSelect.jsx (combobox propio, ver ese fichero y su
-  // .scss): un <select> nativo no permite estilar el popup de opciones abierto, lo
-  // pinta el sistema operativo (bug real de QA, tono muy luminoso al abrirlo).
+  // Nacionalidad usa ComboboxSelect (compGlobales/ComboboxSelectComponente, combobox
+  // propio reutilizado también en FormularioDireccion para País/Provincia): un
+  // <select> nativo no permite estilar el popup de opciones abierto, lo pinta el
+  // sistema operativo (bug real de QA, tono muy luminoso al abrirlo).
 
   &__username-estado {
     margin: -0.35rem 0 0.5rem 0;

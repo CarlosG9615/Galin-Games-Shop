@@ -2,14 +2,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import DireccionesPanel from './DireccionesPanel'
-import { addressService } from '../../../servicios/addressService'
+import { addressService } from '../../../../../servicios/addressService'
 
-vi.mock('../../../servicios/addressService', () => ({
+vi.mock('../../../../../servicios/addressService', () => ({
   addressService: {
     listAddresses: vi.fn(),
     createAddress: vi.fn(),
     updateAddress: vi.fn(),
     setDefaultAddress: vi.fn(),
+    deleteAddress: vi.fn(),
   },
 }))
 
@@ -28,15 +29,21 @@ const direccionEnvio = {
 }
 
 // user.type() no admite escritura concurrente (Promise.all interfiere entre llamadas
-// y mezcla las pulsaciones de distintos campos) — deben escribirse una a una.
+// y mezcla las pulsaciones de distintos campos) — deben escribirse una a una. País y
+// Provincia son ComboboxSelect (cascada, Requisito de la FormularioDireccion.test.jsx):
+// no se puede rellenar Ciudad hasta elegir Provincia, ni Provincia hasta elegir País.
 async function llenarFormulario(user) {
   await user.type(screen.getByLabelText('Título'), 'Trabajo')
   await user.type(screen.getByLabelText('Calle'), 'Calle Nueva')
   await user.type(screen.getByLabelText('Número'), '5')
+
+  await user.click(screen.getByRole('combobox', { name: 'País' }))
+  await user.click(screen.getByRole('option', { name: 'España' }))
+  await user.click(screen.getByRole('combobox', { name: 'Provincia' }))
+  await user.click(screen.getByRole('option', { name: 'Barcelona' }))
+
   await user.type(screen.getByLabelText('Ciudad'), 'Barcelona')
-  await user.type(screen.getByLabelText('Provincia'), 'Barcelona')
   await user.type(screen.getByLabelText('Código postal'), '08001')
-  await user.type(screen.getByLabelText('País'), 'España')
 }
 
 describe('DireccionesPanel', () => {
@@ -48,6 +55,7 @@ describe('DireccionesPanel', () => {
     addressService.createAddress.mockReset()
     addressService.updateAddress.mockReset()
     addressService.setDefaultAddress.mockReset()
+    addressService.deleteAddress.mockReset()
   })
 
   it('muestra solo "+ Nueva dirección" cuando no hay ninguna registrada de ese tipo', async () => {
@@ -55,6 +63,18 @@ describe('DireccionesPanel', () => {
     render(<DireccionesPanel />)
 
     expect(await screen.findAllByRole('button', { name: /nueva dirección/i })).toHaveLength(2)
+  })
+
+  it('oculta "+ Nueva dirección" de facturación cuando ya existe una (solo puede haber una)', async () => {
+    addressService.listAddresses.mockResolvedValueOnce({
+      ok: true,
+      data: { envio: [], facturacion: [{ ...direccionEnvio, _id: 'addr-fact', tipo: 'facturacion' }] },
+    })
+    render(<DireccionesPanel />)
+    await screen.findByText('Casa')
+
+    const botonesNueva = screen.getAllByRole('button', { name: /nueva dirección/i })
+    expect(botonesNueva).toHaveLength(1)
   })
 
   it('lista las direcciones existentes bajo el bloque de su tipo', async () => {
@@ -85,6 +105,22 @@ describe('DireccionesPanel', () => {
     await user.click(botonesPredeterminada[1])
 
     await waitFor(() => expect(addressService.setDefaultAddress).toHaveBeenCalledWith('addr-2'))
+    await waitFor(() => expect(addressService.listAddresses).toHaveBeenCalledTimes(2))
+  })
+
+  it('al eliminar una dirección (confirmando), llama al servicio y recarga el listado', async () => {
+    addressService.listAddresses
+      .mockResolvedValueOnce({ ok: true, data: { envio: [direccionEnvio], facturacion: [] } })
+      .mockResolvedValueOnce({ ok: true, data: { envio: [], facturacion: [] } })
+    addressService.deleteAddress.mockResolvedValueOnce({ ok: true, data: {} })
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const user = userEvent.setup()
+    render(<DireccionesPanel />)
+    await screen.findByText('Casa')
+
+    await user.click(screen.getByLabelText(/eliminar dirección/i))
+
+    await waitFor(() => expect(addressService.deleteAddress).toHaveBeenCalledWith('addr-1'))
     await waitFor(() => expect(addressService.listAddresses).toHaveBeenCalledTimes(2))
   })
 
