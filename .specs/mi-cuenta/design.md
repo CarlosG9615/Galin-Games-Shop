@@ -234,7 +234,7 @@ nuevo `httpClient.js` es la base para los servicios de esta feature.
 | Campo | Tipo | Notas |
 |---|---|---|
 | `telefono` | String, trim, maxlength 30 | opcional, `default: null` |
-| `nacionalidad` | String, trim, maxlength 100 | opcional, `default: null` |
+| `nacionalidad` | String, trim, maxlength 100 | opcional, `default: null` — el frontend envía el código ISO 3166-1 alpha-2 (`"ES"`, `"MX"`...) elegido en el `<select>` de `PerfilPanel.jsx`, pero el modelo no valida contra una lista cerrada: sigue siendo un string libre (ajuste tras QA manual, ver más abajo) |
 | `avatarUrl` | String, `default: null` | URL de Cloudinary |
 | `avatarPublicId` | String, `select: false`, `default: null` | para poder sustituir/borrar en Cloudinary |
 | `sensitiveActionLocks.emailChange` | `{ attempts: Number default 0, blockedUntil: Date default null }`, `select: false` | Requisito 8 |
@@ -457,6 +457,8 @@ a mensaje/estado de UI igual que `Registro.jsx` ya hace con 400/409/429.
 | Reutilización de dirección al otro tipo: segundo `POST` desde el frontend con los mismos datos | Endpoint dedicado `POST /:id/duplicar` | Evita una ruta extra solo para copiar campos que el frontend ya tiene en el formulario | 13.2–13.4 |
 | HTTP 423 para el bloqueo de 24h | Reutilizar 429 (como el login) | 429 ya lo usa `express-rate-limit` para ventanas cortas (15 min); usar el mismo código confundiría "espera unos minutos" con "espera 24 horas" en el frontend | 8.2, 8.3 |
 | `httpClient.js` nuevo en vez de ampliar `authService.js` | Añadir `get/put/patch/del` directamente dentro de `authService.js` | `authService.js` es específico de login/registro/refresh/logout; extraer el cliente HTTP genérico evita tocar un módulo ya probado y lo deja reutilizable para futuras features | — (calidad interna) |
+| Nacionalidad alimentada por el paquete npm `i18n-iso-countries` (datos ISO 3166-1 locales, `code` alpha-2 como valor, nombre oficial localizado como texto) | Llamar a una API pública de países en cada carga del panel | Sin llamada de red ni límite de rate en cada visita a "Mi perfil"; los nombres ya salen en el idioma activo de la app reutilizando el propio `i18next` en vez de otro mecanismo de i18n; el backend no cambia (sigue siendo el mismo `String` libre del modelo `User`) | 4.2, 4.3 (ajuste tras QA manual) |
+| `NacionalidadSelect.jsx` (combobox propio: botón + `<ul role="listbox">`) en vez de un `<select>` nativo | `<select>` nativo con `<option>` | El popup de opciones de un `<select>` nativo lo pinta el sistema operativo, no el CSS de la página — en Windows salía con fondo claro pese a que la caja cerrada sí heredaba el estilo oscuro de `.form-control` (bug real de QA); un listbox propio es HTML/CSS normal, así que su fondo sí es controlable. `getNacionalidades()` no cambia, solo cambia qué componente pinta la lista | 4.2, 4.3 (ajuste tras QA manual) |
 
 ## Cobertura de Requisitos
 

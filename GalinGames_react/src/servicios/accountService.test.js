@@ -38,6 +38,11 @@ describe('accountService', () => {
     expect(formData.get('avatar')).toBe(file)
   })
 
+  it('deleteAvatar() llama a DELETE /api/users/me/avatar', async () => {
+    await accountService.deleteAvatar()
+    expect(httpClient.del).toHaveBeenCalledWith('/api/users/me/avatar')
+  })
+
   it('verifyPassword() llama a POST /api/users/me/verify-password con password y action', async () => {
     await accountService.verifyPassword('secreta', 'emailChange')
     expect(httpClient.post).toHaveBeenCalledWith('/api/users/me/verify-password', { password: 'secreta', action: 'emailChange' })

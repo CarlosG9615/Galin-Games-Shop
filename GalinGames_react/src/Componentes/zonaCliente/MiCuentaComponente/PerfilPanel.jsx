@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import InputBox from '../../compGlobales/InputBoxComponente/InputBox'
-import { IconoLapiz, IconoCamara } from './MiCuentaIconos'
+import { IconoLapiz, IconoCamara, IconoPapelera } from './MiCuentaIconos'
 import { accountService } from '../../../servicios/accountService'
+import { getNacionalidades } from './nacionalidades'
+import NacionalidadSelect from './NacionalidadSelect'
 import './PerfilPanel.scss'
 
 const CAMPOS = [
@@ -18,7 +20,8 @@ const AVATAR_TIPOS_VALIDOS = ['image/jpeg', 'image/png', 'image/webp']
 const AVATAR_TAMANO_MAX_BYTES = 5 * 1024 * 1024
 
 function PerfilPanel() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const nacionalidades = useMemo(() => getNacionalidades(i18n.language), [i18n.language])
   const [datos, setDatos] = useState(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -30,6 +33,7 @@ function PerfilPanel() {
   const [usernameEstado, setUsernameEstado] = useState(null)
   const [avatarSubiendo, setAvatarSubiendo] = useState(false)
   const [avatarError, setAvatarError] = useState('')
+  const [avatarBorrando, setAvatarBorrando] = useState(false)
   const debounceRef = useRef(null)
 
   useEffect(() => {
@@ -163,6 +167,22 @@ function PerfilPanel() {
     }
   }
 
+  const handleAvatarBorrar = async () => {
+    if (!window.confirm(t('miCuenta.perfil.avatarDeleteConfirm'))) return
+
+    setAvatarError('')
+    setAvatarBorrando(true)
+    const result = await accountService.deleteAvatar()
+    setAvatarBorrando(false)
+
+    if (result.ok) {
+      setDatos((prev) => ({ ...prev, avatarUrl: null }))
+      setValores((prev) => ({ ...prev, avatarUrl: null }))
+    } else {
+      setAvatarError(t('miCuenta.perfil.avatarDeleteError'))
+    }
+  }
+
   if (loading) {
     return <p className="texto-tema" role="status">{t('common.loading')}</p>
   }
@@ -190,6 +210,17 @@ function PerfilPanel() {
               className="perfil-panel__avatar-input"
             />
           </label>
+          {datos.avatarUrl && (
+            <button
+              type="button"
+              className="perfil-panel__avatar-borrar"
+              aria-label={t('miCuenta.perfil.avatarDeleteAria')}
+              onClick={handleAvatarBorrar}
+              disabled={avatarBorrando}
+            >
+              <IconoPapelera />
+            </button>
+          )}
         </div>
         {avatarError && <p className="texto-tema" role="alert">{avatarError}</p>}
       </div>
@@ -204,16 +235,32 @@ function PerfilPanel() {
             const puedeEditar = editando
             return (
               <div className="perfil-panel__campo" key={name}>
-                <InputBox
-                  nameInput={name}
-                  labelInput={t(labelKey)}
-                  typeInput="text"
-                  placeholderInput={t(labelKey)}
-                  eventoOnChange={handleChange(name)}
-                  value={valores[name] || ''}
-                  disabled={!puedeEditar}
-                  required={false}
-                />
+                {name === 'nacionalidad' ? (
+                  <div className="mb-2">
+                    <label htmlFor={name} className="form-label texto-tema texto-tema--tenue">
+                      {t(labelKey)}
+                    </label>
+                    <NacionalidadSelect
+                      id={name}
+                      value={valores.nacionalidad || ''}
+                      onChange={(code) => handleChange(name)({ target: { value: code } })}
+                      options={nacionalidades}
+                      disabled={!puedeEditar}
+                      placeholder={t('miCuenta.perfil.fieldNacionalidadPlaceholder')}
+                    />
+                  </div>
+                ) : (
+                  <InputBox
+                    nameInput={name}
+                    labelInput={t(labelKey)}
+                    typeInput="text"
+                    placeholderInput={t(labelKey)}
+                    eventoOnChange={handleChange(name)}
+                    value={valores[name] || ''}
+                    disabled={!puedeEditar}
+                    required={false}
+                  />
+                )}
                 {name === 'username' && usernameEstado === 'checking' && (
                   <p className="perfil-panel__username-estado texto-tema">{t('miCuenta.perfil.usernameChecking')}</p>
                 )}

@@ -3,13 +3,16 @@
 // _tokens.scss, ningún color de tema propio (Requisito 9.6 de home-diseno, heredado).
 
 .perfil-panel {
-  // Sin esto, el avatar/separador (centrados vía align-items:center en __avatar-zona)
-  // quedaban centrados en TODO el ancho del panel, mientras la cuadrícula de inputs
-  // (bloque, sin max-width) se pegaba al borde izquierdo — visualmente descuadrado.
-  // Acotar y centrar el panel entero hace que avatar, separador y cuadrícula
-  // compartan el mismo eje (ajuste tras QA manual, Tarea 41).
-  max-width: 640px;
-  margin: 0 auto;
+  // Acotar el panel entero (no dejarlo a 100% de .mi-cuenta__panel) hace que avatar,
+  // separador y cuadrícula compartan el mismo eje en vez de que la cuadrícula se
+  // estire sin control (Tarea 41). margin-left:auto (no "0 auto"): el bloque entero
+  // se ancla al borde derecho de .mi-cuenta__panel en vez de centrarse — mismo
+  // ancho y anclaje que EmailPasswordPanel, para que ambas vistas usen mejor el
+  // espacio disponible y el divisor caiga en la misma posición al cambiar de menú
+  // (ajuste tras QA manual).
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: 0;
 
   &__avatar-zona {
     display: flex;
@@ -60,6 +63,31 @@
     }
   }
 
+  // Esquina opuesta a __avatar-boton (cámara, bottom-right), sin círculo ni fondo
+  // (a diferencia de __avatar-boton): solo el icono en rojo fijo (no
+  // var(--color-acento)) porque es una acción destructiva — ajuste tras QA manual,
+  // el círculo competía visualmente con el borde del avatar.
+  &__avatar-borrar {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    padding: 0;
+    background: none;
+    border: none;
+    color: #ff4d4f;
+    display: flex;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      color: #ff8080;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
   // Input de fichero oculto visualmente pero accesible (clic delegado por el <label>).
   &__avatar-input {
     position: absolute;
@@ -91,20 +119,22 @@
     // input, que es block y se queda fijo a la izquierda — bug real de QA).
     text-align: left;
     display: grid;
-    // Columnas de ancho FIJO (igual al max-width del input, no 1fr): con columnas
-    // elásticas, el input (240px, alineado a la izquierda) dejaba un hueco sobrante
-    // dentro de su propia columna antes de llegar al gap, así que el margen hasta
-    // el divisor no era igual en ambos lados (más grande a la izquierda). Con
-    // columnas fijas el input ocupa toda su columna y el gap es simétrico por
-    // construcción (ajuste tras QA manual).
+    // Dos columnas fijas del mismo ancho, centradas con justify-content (no una
+    // columna derecha flexible 1fr): así el divisor cae siempre en el centro
+    // geométrico exacto del panel, el mismo punto donde __separador (avatar) ya se
+    // autocentra con margin:auto — con 1fr el punto medio de la cuadrícula no
+    // coincidía con el hueco entre columnas y quedaba descuadrado respecto al
+    // separador del avatar (ajuste tras QA manual).
     grid-template-columns: 240px 240px;
     justify-content: center;
-    column-gap: 4.5rem;
+    column-gap: 4rem;
     row-gap: 0.5rem;
 
     // Un único divisor continuo entre columnas (Requisito 2.5), no un "|" repetido
-    // por fila: una línea vertical de borde a borde de la cuadrícula, centrada en
-    // el gap simétrico de arriba, como un border-right pintado.
+    // por fila: una línea vertical de borde a borde de la cuadrícula, como un
+    // border-right pintado. left:50% (no un calc a partir del ancho de columna):
+    // con las dos columnas centradas, el punto medio de la cuadrícula SÍ coincide
+    // con el hueco entre columnas, igual que el separador del avatar.
     &::before {
       content: '';
       position: absolute;
@@ -121,7 +151,6 @@
 
     @media (max-width: 700px) {
       grid-template-columns: 1fr;
-      justify-content: stretch;
 
       &::before {
         content: none;
@@ -134,6 +163,10 @@
   .form-control {
     max-width: 240px;
   }
+
+  // Nacionalidad usa NacionalidadSelect.jsx (combobox propio, ver ese fichero y su
+  // .scss): un <select> nativo no permite estilar el popup de opciones abierto, lo
+  // pinta el sistema operativo (bug real de QA, tono muy luminoso al abrirlo).
 
   &__username-estado {
     margin: -0.35rem 0 0.5rem 0;

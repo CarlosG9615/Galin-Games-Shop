@@ -15,7 +15,11 @@
   // a su logo más alto. Sin este margen, el menú lateral y el panel quedaban tapados
   // por el logo — mismo motivo por el que Login/Registro usan padding-top: 15rem en
   // .pagina-dividida__formulario (_shared.scss).
-  padding: 9rem 1.5rem 4rem;
+  // padding-bottom generoso (no 4rem): deja hueco de scroll real bajo el contenido en
+  // todas las vistas de Mi Cuenta, para que popups que se abren hacia abajo (p. ej.
+  // NacionalidadSelect) tengan sitio cómodo sin tener que abrirse hacia arriba
+  // (ajuste tras QA manual: abrir hacia arriba quedaba feo).
+  padding: 9rem 1.5rem 18rem;
 
   @media (max-width: 768px) {
     padding-top: 7rem;
@@ -25,7 +29,10 @@
     display: flex;
     align-items: flex-start;
     gap: 2rem;
-    max-width: 1100px;
+    // Ampliado desde 1100px: con el panel de email/contraseña desplazado hacia el
+    // borde derecho (Tarea QA), el ancho anterior no dejaba sitio para las dos
+    // columnas de contraseña sin solapar la línea divisoria.
+    max-width: 1300px;
     margin: 0 auto;
 
     @media (max-width: 800px) {
@@ -52,10 +59,19 @@
   &__panel {
     flex: 1;
     min-width: 0;
+    // Alto mínimo consistente entre secciones (Perfil/Email/Direcciones/Pedidos con
+    // cantidades de contenido muy distintas): así el divisor (align-self:stretch) y el
+    // menú centrado sobre él (ver MenuLateral.scss) no saltan de posición al cambiar
+    // de sección.
+    min-height: 28rem;
   }
 
+  // Color del acento del tema activo (no --color-texto de .titulo-tema): el título de
+  // cada sección debe cambiar con el tema igual que el resto de la Vista Mi Cuenta
+  // (ítem de menú activo, divisor, botones).
   &__titulo {
     font-size: 1.6rem;
     margin-bottom: 1.5rem;
+    color: var(--color-acento);
   }
 }

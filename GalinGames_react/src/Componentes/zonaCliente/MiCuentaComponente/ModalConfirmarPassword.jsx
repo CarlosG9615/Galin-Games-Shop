@@ -33,7 +33,7 @@ function ModalConfirmarPassword({ visible, title, onClose, onSubmit, submitting,
         aria-label={title || t('miCuenta.modal.confirmPasswordTitle')}
         onClick={(e) => e.stopPropagation()}
       >
-        <button type="button" className="modal-password__cerrar" onClick={onClose} aria-label={t('miCuenta.modal.closeAria')}>
+        <button type="button" className="boton-cerrar" onClick={onClose} aria-label={t('miCuenta.modal.closeAria')}>
           ×
         </button>
         <h2 className="titulo-tema modal-password__titulo">{title || t('miCuenta.modal.confirmPasswordTitle')}</h2>

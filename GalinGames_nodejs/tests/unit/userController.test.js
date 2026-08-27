@@ -271,6 +271,56 @@ describe('userController.uploadAvatar', () => {
   });
 });
 
+describe('userController.deleteAvatar', () => {
+  it('limpia avatarUrl/avatarPublicId, borra el asset en Cloudinary y devuelve 200', async () => {
+    const { controller, User, cloudinaryService } = buildController();
+    const user = buildUserDoc({ avatarUrl: 'https://res.cloudinary.com/demo/old.jpg', avatarPublicId: 'users/user-1/old' });
+    User.findById.mockReturnValueOnce({ select: vi.fn().mockResolvedValueOnce(user) });
+
+    const req = { user: { userId: 'user-1' } };
+    const res = mockRes();
+    const next = vi.fn();
+
+    await controller.deleteAvatar(req, res, next);
+
+    expect(user.avatarUrl).toBeNull();
+    expect(user.avatarPublicId).toBeNull();
+    expect(user.save).toHaveBeenCalledTimes(1);
+    expect(cloudinaryService.deleteAsset).toHaveBeenCalledWith('users/user-1/old');
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ avatarUrl: null });
+  });
+
+  it('no llama a deleteAsset si el usuario no tenía avatar previo', async () => {
+    const { controller, User, cloudinaryService } = buildController();
+    const user = buildUserDoc({ avatarPublicId: null });
+    User.findById.mockReturnValueOnce({ select: vi.fn().mockResolvedValueOnce(user) });
+
+    const req = { user: { userId: 'user-1' } };
+    const res = mockRes();
+    const next = vi.fn();
+
+    await controller.deleteAvatar(req, res, next);
+
+    expect(cloudinaryService.deleteAsset).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('llama a next con AppError 404 si el usuario no existe', async () => {
+    const { controller, User } = buildController();
+    User.findById.mockReturnValueOnce({ select: vi.fn().mockResolvedValueOnce(null) });
+
+    const req = { user: { userId: 'user-1' } };
+    const res = mockRes();
+    const next = vi.fn();
+
+    await controller.deleteAvatar(req, res, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(next.mock.calls[0][0].status).toBe(404);
+  });
+});
+
 describe('userController.verifyPassword', () => {
   it('llama a next con AppError 400 si la acción no es reconocida', async () => {
     const { controller } = buildController();

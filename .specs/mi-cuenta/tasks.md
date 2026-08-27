@@ -180,7 +180,8 @@ respete las dependencias indicadas.
   **Dependencias:** Tareas 21, 26 (implementado antes que la Tarea 26 en la ejecución real: componente hoja, no depende de `MiCuenta.jsx` para probarse)
   **Requisitos:** 12.1, 12.2, 12.3, 12.4, 12.5, 14.1, 14.2, 14.3
 
-- [x] 37. Crear `FormularioDireccion.jsx` (crear/editar dirección, validación de campos, pregunta de reutilización entre tipos), + tests
+- [x] 37. Crear `FormularioDireccion.jsx` (crear/editar dirección, validación de campos, aplica margin right entre el input del email y el separador para que el separador quede mas centralizado en el medio y haya la misma separacion entre input email e imput contraseña y el separador quede bien alineado
+pregunta de reutilización entre tipos), + tests
   **Dependencias:** Tarea 36
   **Requisitos:** 13.1, 13.2, 13.3, 13.4, 13.5, 14.4
 
@@ -212,6 +213,27 @@ respete las dependencias indicadas.
   - `EmailPasswordPanel.jsx` unifica email y contraseña en dos columnas (`__columnas`): email a la izquierda con "Modificar email" debajo, contraseña a la derecha conservando su disposición interna en sub-columnas ("Contraseña actual" | "Nueva contraseña"/"Repetir nueva contraseña", ajustadas para caber en el espacio disponible) con "Cambiar contraseña" debajo — cada botón de acción queda bajo el campo al que corresponde.
   **Dependencias:** Tareas 28, 39, 41
   **Requisitos:** 2.5, 4.2, 4.3, 4.4 (revisados)
+
+- [x] 43. Tercera ronda de ajustes visuales sobre `EmailPasswordPanel.jsx` tras QA manual:
+  - "Cambiar contraseña" deja de ser un `.boton-primario` sólido y pasa a texto+icono de lápiz, mismo estilo que "Modificar email" (`__modificar`).
+  - Ambos disparadores de edición quedan a la misma altura izquierda/derecha: `__col-email`/`__col-password` en `display:flex; flex-direction:column` + `align-items:stretch` en `__columnas` (ambas columnas igualan su altura a la más alta) + `margin-top:auto` en cada disparador, independientemente de que una columna tenga más campos que la otra.
+  - Más separación entre la columna de email y la de contraseña (`gap` de `__columnas` ampliado).
+  - Línea divisoria vertical entre ambas columnas, mismo tratamiento (sombra difusa) que el divisor de `MiCuenta.scss` y el de `PerfilPanel__grid`.
+  **Dependencias:** Tarea 42
+  **Requisitos:** 2.2, 2.5 (mismo tratamiento visual de divisores que el resto de la Vista Mi Cuenta)
+
+- [x] 44. Campo Nacionalidad de `PerfilPanel.jsx`: de `InputBox` de texto libre a `<select>` (`nacionalidades.js`, nuevo), con la lista de países cargada del paquete npm `i18n-iso-countries` (registrado para `es`/`en`) en vez de una API externa — `value` es el código ISO alpha-2, texto visible el nombre oficial en el idioma activo (`i18n.language`). Claves `miCuenta.perfil.fieldNacionalidadPlaceholder` añadidas a `es.json`/`en.json`. El modelo `User.nacionalidad` no cambia (sigue siendo `String` libre, ver Data Models)
+  **Dependencias:** Tarea 27
+  **Requisitos:** 4.2, 4.3 (ajuste tras QA manual, ver Design Decisions)
+
+- [x] 45. Ronda de ajustes visuales sobre Nacionalidad y layout de `MiCuenta.jsx` tras QA manual:
+  - `NacionalidadSelect.jsx` (nuevo) sustituye el `<select>` nativo de la Tarea 44: combobox propio (botón + `<ul role="listbox">` portado a `document.body` con `position:fixed`, patrón ARIA "select-only combobox") porque el popup de opciones de un `<select>` nativo lo pinta el sistema operativo y no se puede estilar (salía con fondo muy claro/gris pese a que la caja cerrada sí heredaba el tema oscuro). `getNacionalidades()` no cambia.
+  - Fondo del popup sólido (`var(--color-fondo)`, no `var(--color-fondo-elevado)` que es semitransparente): flotaba sobre contenido arbitrario de la página y se veía "lo de debajo".
+  - Posición y alto máximo del popup calculados en cada apertura/scroll/resize desde `getBoundingClientRect()` del botón, siempre hacia abajo (sin "flip" hacia arriba, quedaba feo) — se apoya en el padding-bottom ampliado de `.mi-cuenta` (ver más abajo) para tener hueco real de scroll.
+  - `.mi-cuenta` padding-bottom `4rem` → `18rem` y `.mi-cuenta__panel` con `min-height: 28rem`: da hueco de scroll consistente entre secciones para popups que abren hacia abajo, y evita que el divisor/menú salten de alto al cambiar de sección.
+  - `MenuLateral.jsx` centrado verticalmente respecto al divisor (`align-self: center` en `.menu-lateral`, reseteado a `auto` por debajo de 800px donde `.mi-cuenta__contenedor` pasa a columna) — antes quedaba pegado arriba mientras el divisor (que sí estira) creció con el nuevo `min-height` del panel.
+  **Dependencias:** Tarea 44
+  **Requisitos:** 2.2, 2.4, 4.2, 4.3 (ajuste tras QA manual)
 
 ## Task Dependency Graph
 

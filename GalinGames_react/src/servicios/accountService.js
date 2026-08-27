@@ -18,6 +18,10 @@ async function uploadAvatar(file) {
   return httpClient.postForm('/api/users/me/avatar', formData)
 }
 
+async function deleteAvatar() {
+  return httpClient.del('/api/users/me/avatar')
+}
+
 async function verifyPassword(password, action) {
   return httpClient.post('/api/users/me/verify-password', { password, action })
 }
@@ -39,6 +43,7 @@ export const accountService = {
   updateMe,
   checkUsername,
   uploadAvatar,
+  deleteAvatar,
   verifyPassword,
   requestEmailChange,
   changePassword,

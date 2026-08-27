@@ -131,6 +131,29 @@ function createUserController({
     }
   }
 
+  // Mismo patrón que uploadAvatar al sustituir el anterior (Requisito 6.3): primero se
+  // persiste en Mongo, después se borra en Cloudinary (best-effort en el servicio) para
+  // no dejar el usuario sin avatarUrl si el borrado en Cloudinary fallara a mitad.
+  async function deleteAvatar(req, res, next) {
+    try {
+      const user = await User.findById(req.user.userId).select('+avatarPublicId');
+      if (!user) return next(new AppError('Usuario no encontrado', 404));
+
+      const previousPublicId = user.avatarPublicId;
+      user.avatarUrl = null;
+      user.avatarPublicId = null;
+      await user.save();
+
+      if (previousPublicId) {
+        await cloudinaryService.deleteAsset(previousPublicId);
+      }
+
+      return res.status(200).json({ avatarUrl: null });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
   async function verifyPassword(req, res, next) {
     try {
       const { password, action } = req.body;
@@ -326,6 +349,7 @@ function createUserController({
     updateMe,
     checkUsername,
     uploadAvatar,
+    deleteAvatar,
     verifyPassword,
     requestEmailChange,
     confirmEmailChange,

@@ -174,6 +174,7 @@ function EmailPasswordPanel() {
     <div className="email-password-panel">
       <div className="email-password-panel__columnas">
         <div className="email-password-panel__col-email">
+          <h3 className="texto-tema texto-tema--tenue email-password-panel__col-titulo">{t('miCuenta.emailPassword.changeEmailTitle')}</h3>
           <InputBox
             nameInput="email"
             labelInput={t('miCuenta.emailPassword.fieldEmail')}
@@ -213,7 +214,10 @@ function EmailPasswordPanel() {
           {emailChangeSuccess && <p className="texto-tema texto-tema--exito" role="status">{emailChangeSuccess}</p>}
         </div>
 
+        <div className="email-password-panel__divisor" aria-hidden="true" />
+
         <div className="email-password-panel__col-password">
+          <h3 className="texto-tema texto-tema--tenue email-password-panel__col-titulo">{t('miCuenta.emailPassword.changePasswordTitle')}</h3>
           <form onSubmit={handleChangePassword} noValidate>
             <div className="email-password-panel__form-password-columnas">
               <div className="email-password-panel__form-password-col">
@@ -250,9 +254,10 @@ function EmailPasswordPanel() {
             </div>
             <button
               type="submit"
-              className="boton-primario email-password-panel__form-password-submit"
+              className="email-password-panel__modificar email-password-panel__cambiar-password"
               disabled={cambiandoPassword || !currentPassword || !newPassword || !repeatNewPassword}
             >
+              <IconoLapiz />
               {t('miCuenta.emailPassword.changePasswordButton')}
             </button>
             {passwordChangeError && <p className="texto-tema" role="alert">{passwordChangeError}</p>}
@@ -262,8 +267,8 @@ function EmailPasswordPanel() {
       </div>
 
       <div className="email-password-panel__twofa">
-        <h3 className="texto-tema email-password-panel__twofa-titulo">{t('miCuenta.emailPassword.twoFaTitle')}</h3>
-        <p className="texto-tema email-password-panel__twofa-pendiente">{t('miCuenta.emailPassword.twoFaPending')}</p>
+        <h3 className="texto-tema texto-tema--tenue email-password-panel__twofa-titulo">{t('miCuenta.emailPassword.twoFaTitle')}</h3>
+        <p className="texto-tema texto-tema--tenue email-password-panel__twofa-pendiente">{t('miCuenta.emailPassword.twoFaPending')}</p>
       </div>
 
       <button type="button" className="email-password-panel__eliminar" onClick={abrirModalDelete}>

@@ -10,6 +10,7 @@ vi.mock('../../../servicios/accountService', () => ({
     updateMe: vi.fn(),
     checkUsername: vi.fn(),
     uploadAvatar: vi.fn(),
+    deleteAvatar: vi.fn(),
   },
 }))
 
@@ -172,5 +173,49 @@ describe('PerfilPanel', () => {
     await waitFor(() =>
       expect(container.querySelector('.perfil-panel__avatar-img')).toHaveAttribute('src', 'https://res.cloudinary.com/demo/a.jpg'),
     )
+  })
+
+  it('no muestra el botón de eliminar avatar cuando no hay imagen', async () => {
+    accountService.getMe.mockResolvedValueOnce({ ok: true, data: datosCompletos })
+    render(<PerfilPanel />)
+    await screen.findByDisplayValue('Carlos')
+
+    expect(screen.queryByLabelText(/eliminar foto de perfil/i)).not.toBeInTheDocument()
+  })
+
+  it('al pulsar el botón de eliminar avatar, pide confirmación y borra si se acepta', async () => {
+    accountService.getMe.mockResolvedValueOnce({
+      ok: true,
+      data: { ...datosCompletos, avatarUrl: 'https://res.cloudinary.com/demo/a.jpg' },
+    })
+    accountService.deleteAvatar.mockResolvedValueOnce({ ok: true, data: { avatarUrl: null } })
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const user = userEvent.setup()
+    const { container } = render(<PerfilPanel />)
+    await screen.findByDisplayValue('Carlos')
+
+    await user.click(screen.getByLabelText(/eliminar foto de perfil/i))
+
+    expect(window.confirm).toHaveBeenCalledTimes(1)
+    await waitFor(() => expect(accountService.deleteAvatar).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(container.querySelector('.perfil-panel__avatar-img')).not.toBeInTheDocument())
+    expect(screen.queryByLabelText(/eliminar foto de perfil/i)).not.toBeInTheDocument()
+  })
+
+  it('si se cancela la confirmación, no llama a deleteAvatar ni cambia el avatar', async () => {
+    accountService.getMe.mockResolvedValueOnce({
+      ok: true,
+      data: { ...datosCompletos, avatarUrl: 'https://res.cloudinary.com/demo/a.jpg' },
+    })
+    vi.spyOn(window, 'confirm').mockReturnValue(false)
+    const user = userEvent.setup()
+    render(<PerfilPanel />)
+    await screen.findByDisplayValue('Carlos')
+
+    await user.click(screen.getByLabelText(/eliminar foto de perfil/i))
+
+    expect(window.confirm).toHaveBeenCalledTimes(1)
+    expect(accountService.deleteAvatar).not.toHaveBeenCalled()
+    expect(screen.getByLabelText(/eliminar foto de perfil/i)).toBeInTheDocument()
   })
 })

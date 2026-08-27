@@ -1,0 +1,67 @@
+// Combobox propio de Nacionalidad: el <select> nativo que sustituye no permite estilar
+// el popup de opciones cuando está abierto (lo pinta el sistema operativo, no el CSS de
+// la página) — aquí el popup es un <ul> normal, así que su fondo sí es el mismo oscuro
+// que el resto de inputs en cualquier SO/navegador.
+
+.nacionalidad-select {
+  position: relative;
+  width: 100%;
+  max-width: 240px;
+
+  &__boton {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23b3b3b3' d='M8 11 2.5 5.5h11z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    background-size: 12px;
+    padding-right: 2rem;
+
+    &:disabled {
+      opacity: 1; // mismo criterio que .form-control:disabled (InputBox.scss): no cambia el aspecto
+    }
+  }
+
+  &__placeholder {
+    color: var(--color-texto-tenue);
+  }
+
+  // position:fixed (no absolute) + top/left/width/maxHeight vía inline style
+  // (NacionalidadSelect.jsx calcula el hueco real del viewport): así nunca queda
+  // recortado por el tamaño de la página ni por el overflow de un antecesor, y se
+  // reposiciona solo al hacer scroll (bug real de QA). Portal a document.body, por
+  // eso no hereda estilos de .perfil-panel salvo los que pone esta clase. Siempre se
+  // abre hacia abajo (nunca "flip" hacia arriba, ajuste tras QA manual: quedaba feo) —
+  // .mi-cuenta tiene padding-bottom de sobra (MiCuenta.scss) para que siempre haya
+  // hueco real de scroll debajo.
+  &__lista {
+    position: fixed;
+    z-index: 1000;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0.25rem 0;
+    list-style: none;
+    // Fondo sólido (no var(--color-fondo-elevado), que es semitransparente): el popup
+    // flota sobre contenido arbitrario de la página, no sobre una capa oscurecida como
+    // un modal, así que necesita ser opaco de verdad (bug real de QA: "se ve lo de
+    // debajo").
+    background: var(--color-fondo);
+    border: 1px solid var(--color-texto-tenue);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  &__opcion {
+    padding: 0.4rem 0.75rem;
+    color: var(--color-texto);
+    font-family: 'Rajdhani', 'Segoe UI', system-ui, sans-serif;
+    cursor: pointer;
+
+    &--activa {
+      background: var(--color-acento);
+      color: var(--color-fondo);
+    }
+  }
+}
