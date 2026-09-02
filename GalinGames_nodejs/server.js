@@ -8,6 +8,7 @@ const connectDB = require('./src/config/db');
 const authRoutes = require('./src/routes/auth.routes');
 const userRoutes = require('./src/routes/user.routes');
 const addressRoutes = require('./src/routes/address.routes');
+const gameRoutes = require('./src/routes/game.routes');
 const globalErrorHandler = require('./src/middleware/globalErrorHandler');
 const AppError = require('./src/utils/AppError');
 
@@ -51,6 +52,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/addresses', addressRoutes);
+app.use('/api/games', gameRoutes);
 
 app.use(globalErrorHandler);
 

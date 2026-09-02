@@ -3,6 +3,7 @@ import {
   createEmailService,
   buildVerificationEmailHtml,
   buildEmailChangeVerificationHtml,
+  buildStockAvailableEmailHtml,
 } from '../../src/services/emailService.js';
 
 const sendMailMock = vi.fn();
@@ -85,5 +86,38 @@ describe('src/services/emailService.js', () => {
     const { sendEmailChangeVerification } = createEmailService({ sendMail: sendMailMock });
 
     await expect(sendEmailChangeVerification('nuevo@example.com', 'carlos', 'token')).rejects.toThrow('SMTP down');
+  });
+
+  it('buildStockAvailableEmailHtml incluye el nombre del juego, el username y el enlace', () => {
+    const html = buildStockAvailableEmailHtml('carlos', "Assassin's Creed Black Flag Resynced", 'http://localhost:5173/juegos/detalle/abc?plataforma=PC');
+    expect(html).toContain('carlos');
+    expect(html).toContain('Assassin&#39;s Creed Black Flag Resynced');
+    expect(html).toContain('http://localhost:5173/juegos/detalle/abc?plataforma=PC');
+  });
+
+  it('buildStockAvailableEmailHtml escapa caracteres HTML del nombre del juego', () => {
+    const html = buildStockAvailableEmailHtml('carlos', '<img src=x onerror=alert(1)>', 'http://localhost:5173/juegos/detalle/abc');
+    expect(html).not.toContain('<img src=x onerror=alert(1)>');
+    expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;');
+  });
+
+  it('sendStockAvailableEmail llama a transporter.sendMail con to, subject y el enlace de detalle', async () => {
+    sendMailMock.mockResolvedValueOnce({ messageId: '789' });
+    const { sendStockAvailableEmail } = createEmailService({ sendMail: sendMailMock });
+
+    await sendStockAvailableEmail('cliente@example.com', 'carlos', 'Dragon Ball: Sparking! Zero', 'http://localhost:5173/juegos/detalle/xyz?plataforma=PC');
+
+    expect(sendMailMock).toHaveBeenCalledTimes(1);
+    const callArgs = sendMailMock.mock.calls[0][0];
+    expect(callArgs.to).toBe('cliente@example.com');
+    expect(callArgs.subject).toContain('Dragon Ball: Sparking! Zero');
+    expect(callArgs.html).toContain('http://localhost:5173/juegos/detalle/xyz?plataforma=PC');
+  });
+
+  it('sendStockAvailableEmail propaga la excepción si transporter.sendMail rechaza', async () => {
+    sendMailMock.mockRejectedValueOnce(new Error('SMTP down'));
+    const { sendStockAvailableEmail } = createEmailService({ sendMail: sendMailMock });
+
+    await expect(sendStockAvailableEmail('cliente@example.com', 'carlos', 'Juego', 'http://localhost:5173')).rejects.toThrow('SMTP down');
   });
 });

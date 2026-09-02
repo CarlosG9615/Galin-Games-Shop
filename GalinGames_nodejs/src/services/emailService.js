@@ -113,6 +113,59 @@ function buildEmailChangeVerificationHtml(username, verificationLink) {
 `.trim();
 }
 
+function buildStockAvailableEmailHtml(username, nombreJuego, detailLink) {
+  const safeUsername = escapeHtml(username);
+  const safeNombreJuego = escapeHtml(nombreJuego);
+  return `
+<!DOCTYPE html>
+<html lang="es">
+  <body style="margin:0; padding:0; background-color:#1a0533; font-family:Arial, Helvetica, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#1a0533;">
+      <tr>
+        <td style="background-color:#3a0ca3; border-bottom:2px solid rgba(255,255,255,0.15); padding:24px 16px; text-align:center;">
+          <h1 style="margin:0; color:#ffffff; font-size:36px; font-weight:800; letter-spacing:2px; text-shadow:0 2px 8px #000;">
+            GalinGames
+          </h1>
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+          <table role="presentation" width="100%" style="max-width:480px;">
+            <tr>
+              <td style="text-align:center;">
+                <h2 style="margin:0 0 24px 0; color:#ffffff; font-size:20px; font-weight:800; letter-spacing:1px; text-shadow:0 2px 8px #000;">
+                  ¡Ya hay stock disponible!
+                </h2>
+                <p style="margin:0 0 16px 0; color:#ffffff; font-size:15px; line-height:1.5;">
+                  Hola, <strong>${safeUsername}</strong>
+                </p>
+                <p style="margin:0 0 28px 0; color:#ffffff; font-size:14px; line-height:1.6; opacity:0.9;">
+                  <strong>${safeNombreJuego}</strong> ya vuelve a tener stock disponible en GalinGames. Date prisa antes de que se agote de nuevo:
+                </p>
+                <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 28px auto;">
+                  <tr>
+                    <td style="border-radius:12px; background:linear-gradient(180deg, #7d2ae8 60%, #3a0ca3 100%); border:2.5px solid #fff; box-shadow:0 4px 0 #2d0066;">
+                      <a href="${detailLink}" target="_blank" rel="noopener noreferrer"
+                        style="display:inline-block; padding:14px 28px; color:#ffffff; font-size:15px; font-weight:bold; text-decoration:none; letter-spacing:0.5px;">
+                        Ver ${safeNombreJuego}
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0; color:#ffffff; font-size:11px; opacity:0.6;">
+                  Recibes este correo porque pediste que te avisáramos cuando este juego volviera a tener stock.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+`.trim();
+}
+
 // Inyección del transporter: permite sustituirlo por un doble de prueba en tests
 // sin depender del mocking de módulos nativos de nodemailer (ver tests/unit/emailService.test.js).
 function createEmailService(transporter) {
@@ -142,7 +195,19 @@ function createEmailService(transporter) {
     });
   }
 
-  return { sendVerificationEmail, sendEmailChangeVerification };
+  async function sendStockAvailableEmail(to, username, nombreJuego, detailLink) {
+    const html = buildStockAvailableEmailHtml(username, nombreJuego, detailLink);
+
+    await transporter.sendMail({
+      from: `"GalinGames" <${env.EMAIL_USER}>`,
+      to,
+      subject: `¡${nombreJuego} ya tiene stock disponible!`,
+      html,
+      text: `Hola ${username}, ${nombreJuego} ya vuelve a tener stock disponible en GalinGames: ${detailLink}`,
+    });
+  }
+
+  return { sendVerificationEmail, sendEmailChangeVerification, sendStockAvailableEmail };
 }
 
 const defaultTransporter = nodemailer.createTransport({
@@ -153,12 +218,14 @@ const defaultTransporter = nodemailer.createTransport({
   },
 });
 
-const { sendVerificationEmail, sendEmailChangeVerification } = createEmailService(defaultTransporter);
+const { sendVerificationEmail, sendEmailChangeVerification, sendStockAvailableEmail } = createEmailService(defaultTransporter);
 
 module.exports = {
   sendVerificationEmail,
   sendEmailChangeVerification,
+  sendStockAvailableEmail,
   buildVerificationEmailHtml,
   buildEmailChangeVerificationHtml,
+  buildStockAvailableEmailHtml,
   createEmailService,
 };

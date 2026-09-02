@@ -10,20 +10,21 @@ cloudinary.config({
 // Inyección del cliente cloudinary: permite a los tests sustituirlo por un doble de
 // prueba, igual que createEmailService hace con el transporter de nodemailer.
 function createCloudinaryService(client) {
-  async function uploadAvatar(buffer, userId) {
+  async function uploadImage(buffer, folder) {
     return new Promise((resolve, reject) => {
-      const stream = client.uploader.upload_stream(
-        // Carpeta 'users' ya creada en el dashboard de Cloudinary para volcar ahí
-        // todas las imágenes de usuario (avatares); un subdirectorio por userId
-        // mantiene los assets de cada usuario agrupados dentro de esa carpeta.
-        { folder: `users/${userId}`, resource_type: 'image', overwrite: true },
-        (error, result) => {
-          if (error) return reject(error);
-          return resolve({ url: result.secure_url, publicId: result.public_id });
-        },
-      );
+      const stream = client.uploader.upload_stream({ folder, resource_type: 'image', overwrite: true }, (error, result) => {
+        if (error) return reject(error);
+        return resolve({ url: result.secure_url, publicId: result.public_id });
+      });
       stream.end(buffer);
     });
+  }
+
+  // Carpeta 'users' ya creada en el dashboard de Cloudinary para volcar ahí todas las
+  // imágenes de usuario (avatares); un subdirectorio por userId mantiene los assets de
+  // cada usuario agrupados dentro de esa carpeta.
+  async function uploadAvatar(buffer, userId) {
+    return uploadImage(buffer, `users/${userId}`);
   }
 
   async function deleteAsset(publicId) {
@@ -38,9 +39,9 @@ function createCloudinaryService(client) {
     }
   }
 
-  return { uploadAvatar, deleteAsset };
+  return { uploadImage, uploadAvatar, deleteAsset };
 }
 
-const { uploadAvatar, deleteAsset } = createCloudinaryService(cloudinary);
+const { uploadImage, uploadAvatar, deleteAsset } = createCloudinaryService(cloudinary);
 
-module.exports = { uploadAvatar, deleteAsset, createCloudinaryService };
+module.exports = { uploadImage, uploadAvatar, deleteAsset, createCloudinaryService };
