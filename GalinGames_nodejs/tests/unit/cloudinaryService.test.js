@@ -76,26 +76,4 @@ describe('src/services/cloudinaryService.js', () => {
     await expect(deleteAsset('users/user1/abc')).resolves.toBeUndefined();
     expect(consoleErrorSpy).toHaveBeenCalled();
   });
-
-  it('uploadImage resuelve con url y publicId usando el folder indicado', async () => {
-    const client = buildStreamClient({
-      result: { secure_url: 'https://res.cloudinary.com/demo/games/assassins.jpg', public_id: 'games/assassins/abc' },
-    });
-    const { uploadImage } = createCloudinaryService(client);
-
-    const result = await uploadImage(Buffer.from('fake-image'), 'games/assassins');
-
-    expect(result).toEqual({ url: 'https://res.cloudinary.com/demo/games/assassins.jpg', publicId: 'games/assassins/abc' });
-    expect(client.uploader.upload_stream).toHaveBeenCalledWith(
-      expect.objectContaining({ folder: 'games/assassins', resource_type: 'image', overwrite: true }),
-      expect.any(Function),
-    );
-  });
-
-  it('uploadImage rechaza si Cloudinary devuelve error', async () => {
-    const client = buildStreamClient({ error: new Error('Cloudinary caído') });
-    const { uploadImage } = createCloudinaryService(client);
-
-    await expect(uploadImage(Buffer.from('x'), 'games/assassins')).rejects.toThrow('Cloudinary caído');
-  });
 });

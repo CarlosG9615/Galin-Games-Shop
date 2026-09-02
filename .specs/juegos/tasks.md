@@ -4,19 +4,21 @@
 
 Plan de implementación del catálogo de videojuegos descrito en
 `requirements.md` y `design.md`: modelo de datos `Game`/`GameStockSubscription`,
-endpoints públicos del catálogo bajo `/api/games`, el script de migración
-que sube las imágenes reales a Cloudinary y puebla los 6 juegos, el script
-de mutación de stock (única vía para simular altas de stock y disparar
-notificaciones), el dropdown de plataformas del Navbar, y las dos vistas
+endpoints públicos del catálogo bajo `/api/games` (esta app es solo de
+lectura: no hay ninguna vía de inserción/edición/borrado de juegos ni de
+mutación de `stock`, ni HTTP ni por script CLI, ni Cloudinary),
+`gameStockWatcher.js` (reacciona por MongoDB Change Stream cuando el stock
+cambia fuera de la app, para poder seguir enviando el aviso de
+disponibilidad), el dropdown de plataformas del Navbar, y las dos vistas
 nuevas (Vista de Plataforma y Vista de Detalle del Juego con cabecera
 wallpaper + Sección INFO).
 
 Cada tarea de modelo/servicio/controlador/componente incluye sus tests
 correspondientes, siguiendo la convención ya existente en el repo
 (`GalinGames_nodejs/tests/unit/*`, `*.test.jsx` co-ubicado en frontend). Las
-tareas de la sección "Scripts de datos" son las que te guían paso a paso
-para insertar los juegos e imágenes reales en MongoDB — no requieren tocar
-código más allá de ejecutar el script ya escrito.
+tareas de la sección "Scripts de datos" te guían paso a paso para insertar
+tú mismo los 6 juegos (con sus imágenes en base64) directamente en MongoDB
+vía `mongosh`/Compass — no son código que corra dentro de la app.
 
 Las tareas se ejecutan de una en una vía `/spec-execute`, en el orden que
 respete las dependencias indicadas.
@@ -35,9 +37,9 @@ respete las dependencias indicadas.
 
 ### Backend — Servicios
 
-- [x] 3. Generalizar `GalinGames_nodejs/src/services/cloudinaryService.js`: extraer `uploadImage(buffer, folder)` y reescribir `uploadAvatar` como envoltorio de `uploadImage(buffer, \`users/${userId}\`)`, sin cambiar su comportamiento observable, + actualizar `tests/unit/cloudinaryService.test.js`
+- [ ] ~~3. Generalizar `cloudinaryService.js` con `uploadImage(buffer, folder)`~~ — **eliminada**: los juegos ya no usan Cloudinary (ver `design.md` → Design Decisions, imágenes embebidas en base64 e insertadas a mano). `cloudinaryService.js` queda revertido a su único uso actual, el avatar de usuario, sin ningún cambio de esta feature.
   **Dependencias:** ninguna
-  **Requisitos:** 18.4, 18.5
+  **Requisitos:** — (superada por 18.4, 18.5 en su redacción actual)
 
 - [x] 4. Crear `GalinGames_nodejs/src/utils/platformSlug.js` (`resolvePlatform(slug)` mapeando `pc/playstation/xbox/nintendo` → `PC/PlayStation/Xbox/Nintendo`, `null` si no reconoce el slug), + tests en `tests/unit/platformSlug.test.js`
   **Dependencias:** ninguna
@@ -69,23 +71,31 @@ respete las dependencias indicadas.
   **Dependencias:** Tarea 9
   **Requisitos:** 15
 
-### Backend — Scripts de datos (migración de los 6 juegos)
+### Backend — Scripts de datos (inserción manual de los 6 juegos)
 
-- [ ] 11. **(Manual, guía para ti — PENDIENTE, requiere tus imágenes)** Reunir las imágenes wallpaper de los 6 juegos (descargadas de fuente oficial/verificada) y colocarlas en `GalinGames_nodejs/scripts/assets/wallpapers/<slug>.jpg` (slugs: `assassins-creed-black-flag-resynced`, `blood-of-dawnwalker`, `dragon-ball-sparking-zero`, `ea-sports-fc-27`, `grand-theft-auto-vi`, `marvels-wolverine`); para cualquier juego sin wallpaper todavía, `seedGames.js` (Tarea 12, ya implementado) deja `imagenWallpaper` en `null` automáticamente en vez de reutilizar otra imagen — no se ha fabricado ninguna imagen para completar esta tarea.
+- [x] 11. Reunidas las 6 imágenes wallpaper en `C:\Users\carlo\Downloads\Games\Wallpapers\` (`Assassins-wallpaper.jpg`, `Dawnwalker-wallpaper.jpg`, `dragonball-wallpaper.jpg`, `fc27-wallpaper.jpg`, `gta-wallpaper.jpg`, `wolverine-wallpaper.jpg`). Se generaron 6 sentencias `db.games.updateOne({slug}, {$set:{imagenWallpaper: <base64>}})`, una por juego, en ficheros temporales fuera del repo (nunca comiteados, coherente con que esta app no guarda ninguna lógica de inserción/escritura). El usuario las ejecutó en el MongoDB Shell de Compass y verificó con `db.games.find({}, {imagenWallpaper:1})` que ningún juego se quedó en `null`. Los ficheros temporales se han eliminado tras su uso. Los 6 documentos `Game` de la colección `games` quedan así completos: portada, wallpaper y vídeo de preview reales para los 6 juegos.
   **Dependencias:** ninguna
   **Requisitos:** 18.5, 18.7
 
-- [x] 12. Crear `GalinGames_nodejs/scripts/seedGames.js` (script Node ejecutable con `node scripts/seedGames.js`: para cada uno de los 6 juegos, sube la portada ya existente en `GalinGames_react/public/*.jpg` y, si existe, el wallpaper de la Tarea 11 a Cloudinary vía `cloudinaryService.uploadImage`, y hace `findOneAndUpdate` con `upsert` sobre `Game` con los datos reales fijados en `requirements.md` — fechas de estreno, plataformas, formatos, precios, stock inicial, especificaciones técnicas de PC, `videoPreviewUrl` tal cual sin re-alojar, y una `descripcion`/sinopsis propia de cada juego escrita en el propio script de seed, nunca en un componente o fichero de i18n)
-  **Dependencias:** Tareas 1, 3, 11
-  **Requisitos:** 18.1, 18.2, 18.3, 18.4, 18.6, 18.8, 18.9, 19.1, 19.4
+- [x] 12. Crear `GalinGames_nodejs/scripts/insertGamesManual.mongosh.js`: sentencias `mongosh` (no Node) con los 6 documentos `Game` completos — datos reales fijados en `requirements.md` (fechas de estreno, plataformas, formatos, precios, stock inicial, especificaciones técnicas de PC, características, y una `descripcion`/sinopsis propia de cada juego, nunca en un componente o fichero de i18n) y `imagenPortada` embebida como Data URI base64 leída de `C:\Users\carlo\Downloads\Games\*.jpg`. Cada juego se escribió como un `db.games.updateOne({slug}, {$set: documento}, {upsert:true})` independiente. Eliminó además `assassins.jpg`, `blooddownwalker.jpg`, `dragonball.jpg`, `fc27.jpg`, `gta.jpg` y `wolverine.jpg` de `GalinGames_react/public/` (Requisito 18.10): el frontend ya no sirve estas imágenes desde ahí. **`videoPreviewUrl`** se insertó inicialmente a `null` y se completó después con las 6 URLs reales de `gaming-cdn.com` que diste, vía 6 sentencias `db.games.updateOne({slug}, {$set:{videoPreviewUrl}})` sueltas ejecutadas también en el MongoDB Shell de Compass (Requisito 18.6) — confirmado con `db.games.find({}, {nombre:1, videoPreviewUrl:1})` sin ningún `null`.
+  **Dependencias:** Tarea 1
+  **Requisitos:** 18.1, 18.2, 18.3, 18.4, 18.6, 18.8, 18.9, 18.10, 19.1, 19.4
 
-- [ ] 13. **(PENDIENTE — acción tuya)** Ejecutar `node scripts/seedGames.js` contra la base de datos de desarrollo y verificar en Mongo (p. ej. `mongosh` o Compass) que los 6 documentos `Game` existen con sus datos e imágenes correctos. No se ha ejecutado automáticamente: escribe en tu base de datos real y sube imágenes reales a tu cuenta de Cloudinary (consumo de cuota), y hoy solo subiría 6 portadas — las wallpapers quedarían en `null` hasta completar la Tarea 11. Ejecuta este comando tú mismo cuando quieras (con o sin wallpapers todavía).
+- [x] 13. Ejecutado por el usuario en el "MongoDB Shell" de Compass: los 6 documentos de la colección `games` existen con sus datos e imágenes. **El fichero `insertGamesManual.mongosh.js` se ha eliminado del repositorio tras su ejecución** — ya cumplió su función (migración puntual, no forma parte de la app en marcha) y MongoDB es ahora la única fuente de la verdad para el catálogo. Si en el futuro hace falta corregir o añadir un juego a mano, se escribe una sentencia `db.games.updateOne(...)` nueva directamente en mongosh/Compass; no hace falta recrear este script.
   **Dependencias:** Tarea 12
   **Requisitos:** 18 (verificación)
 
-- [x] 14. Crear `GalinGames_nodejs/scripts/setGameStock.js` (CLI `node scripts/setGameStock.js <slugJuego> <plataforma> <nuevoStock>`: actualiza el stock de esa combinación con `findOneAndUpdate` + `$` posicional de forma atómica, y si el stock pasa de 0 a mayor que 0 llama a `gameStockService.notifySubscribers`)
+- [x] ~~14. Crear `GalinGames_nodejs/scripts/setGameStock.js` (CLI para mutar stock)~~ — **eliminada**: esta app no tiene ninguna vía para mutar `stock` (ver `requirements.md` → Introduction/Requisito 13.6). Sustituida por la Tarea 14a.
+  **Dependencias:** —
+  **Requisitos:** — (superada por 13.6, 14.5 en su redacción actual)
+
+- [x] 14a. Crear `GalinGames_nodejs/src/services/gameStockWatcher.js` (`start()`: abre `Game.watch([...], { fullDocument: 'updateLookup' })`; en cada evento `change`, recorre `plataformas` del documento actualizado y llama a `gameStockService.notifySubscribers(gameId, plataforma)` para cada combinación con `stock > 0` — no compara "antes" con "después", `notifySubscribers` ya es un no-op sin suscripciones pendientes; `stop()`: cierra el change stream), + tests en `tests/unit/gameStockWatcher.test.js`. Se invoca desde `server.js` al arrancar, dentro de un `try/catch` no fatal (si MongoDB no es replica set, el catálogo de lectura sigue funcionando).
   **Dependencias:** Tareas 1, 6
-  **Requisitos:** 14.5, 18
+  **Requisitos:** 13.6, 14.5
+
+- [x] 14b. Convertido el MongoDB local a replica set de 1 nodo (`replSetName: rs0` en `mongod.cfg`, servicio reiniciado, `rs.initiate()` ejecutado — confirmado primario elegido con `db.hello().isWritablePrimary`), y `MONGODB_URI` actualizada en `.env` con `?replicaSet=rs0`. Verificado arrancando `server.js`: conecta a Mongo y no registra el aviso de "no se pudo iniciar gameStockWatcher" — el Change Stream se abre correctamente.
+  **Dependencias:** Tarea 14a
+  **Requisitos:** 14.5
 
 ### Frontend — Infraestructura
 
@@ -141,9 +151,9 @@ respete las dependencias indicadas.
   **Dependencias:** Tarea 16
   **Requisitos:** 10.1, 10.2, 10.3
 
-- [ ] 26. Crear `GalinGames_react/src/Componentes/zonaJuegos/DetalleJuegoComponente/components/CabeceraJuego/CabeceraJuego.jsx` (wallpaper de ancho completo con fondo de respaldo si falta, altura estable, div portada a la izquierda, div derecho con select de plataforma, chip de stock, precio y control Comprar/Reservar/Avisarme según `estrenado`+`stock`, nunca "Comprar" si no está estrenado, llamada a `gameService.suscribirNotificacion` con redirect a login si no autenticado), + tests
+- [ ] 26. Crear `GalinGames_react/src/Componentes/zonaJuegos/DetalleJuegoComponente/components/CabeceraJuego/CabeceraJuego.jsx` (wallpaper de ancho completo con fondo de respaldo si falta, altura estable, imagen wallpaper recortada tipo banner ancho/poco alto vía `background-size: cover` + `background-position: center` — las imágenes reales no vienen pre-recortadas a ese formato, Requisito 7.6 —, div portada a la izquierda, div derecho con select de plataforma, chip de stock, precio y control Comprar/Reservar/Avisarme según `estrenado`+`stock`, nunca "Comprar" si no está estrenado, llamada a `gameService.suscribirNotificacion` con redirect a login si no autenticado), + tests
   **Dependencias:** Tareas 15, 16
-  **Requisitos:** 7.1, 7.2, 7.4, 7.5, 9.1, 9.2, 11.3, 11.4, 12.1, 12.2, 12.3, 12.4, 12.5, 13.1, 13.2, 13.3, 16.3
+  **Requisitos:** 7.1, 7.2, 7.4, 7.5, 7.6, 9.1, 9.2, 11.3, 11.4, 12.1, 12.2, 12.3, 12.4, 12.5, 13.1, 13.2, 13.3, 16.3
 
 - [ ] 27. Crear `GalinGames_react/src/Componentes/zonaJuegos/DetalleJuegoComponente/components/SeccionInfo/SeccionInfo.jsx` (contenedor bajo la cabecera, sobre fondo normal: pinta el texto de `juego.descripcion` recibido del backend tal cual, sin ningún texto de juego hardcodeado en el componente, y agrupa `EspecificacionesTecnicas` + `CaracteristicasJuego`), + tests
   **Dependencias:** Tareas 24, 25
@@ -166,20 +176,20 @@ flowchart TD
     subgraph Backend
         T1[1 Game model] --> T7[7 gameController lectura]
         T1 --> T8[8 gameController notificarme]
-        T1 --> T12[12 seedGames.js]
-        T1 --> T14[14 setGameStock.js]
+        T1 --> T12[12 insertGamesManual.mongosh.js]
+        T1 --> T14a[14a gameStockWatcher.js]
         T2[2 GameStockSubscription] --> T6[6 gameStockService]
         T2 --> T8
-        T3[3 cloudinaryService.uploadImage] --> T12
         T4[4 platformSlug] --> T7
         T4 --> T8
         T5[5 emailService ext] --> T6
-        T6 --> T14
+        T6 --> T14a
         T7 --> T9[9 game.routes]
         T8 --> T9
         T9 --> T10[10 server.js wiring]
         T11[11 wallpapers manual] --> T12
-        T12 --> T13[13 ejecutar seed]
+        T12 --> T13[13 ejecutar migración manual]
+        T14a --> T14b[14b replica set local, manual]
     end
 
     subgraph Frontend
@@ -213,10 +223,10 @@ flowchart TD
 ## Orden de ejecución sugerido (waves)
 
 1. **Backend modelos**: 1, 2
-2. **Backend servicios**: 3, 4, 5, 6
+2. **Backend servicios**: 4, 5, 6
 3. **Backend controlador y rutas**: 7, 8, 9
 4. **Backend wiring**: 10
-5. **Backend scripts de datos**: 11, 12, 13, 14
+5. **Backend scripts de datos / watcher reactivo**: 11, 12, 13, 14a, 14b
 6. **Frontend infraestructura**: 15, 16, 17, 18
 7. **Frontend Navbar**: 19, 20
 8. **Frontend Home**: 21, 22
@@ -240,12 +250,12 @@ flowchart TD
 | 10. Especificaciones técnicas por plataforma | 7, 25 |
 | 11. Formato físico/digital según plataforma | 1, 7, 26 |
 | 12. Chip de stock y control de acción condicional | 26 |
-| 13. Suscripción a aviso de stock | 2, 5, 6, 8, 26, 27 |
-| 14. Modelo de datos del juego | 1, 2, 7, 14 |
+| 13. Suscripción a aviso de stock | 2, 5, 6, 8, 14a, 14b, 26, 27 |
+| 14. Modelo de datos del juego | 1, 2, 7, 14b |
 | 15. Endpoints públicos del catálogo | 7, 8, 9, 10 |
 | 16. Reglas de fecha de estreno | 1, 7, 26 |
 | 17. Internacionalización | 16 |
-| 18. Migración de imágenes y datos reales | 3, 11, 12, 13, 14 |
+| 18. Datos reales de los 6 juegos, insertados manualmente | 11, 12, 13 |
 | 19. Todo el contenido del juego proviene de MongoDB | 1, 7, 12, 27 |
 
 Los 19 requisitos de `requirements.md` y todos los componentes de

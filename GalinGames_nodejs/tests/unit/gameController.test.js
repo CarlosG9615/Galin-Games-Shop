@@ -49,8 +49,13 @@ function gameDoc(overrides = {}) {
 
 describe('gameController.listDestacados', () => {
   it('devuelve la proyección reducida con plataforma/precio según plataformaDestacada', async () => {
+    const select = vi.fn();
+    const sort = vi.fn();
+    const limit = vi.fn().mockResolvedValueOnce([gameDoc()]);
+    select.mockReturnValue({ sort });
+    sort.mockReturnValue({ limit });
     const { controller, Game } = buildController({
-      Game: { find: vi.fn().mockReturnValue({ select: vi.fn().mockResolvedValueOnce([gameDoc()]) }) },
+      Game: { find: vi.fn().mockReturnValue({ select }) },
     });
 
     const req = {};
@@ -60,6 +65,7 @@ describe('gameController.listDestacados', () => {
     await controller.listDestacados(req, res, next);
 
     expect(Game.find).toHaveBeenCalledWith({ plataformaDestacada: { $ne: null } });
+    expect(limit).toHaveBeenCalledWith(6);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith([
       {

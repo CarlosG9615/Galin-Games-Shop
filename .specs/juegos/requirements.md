@@ -17,8 +17,8 @@ wallpaper, vídeo de preview, plataformas disponibles con su formato
 físico/digital, precio, stock, especificaciones técnicas y características
 generales), las reglas de negocio de fecha de estreno (compra vs. reserva) y
 de stock (compra vs. aviso por email cuando vuelva a haber disponibilidad,
-reutilizando `emailService.js`), la migración a Cloudinary de las imágenes y
-wallpapers del catálogo, y los datos reales de los 6 juegos que hoy están
+reutilizando `emailService.js`), la inserción manual en MongoDB (con sus
+imágenes embebidas en base64, sin Cloudinary) de los datos reales de los 6 juegos que hoy están
 hardcodeados en el Home: Assassin's Creed Black Flag Resynced, The Blood of
 Dawnwalker, Dragon Ball: Sparking! Zero, EA Sports FC 27, Grand Theft Auto VI
 y Marvel's Wolverine.
@@ -28,9 +28,17 @@ compra/checkout, la gestión de reservas como transacción, y cualquier panel
 de administración completo para gestionar el catálogo. Los controles de
 "Comprar" y "Reservar" quedan preparados a nivel de UI (visibles, con la
 lógica de qué botón mostrar ya resuelta) pero sin ejecutar ningún pedido
-real. Para poder probar el flujo de aviso de stock se habilita el mínimo
-mecanismo necesario para modificar el stock de un juego (ver Requisito 18),
-sin que esto constituya un panel de administración.
+real.
+
+**Esta aplicación (cara cliente) no contiene ninguna vía para mutar el
+`stock` de un juego** — ni endpoint HTTP ni script de línea de comandos: es
+exclusivamente de lectura sobre la colección `games`. El stock se modifica
+siempre fuera de esta app (hoy, a mano en MongoDB Compass para probar el
+flujo de aviso; en el futuro, desde la aplicación de administración con
+roles que gestione el equipo editorial). Para que el aviso por email
+(Requisito 13.4) siga funcionando sin que esta app escriba en `stock`, el
+backend reacciona a esos cambios externos mediante un MongoDB Change Stream
+(Requisito 13.6) en lugar de ser quien los provoca.
 
 ## Glossary
 
@@ -263,6 +271,12 @@ vistazo.
 5. IF el juego no tiene imagen wallpaper todavía cargada THEN el sistema
    DEBERÁ mostrar un fondo de respaldo (color/degradado del tema) en la
    cabecera en lugar de un hueco vacío o una imagen rota.
+6. THE imagen wallpaper SHALL mostrarse recortada/ajustada a un formato
+   ancho y de poca altura, propio de una cabecera tipo banner (p. ej. CSS
+   `background-size: cover` con `background-position: center`),
+   independientemente de las proporciones originales de la imagen fuente —
+   las imágenes reales de los 6 juegos no vienen pre-recortadas a ese
+   formato.
 
 ### Requisito 8: Características del juego en la Sección INFO
 
@@ -403,6 +417,14 @@ cada cierto tiempo.
    o eliminarla, de forma que no se vuelva a notificar al mismo usuario por
    la misma combinación juego+plataforma en el futuro (salvo que se vuelva a
    agotar y se suscriba de nuevo).
+6. THE backend SHALL detectar la transición de stock del Criterio 13.4
+   observando la colección `games` con un MongoDB Change Stream, nunca
+   mutando `stock` desde esta aplicación — ni por un endpoint HTTP ni por un
+   script de línea de comandos. THE mecanismo SHALL reaccionar igual sin
+   importar quién haya modificado el stock (edición manual en MongoDB
+   Compass durante el desarrollo, o la futura aplicación de administración),
+   de forma que no haga falta ningún cambio en esta app cuando esa segunda
+   aplicación exista.
 
 ### Requisito 14: Modelo de datos del juego en MongoDB
 
@@ -431,11 +453,11 @@ de estreno y stock.
    `Address.js`.
 4. THE backend SHALL validar, a nivel de schema, que el precio y el stock de
    cada plataforma sean valores numéricos no negativos.
-5. WHEN se actualiza el stock de una combinación juego+plataforma THEN el
-   sistema DEBERÁ realizar la actualización mediante una operación atómica
-   (`findOneAndUpdate` con `$inc` o condición equivalente) en lugar de una
-   transacción multi-documento, dado que el entorno de MongoDB de desarrollo
-   no dispone de replica set.
+5. THE entorno de MongoDB de desarrollo SHALL correr como replica set (un
+   único nodo es suficiente) para que el Change Stream del Requisito 13.6
+   pueda abrirse — los Change Streams no funcionan sobre un servidor
+   standalone. Esta app no realiza ninguna escritura sobre `stock`, así que
+   no necesita transacciones multi-documento propias.
 6. THE campo de características generales SHALL incluir, como mínimo:
    jugadores (mínimo/máximo o un valor "un jugador"/"multijugador"), online
    (booleano), crossplay (booleano), HDR (booleano) y una lista de mandos
@@ -506,61 +528,69 @@ en español e inglés.
 3. THE clave existente `navbar.linkJuegos` SHALL reutilizarse como texto del
    enlace "Juegos" del dropdown, sin duplicarla.
 
-### Requisito 18: Migración de imágenes y datos reales de los 6 juegos existentes
+### Requisito 18: Datos reales de los 6 juegos existentes, insertados manualmente en MongoDB
 
 **User Story:** Como equipo de desarrollo, quiero poblar la colección de
 juegos con datos e imágenes reales de los 6 títulos que hoy están
-hardcodeados en el Home, migrando sus imágenes a Cloudinary, para que la
-migración a datos dinámicos no pierda contenido y refleje casos reales de
-estreno/stock.
+hardcodeados en el Home, insertando los documentos directamente en MongoDB
+(sin ningún endpoint ni script HTTP de escritura), para que la migración a
+datos dinámicos no pierda contenido y refleje casos reales de estreno/stock.
+
+Esta aplicación (cara cliente de la tienda) SHALL limitarse a leer la
+colección `games` (peticiones GET); no SHALL incluir ninguna lógica de
+inserción, edición o borrado de juegos vía Cloudinary, HTTP ni Mongoose. La
+gestión de contenido (alta/baja/edición de juegos por parte de un equipo
+editorial) queda fuera de alcance de esta spec y se resolverá en una futura
+aplicación de administración con roles.
 
 #### Criterios de Aceptación
 
-1. THE seed de datos SHALL incluir los 6 juegos siguientes con su fecha de
-   estreno real y sus plataformas reales: Assassin's Creed Black Flag
+1. LOS 6 documentos `Game` SHALL incluir los siguientes juegos con su fecha
+   de estreno real y sus plataformas reales: Assassin's Creed Black Flag
    Resynced (9 jul 2026; PC, PlayStation, Xbox), The Blood of Dawnwalker (3
    sep 2026; PC, PlayStation, Xbox), Dragon Ball: Sparking! Zero (11 oct
    2024; PC, PlayStation, Xbox, Nintendo), EA Sports FC 27 (25 sep 2026; PC,
    PlayStation, Xbox, Nintendo), Grand Theft Auto VI (19 nov 2026;
    PlayStation, Xbox) y Marvel's Wolverine (15 sep 2026; PlayStation).
-2. THE seed SHALL marcar como "con stock" (mayor que 0 en todas sus
+2. LOS documentos SHALL marcar como "con stock" (mayor que 0 en todas sus
    plataformas) el juego Assassin's Creed Black Flag Resynced, y como "sin
    stock" (0 en todas sus plataformas) el juego Dragon Ball: Sparking! Zero,
    siendo ambos los únicos juegos ya estrenados del conjunto a fecha de
    creación de esta spec.
-3. THE seed SHALL marcar con stock pendiente de entrar (0, a la espera del
-   estreno) las plataformas de los 4 juegos en preventa: The Blood of
+3. LOS documentos SHALL marcar con stock pendiente de entrar (0, a la espera
+   del estreno) las plataformas de los 4 juegos en preventa: The Blood of
    Dawnwalker, EA Sports FC 27, Grand Theft Auto VI y Marvel's Wolverine.
-4. THE seed SHALL migrar a Cloudinary, siguiendo el mismo patrón de subida ya
-   usado para `avatarUrl`/`avatarPublicId` de `User`, las imágenes de
-   portada de los 6 juegos que hoy existen como ficheros estáticos en
-   `GalinGames_react/public/` (`assassins.jpg`, `blooddownwalker.jpg`,
-   `dragonball.jpg`, `fc27.jpg`, `gta.jpg`, `wolverine.jpg`), almacenando la
-   URL segura resultante de Cloudinary en el campo de imagen de portada de
-   cada documento `Game`, en lugar de servir la imagen desde una ruta
-   estática del frontend.
-5. WHEN se disponga de una imagen wallpaper descargada para un juego (de una
-   fuente oficial o verificada por el usuario) THEN el sistema DEBERÁ
-   subirla también a Cloudinary antes de guardar su URL en el campo
-   wallpaper del documento `Game` correspondiente.
-6. THE seed SHALL usar directamente las URLs de vídeo de preview ya
-   proporcionadas (alojadas externamente) en el campo de vídeo de cada
-   documento `Game`, sin necesidad de descargarlas ni volver a subirlas a
-   Cloudinary.
-7. IF, al preparar el seed, no se dispone todavía de una imagen wallpaper
-   propia para alguno de los 6 juegos THEN el sistema DEBERÁ dejar ese campo
-   pendiente de forma explícita (documentado en `tasks.md`) en lugar de
-   inventar o reutilizar una imagen no verificada por el usuario, y el
-   equipo de desarrollo DEBERÁ solicitar dicha imagen antes de dar el seed
-   por completo.
-8. THE especificaciones técnicas de PC del seed SHALL corresponder a los
-   requisitos mínimos y recomendados reales investigados para cada juego con
-   versión de PC (todos salvo Grand Theft Auto VI y Marvel's Wolverine, que
-   no tienen versión de PC anunciada).
-9. THE procedimiento de migración de imágenes SHALL documentarse paso a paso
-   en `tasks.md`, indicando exactamente qué comando o script ejecutar y qué
-   archivo local o URL proporcionar en cada caso, de forma que el usuario
-   pueda completarlo sin tener que interpretar código.
+4. LAS imágenes de portada de los 6 juegos (disponibles como ficheros locales
+   en `C:\Users\carlo\Downloads\Games\`: `assassins.jpg`,
+   `blooddownwalker.jpg`, `dragonball.jpg`, `fc27.jpg`, `gta.jpg`,
+   `wolverine.jpg`) SHALL almacenarse embebidas como cadena base64 (Data URI
+   `data:image/jpeg;base64,...`) directamente en el campo `imagenPortada` de
+   cada documento `Game`, sin subirlas a Cloudinary ni a ningún otro CDN
+   externo — no hay lógica de subida de imágenes en esta feature.
+5. WHEN se disponga de una imagen wallpaper verificada para un juego THEN
+   SHALL almacenarse de la misma forma, embebida como base64 en el campo
+   `imagenWallpaper` de su documento `Game`.
+6. THE campo de vídeo de preview de cada documento `Game` SHALL usar
+   directamente las URLs de vídeo de preview ya proporcionadas (alojadas
+   externamente), sin necesidad de descargarlas ni re-alojarlas.
+7. IF, al preparar los datos, no se dispone todavía de una imagen wallpaper
+   propia para alguno de los 6 juegos THEN el campo `imagenWallpaper` de ese
+   juego DEBERÁ dejarse en `null` de forma explícita en lugar de inventar o
+   reutilizar una imagen no verificada por el usuario, y el equipo de
+   desarrollo DEBERÁ solicitar dicha imagen antes de dar los datos por
+   completos.
+8. LAS especificaciones técnicas de PC de cada documento SHALL corresponder a
+   los requisitos mínimos y recomendados reales investigados para cada juego
+   con versión de PC (todos salvo Grand Theft Auto VI y Marvel's Wolverine,
+   que no tienen versión de PC anunciada).
+9. EL procedimiento de inserción manual de los 6 juegos SHALL documentarse
+   paso a paso en `tasks.md`, indicando exactamente qué sentencia ejecutar en
+   `mongosh`/MongoDB Compass, de forma que el usuario pueda completarlo sin
+   tener que interpretar código Node/Mongoose.
+10. THE carpeta `GalinGames_react/public/` SHALL NOT contener los ficheros de
+    imagen de portada de los 6 juegos: al no servirse ya desde el frontend
+    (Criterio 18.4), esos ficheros se eliminan del proyecto de la tienda una
+    vez migrados sus datos.
 
 ### Requisito 19: Todo el contenido de cada juego proviene de MongoDB
 

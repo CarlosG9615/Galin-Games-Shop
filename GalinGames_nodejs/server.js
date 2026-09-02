@@ -9,6 +9,7 @@ const authRoutes = require('./src/routes/auth.routes');
 const userRoutes = require('./src/routes/user.routes');
 const addressRoutes = require('./src/routes/address.routes');
 const gameRoutes = require('./src/routes/game.routes');
+const gameStockWatcher = require('./src/services/gameStockWatcher');
 const globalErrorHandler = require('./src/middleware/globalErrorHandler');
 const AppError = require('./src/utils/AppError');
 
@@ -58,6 +59,16 @@ app.use(globalErrorHandler);
 
 async function start() {
   await connectDB();
+
+  // No fatal: si MongoDB todavía no corre como replica set, los Change Streams no
+  // están disponibles (design.md → Design Decisions). El catálogo (peticiones GET)
+  // debe seguir funcionando igualmente; solo se pierde el aviso automático de stock.
+  try {
+    gameStockWatcher.start();
+  } catch (err) {
+    console.error('[Server] No se pudo iniciar gameStockWatcher (¿MongoDB no es un replica set?):', err.message);
+  }
+
   app.listen(env.PORT, () => {
     console.log(`[Server] Escuchando en el puerto ${env.PORT}`);
   });

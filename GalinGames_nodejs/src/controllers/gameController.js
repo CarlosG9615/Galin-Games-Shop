@@ -12,7 +12,13 @@ const LISTADO_SELECT = 'nombre slug imagenPortada plataformaDestacada plataforma
 function createGameController({ Game, GameStockSubscription }) {
   async function listDestacados(req, res, next) {
     try {
-      const games = await Game.find({ plataformaDestacada: { $ne: null } }).select(LISTADO_SELECT);
+      // .limit(6) hace cumplir el Requisito 2.2 ("exactamente 6 tarjetas") de forma
+      // robusta según crezca el catálogo — no depende de que existan exactamente 6
+      // documentos con plataformaDestacada asignada en un momento dado.
+      const games = await Game.find({ plataformaDestacada: { $ne: null } })
+        .select(LISTADO_SELECT)
+        .sort({ createdAt: 1 })
+        .limit(6);
 
       const destacados = games.map((game) => {
         const disponibilidad = game.plataformas.find((p) => p.plataforma === game.plataformaDestacada);
