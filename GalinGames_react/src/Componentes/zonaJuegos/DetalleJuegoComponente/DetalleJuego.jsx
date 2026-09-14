@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import Navbar from '../../compGlobales/NavbarComponente/Navbar'
 import CabeceraJuego from './components/CabeceraJuego/CabeceraJuego'
 import SeccionInfo from './components/SeccionInfo/SeccionInfo'
 import { gameService } from '../../../servicios/gameService'
@@ -54,35 +55,39 @@ function DetalleJuego() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
+  let contenido
   if (loading) {
-    return <p className="texto-tema" role="status">{t('common.loading')}</p>
-  }
+    contenido = <p className="texto-tema" role="status">{t('common.loading')}</p>
+  } else if (notFound) {
+    contenido = <p className="texto-tema" role="status">{t('juegos.noEncontrado')}</p>
+  } else if (error || !juego || !plataformaSeleccionada) {
+    contenido = <p className="texto-tema" role="alert">{t('juegos.errorCarga')}</p>
+  } else {
+    const disponibilidad = juego.plataformas.find((p) => p.plataforma === plataformaSeleccionada)
 
-  if (notFound) {
-    return <p className="texto-tema" role="status">{t('juegos.noEncontrado')}</p>
+    contenido = (
+      <>
+        <CabeceraJuego
+          juego={juego}
+          plataformaSeleccionada={plataformaSeleccionada}
+          onCambiarPlataforma={setPlataformaSeleccionada}
+        />
+        <SeccionInfo
+          descripcion={juego.descripcion}
+          plataforma={plataformaSeleccionada}
+          especificacionesPC={disponibilidad?.especificacionesPC}
+          especificacionesConsola={disponibilidad?.especificacionesConsola}
+          caracteristicas={juego.caracteristicas}
+        />
+      </>
+    )
   }
-
-  if (error || !juego || !plataformaSeleccionada) {
-    return <p className="texto-tema" role="alert">{t('juegos.errorCarga')}</p>
-  }
-
-  const disponibilidad = juego.plataformas.find((p) => p.plataforma === plataformaSeleccionada)
 
   return (
-    <div className="detalle-juego">
-      <CabeceraJuego
-        juego={juego}
-        plataformaSeleccionada={plataformaSeleccionada}
-        onCambiarPlataforma={setPlataformaSeleccionada}
-      />
-      <SeccionInfo
-        descripcion={juego.descripcion}
-        plataforma={plataformaSeleccionada}
-        especificacionesPC={disponibilidad?.especificacionesPC}
-        especificacionesConsola={disponibilidad?.especificacionesConsola}
-        caracteristicas={juego.caracteristicas}
-      />
-    </div>
+    <>
+      <Navbar />
+      <main className="detalle-juego">{contenido}</main>
+    </>
   )
 }
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { AuthContext } from '../../../../../globalState/authContext'
@@ -23,21 +23,32 @@ function juegoDeEjemplo(overrides = {}) {
     plataformas: [
       { plataforma: 'PC', formatos: ['digital'], precio: 69.99, stock: 5 },
       { plataforma: 'PlayStation', formatos: ['fisico', 'digital'], precio: 69.99, stock: 0 },
+      { plataforma: 'Xbox', formatos: ['fisico', 'digital'], precio: 59.99, stock: 2 },
     ],
     ...overrides,
   }
 }
 
-function renderCabecera({ juego = juegoDeEjemplo(), plataformaSeleccionada = 'PC', onCambiarPlataforma = vi.fn(), isAuthenticated = true } = {}) {
-  return render(
+function arbol({ juego, plataformaSeleccionada, onCambiarPlataforma, isAuthenticated }) {
+  return (
     <MemoryRouter>
       <LanguageProvider>
         <AuthContext.Provider value={{ isAuthenticated, initializing: false }}>
           <CabeceraJuego juego={juego} plataformaSeleccionada={plataformaSeleccionada} onCambiarPlataforma={onCambiarPlataforma} />
         </AuthContext.Provider>
       </LanguageProvider>
-    </MemoryRouter>,
+    </MemoryRouter>
   )
+}
+
+function renderCabecera({ juego = juegoDeEjemplo(), plataformaSeleccionada = 'PC', onCambiarPlataforma = vi.fn(), isAuthenticated = true } = {}) {
+  const utils = render(arbol({ juego, plataformaSeleccionada, onCambiarPlataforma, isAuthenticated }))
+  return {
+    ...utils,
+    rerenderCon: (nuevaPlataforma) => utils.rerender(
+      arbol({ juego, plataformaSeleccionada: nuevaPlataforma, onCambiarPlataforma, isAuthenticated }),
+    ),
+  }
 }
 
 describe('CabeceraJuego', () => {
@@ -54,16 +65,71 @@ describe('CabeceraJuego', () => {
     expect(screen.getByText(/69,99.€/)).toBeInTheDocument()
   })
 
-  it('en PC muestra "Digital" como formato', () => {
-    renderCabecera({ plataformaSeleccionada: 'PC' })
+  it('el icono de favoritos empieza inactivo y cambia de estado (aria-pressed) al pulsarlo', async () => {
+    const user = userEvent.setup()
+    renderCabecera()
 
-    expect(screen.getByText('Digital')).toBeInTheDocument()
+    const botonFavorito = screen.getByRole('button', { name: 'Añadir a favoritos' })
+    expect(botonFavorito).toHaveAttribute('aria-pressed', 'false')
+
+    await user.click(botonFavorito)
+
+    expect(screen.getByRole('button', { name: 'Quitar de favoritos' })).toHaveAttribute('aria-pressed', 'true')
+
+    await user.click(screen.getByRole('button', { name: 'Quitar de favoritos' }))
+
+    expect(screen.getByRole('button', { name: 'Añadir a favoritos' })).toHaveAttribute('aria-pressed', 'false')
   })
 
-  it('con ambos formatos disponibles, muestra "Físico y digital"', () => {
-    renderCabecera({ plataformaSeleccionada: 'PlayStation' })
+  it('el chip resume la plataforma, el stock y el formato seleccionados', () => {
+    const { container } = renderCabecera({ plataformaSeleccionada: 'PC' })
 
-    expect(screen.getByText('Físico y digital')).toBeInTheDocument()
+    const chip = container.querySelector('.cabecera-juego__chip')
+    expect(within(chip).getByText('PC')).toBeInTheDocument()
+    expect(within(chip).getByText('En stock')).toBeInTheDocument()
+    expect(within(chip).getByText('Digital')).toBeInTheDocument()
+  })
+
+  it('en PC (un único formato) el select de formato aparece deshabilitado, fijo en la única versión disponible', () => {
+    renderCabecera({ plataformaSeleccionada: 'PC' })
+
+    const selectFormato = screen.getByLabelText('Formato')
+    expect(selectFormato).toBeDisabled()
+    expect(selectFormato).toHaveValue('digital')
+    expect(within(selectFormato).getAllByRole('option')).toHaveLength(1)
+  })
+
+  it('con físico y digital disponibles, el select de formato permite elegir y el chip refleja el cambio', async () => {
+    const user = userEvent.setup()
+    const { container } = renderCabecera({ plataformaSeleccionada: 'PlayStation' })
+
+    const selectFormato = screen.getByLabelText('Formato')
+    expect(selectFormato).not.toBeDisabled()
+    expect(selectFormato).toHaveValue('fisico')
+
+    const chip = container.querySelector('.cabecera-juego__chip')
+    expect(within(chip).getByText('Físico')).toBeInTheDocument()
+
+    await user.selectOptions(selectFormato, 'digital')
+
+    expect(selectFormato).toHaveValue('digital')
+    expect(within(chip).getByText('Digital')).toBeInTheDocument()
+    expect(within(chip).queryByText('Físico')).not.toBeInTheDocument()
+  })
+
+  it('al cambiar de plataforma, el formato seleccionado se reinicia a la primera opción disponible de la nueva plataforma', async () => {
+    const user = userEvent.setup()
+    const { rerenderCon } = renderCabecera({ plataformaSeleccionada: 'PlayStation' })
+
+    await user.selectOptions(screen.getByLabelText('Formato'), 'digital')
+    expect(screen.getByLabelText('Formato')).toHaveValue('digital')
+
+    // Xbox también tiene ambos formatos, pero el reinicio debe volver a "fisico" (el
+    // primero de sus formatos), no arrastrar el "digital" elegido en PlayStation.
+    rerenderCon('Xbox')
+
+    expect(screen.getByLabelText('Formato')).toHaveValue('fisico')
+    expect(screen.getByLabelText('Formato')).not.toBeDisabled()
   })
 
   it('con stock > 0 en un juego estrenado, muestra el chip "En stock" y el botón "Comprar"', () => {
@@ -133,5 +199,17 @@ describe('CabeceraJuego', () => {
     const { container } = renderCabecera({ juego: juegoDeEjemplo({ imagenWallpaper: null }) })
 
     expect(container.querySelector('.cabecera-juego--sin-wallpaper')).not.toBeNull()
+  })
+
+  it('pinta el breadcrumb sobre el propio wallpaper, con la plataforma seleccionada', () => {
+    const { container } = renderCabecera({ plataformaSeleccionada: 'PlayStation' })
+
+    const breadcrumb = screen.getByRole('navigation', { name: 'Ruta de navegación' })
+    // Dentro de .cabecera-juego__overlay (la capa sobre el wallpaper), no en un
+    // contenedor aparte con el fondo normal de la página.
+    expect(container.querySelector('.cabecera-juego__overlay')).toContainElement(breadcrumb)
+    expect(within(breadcrumb).getByRole('link', { name: 'Inicio' })).toHaveAttribute('href', '/')
+    expect(within(breadcrumb).getByRole('link', { name: 'PlayStation' })).toHaveAttribute('href', '/juegos/playstation')
+    expect(within(breadcrumb).getByText("Assassin's Creed Black Flag Resynced")).toHaveAttribute('aria-current', 'page')
   })
 })

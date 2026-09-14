@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { AuthContext } from '../../../globalState/authContext'
+import { ThemeProvider } from '../../../globalState/themeContext'
 import { LanguageProvider } from '../../../globalState/languageContext'
 import { gameService } from '../../../servicios/gameService'
 import DetalleJuego from './DetalleJuego'
@@ -39,11 +40,13 @@ function renderDetalleJuego(url = '/juegos/detalle/juego-1') {
   return render(
     <MemoryRouter initialEntries={[url]}>
       <LanguageProvider>
-        <AuthContext.Provider value={{ isAuthenticated: true, initializing: false }}>
-          <Routes>
-            <Route path="/juegos/detalle/:id" element={<DetalleJuego />} />
-          </Routes>
-        </AuthContext.Provider>
+        <ThemeProvider>
+          <AuthContext.Provider value={{ isAuthenticated: true, initializing: false }}>
+            <Routes>
+              <Route path="/juegos/detalle/:id" element={<DetalleJuego />} />
+            </Routes>
+          </AuthContext.Provider>
+        </ThemeProvider>
       </LanguageProvider>
     </MemoryRouter>,
   )
@@ -81,6 +84,23 @@ describe('DetalleJuego', () => {
 
     expect(await screen.findByRole('heading', { name: "Assassin's Creed Black Flag Resynced" })).toBeInTheDocument()
     expect(screen.getByText('Sinopsis real del juego.')).toBeInTheDocument()
+  })
+
+  it('muestra el Navbar arriba y, sobre el wallpaper de la Cabecera, un breadcrumb con la ruta hasta el juego', async () => {
+    gameService.getJuegoPorId.mockResolvedValue({ ok: true, data: juegoDeEjemplo() })
+    renderDetalleJuego('/juegos/detalle/juego-1?plataforma=PlayStation')
+
+    expect(screen.getByRole('navigation', { name: 'Navegación principal' })).toBeInTheDocument()
+
+    await screen.findByRole('heading', { name: "Assassin's Creed Black Flag Resynced" })
+
+    const breadcrumb = screen.getByRole('navigation', { name: 'Ruta de navegación' })
+    expect(breadcrumb).toBeInTheDocument()
+    expect(within(breadcrumb).getByRole('link', { name: 'Inicio' })).toHaveAttribute('href', '/')
+    expect(within(breadcrumb).getByRole('link', { name: 'PlayStation' })).toHaveAttribute('href', '/juegos/playstation')
+    expect(within(breadcrumb).getByText('Juegos')).toBeInTheDocument()
+    const actual = within(breadcrumb).getByText("Assassin's Creed Black Flag Resynced")
+    expect(actual).toHaveAttribute('aria-current', 'page')
   })
 
   it('preselecciona la plataforma del query param si es válida para el juego', async () => {

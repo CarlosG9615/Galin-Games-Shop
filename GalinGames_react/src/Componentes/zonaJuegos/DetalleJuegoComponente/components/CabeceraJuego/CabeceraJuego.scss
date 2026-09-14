@@ -1,9 +1,16 @@
+@use '../../../../../styles/mixins' as *;
+
 // Altura estable (Requisito 7.4): fija en todos los anchos, no depende del contenido
 // del div derecho ni de la longitud del nombre del juego.
 $cabecera-juego-alto: 420px;
 
 .cabecera-juego {
   position: relative;
+  // Por encima de SeccionInfo (elemento normal, sin z-index): los paneles de imagen
+  // y datos se desplazan por debajo del borde inferior de esta cabecera (ver
+  // &__panel) y necesitan pintarse encima del fondo normal de la página que empieza
+  // justo ahí, no debajo.
+  z-index: 2;
   width: 100%;
   height: $cabecera-juego-alto;
   background-color: var(--color-fondo-elevado);
@@ -20,48 +27,162 @@ $cabecera-juego-alto: 420px;
     position: absolute;
     inset: 0;
     display: flex;
+    flex-direction: column;
+    padding: 1.25rem 1.5rem 2rem;
+    // Viñeta en ambos extremos (no solo abajo): el breadcrumb vive arriba, la fila
+    // portada+derecha abajo, y las dos necesitan contraste legible sobre una
+    // fotografía de fondo variable — la franja central se deja más clara para que el
+    // wallpaper en sí siga siendo protagonista, no un fondo tapado por completo.
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.1) 30%,
+      rgba(0, 0, 0, 0.15) 55%,
+      rgba(0, 0, 0, 0.78) 100%
+    );
+  }
+
+  // Mismo componente genérico que usa VistaPlataforma.jsx (Breadcrumb.scss), pero aquí
+  // pintado sobre el wallpaper: sus colores de tema (pensados para el fondo normal de
+  // la página) no tienen contraste suficiente sobre una fotografía, así que se
+  // sobrescriben a blanco + sombra de texto, igual que el resto del contenido de esta
+  // cabecera (__nombre, __chip).
+  &__breadcrumb {
+    .breadcrumb__link,
+    .breadcrumb__texto {
+      color: rgba(255, 255, 255, 0.8);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+
+      &:hover,
+      &:focus-visible {
+        color: #fff;
+      }
+    }
+
+    .breadcrumb__actual {
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .breadcrumb__separador {
+      color: rgba(255, 255, 255, 0.55);
+    }
+  }
+
+  // flex: 1 (ocupa el espacio que deja libre el breadcrumb por encima), alineado al
+  // final (align-items: flex-end): el borde inferior de los paneles coincide con el
+  // borde inferior de la propia cabecera — el desplazamiento hacia abajo lo pone
+  // cada &__panel con su propio translateY (ver más abajo).
+  &__fila {
+    display: flex;
+    flex: 1;
     align-items: flex-end;
-    gap: 2rem;
-    padding: 2rem 1.5rem;
-    // Degradado oscuro de abajo hacia arriba: el texto del div derecho necesita
-    // contraste legible sobre una fotografía de fondo variable.
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.15) 60%, transparent 100%);
+    justify-content: center;
+    gap: 3.5rem;
+  }
+
+  // Tarjeta de cristal (glassmorphism): fondo semitransparente + blur del wallpaper
+  // que queda detrás, para que texto e imagen destaquen más que pintados directamente
+  // sobre la foto. translateY(50%) es relativo a la propia altura del panel (no a la
+  // de &__fila), así que cada uno queda exactamente mitad sobre el wallpaper, mitad
+  // sobre el fondo normal de SeccionInfo — partiendo de "pegado al borde inferior de
+  // la cabecera" (&__fila: align-items: flex-end) y desplazándose la mitad de su
+  // propia altura hacia abajo desde ahí.
+  &__panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(50%);
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: rgba(10, 10, 18, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  }
+
+  // Panel de la portada: sin el relleno/cristal genérico de &__panel (la imagen ocupa
+  // toda la caja, sin hueco) — el border+sombra que antes llevaba la propia <img> vive
+  // ahora aquí, en el div padre; overflow: hidden para que la imagen respete las
+  // esquinas redondeadas del panel.
+  &__panel--portada {
+    flex-shrink: 0;
+    width: 340px;
+    height: 300px;
+    padding: 0;
+    overflow: hidden;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 2px solid var(--color-acento);
+    box-shadow: var(--sombra-acento);
   }
 
   &__portada {
-    flex-shrink: 0;
-    width: 180px;
-    height: 260px;
+    display: block;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    border-radius: 12px;
-    border: 2px solid var(--color-acento);
-    box-shadow: var(--sombra-acento);
   }
 
   &__derecha {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.6rem;
+    align-items: center;
+    text-align: center;
+    gap: 1.1rem;
     color: #fff;
   }
 
   &__nombre {
     margin: 0 0 0.4rem;
-    font-size: 1.8rem;
+    font-size: 1.3rem;
     font-weight: 700;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
   }
 
-  &__campo {
-    display: flex;
+  // Chip resumen: plataforma (con icono) + stock (tick/cruz + texto) + formato
+  // seleccionado, en una sola pastilla debajo del nombre.
+  &__chip {
+    display: inline-flex;
     align-items: center;
     gap: 0.6rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
   }
 
-  &__label {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.8);
+  &__chip-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+
+    &--con-stock {
+      color: #7be08a;
+    }
+
+    &--sin-stock {
+      color: #ff8a80;
+    }
+  }
+
+  &__chip-separador {
+    flex-shrink: 0;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  &__selects {
+    display: flex;
+    gap: 0.6rem;
   }
 
   &__select {
@@ -71,31 +192,10 @@ $cabecera-juego-alto: 420px;
     background: var(--color-fondo-elevado);
     color: var(--color-texto);
     font: inherit;
-  }
 
-  &__formato {
-    margin: 0;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 0.9rem;
-  }
-
-  &__chip {
-    display: inline-block;
-    padding: 0.3rem 0.9rem;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 600;
-
-    &--con-stock {
-      background: rgba(76, 175, 80, 0.2);
-      color: #7be08a;
-      border: 1px solid #4caf50;
-    }
-
-    &--sin-stock {
-      background: rgba(244, 67, 54, 0.2);
-      color: #ff8a80;
-      border: 1px solid #f44336;
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
     }
   }
 
@@ -104,6 +204,68 @@ $cabecera-juego-alto: 420px;
     font-size: 1.5rem;
     font-weight: 700;
   }
+
+  // position: relative (no display: flex): así el ancho de &__acciones lo marca solo
+  // el botón, que es lo que &__derecha centra en el mismo eje que el chip/selects/
+  // precio. Si el corazón sumara su ancho a esta fila (flex normal), el conjunto se
+  // centraba como bloque pero el botón —el elemento con más peso visual— quedaba
+  // desplazado a la izquierda de ese eje compartido (confirmado midiendo las cajas:
+  // mismo center-x que el resto, pero el botón solo, no). Por eso el corazón se saca
+  // del flujo con position: absolute, pegado a la derecha del botón sin contar para
+  // este ancho.
+  &__acciones {
+    position: relative;
+    display: inline-block;
+  }
+
+  // .boton-primario es una clase compartida en toda la app (_shared.scss) — este
+  // modificador solo ensancha la instancia de esta cabecera, sin tocar el resto de
+  // botones (Login, DireccionesPanel, etc.) que también la usan.
+  &__boton-accion {
+    min-width: 240px;
+    text-align: center;
+  }
+
+  // Favorito: solo visual por ahora (ver comentario junto a `esFavorito` en
+  // CabeceraJuego.jsx) — el corazón se rellena con aria-pressed="true".
+  &__favorito {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    margin-left: 0.75rem;
+    transform: translateY(-50%);
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    cursor: pointer;
+
+    @include transicion-suave(background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease);
+
+    // translateY(-50%) combinado con scale (no lo sustituye): es lo que mantiene el
+    // corazón centrado verticalmente junto al botón, no solo un efecto de hover.
+    &:hover,
+    &:focus-visible {
+      transform: translateY(-50%) scale(1.08);
+    }
+
+    &[aria-pressed='true'] {
+      border-color: #ff5c7a;
+      background: rgba(255, 92, 122, 0.2);
+      color: #ff5c7a;
+
+      svg {
+        fill: currentColor;
+      }
+    }
+  }
 }
 
 @media (max-width: 768px) {
@@ -111,10 +273,21 @@ $cabecera-juego-alto: 420px;
     height: auto;
     min-height: $cabecera-juego-alto;
 
-    &__overlay {
+    &__breadcrumb .breadcrumb__lista {
+      justify-content: center;
+    }
+
+    &__fila {
       flex-direction: column;
       align-items: center;
       text-align: center;
+    }
+
+    // Sin el desplazamiento a caballo entre wallpaper y fondo normal: con la cabecera
+    // en altura automática (arriba) y los paneles apilados en columna, "la mitad sobre
+    // cada fondo" deja de tener un borde inferior fijo al que referirse.
+    &__panel {
+      transform: none;
     }
 
     &__derecha {

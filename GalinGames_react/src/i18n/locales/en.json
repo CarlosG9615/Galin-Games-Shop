@@ -225,9 +225,9 @@
     "noEncontrado": "We couldn't find this game.",
     "cabecera": {
       "plataformaLabel": "Platform",
+      "formatoLabel": "Format",
       "formatoDigital": "Digital",
-      "formatoFisico": "Physical",
-      "formatoFisicoYDigital": "Physical and digital"
+      "formatoFisico": "Physical"
     },
     "stock": {
       "conStock": "In stock",
@@ -239,7 +239,9 @@
       "avisarme": "Notify me when in stock",
       "avisarmeEnviando": "Sending...",
       "yaSuscrito": "We'll notify you when it's back in stock",
-      "avisarmeError": "The notification couldn't be registered. Please try again."
+      "avisarmeError": "The notification couldn't be registered. Please try again.",
+      "favoritoAgregar": "Add to favorites",
+      "favoritoQuitar": "Remove from favorites"
     },
     "especificaciones": {
       "minimas": "Minimum requirements",
