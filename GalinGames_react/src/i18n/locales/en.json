@@ -255,6 +255,7 @@
       "titulo": "Features",
       "jugadoresIndividual": "Single player",
       "jugadoresMultijugador": "Multiplayer (up to {{maximo}})",
+      "jugadoresMultijugadorGenerico": "Multiplayer",
       "online": "Online mode",
       "crossplay": "Crossplay",
       "hdr": "HDR",

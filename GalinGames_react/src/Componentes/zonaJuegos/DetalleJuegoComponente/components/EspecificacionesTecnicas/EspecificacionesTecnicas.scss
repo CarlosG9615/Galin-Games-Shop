@@ -1,0 +1,44 @@
+.especificaciones-tecnicas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+
+  &__bloque {
+    flex: 1 1 260px;
+  }
+
+  &__subtitulo {
+    margin: 0 0 0.75rem;
+    color: var(--color-acento);
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  &__lista {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__campo {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-acento-borde);
+
+    dt {
+      color: var(--color-texto-tenue);
+    }
+
+    dd {
+      margin: 0;
+      color: var(--color-texto);
+      text-align: right;
+    }
+  }
+}

@@ -255,6 +255,7 @@
       "titulo": "Características",
       "jugadoresIndividual": "Un jugador",
       "jugadoresMultijugador": "Multijugador (hasta {{maximo}})",
+      "jugadoresMultijugadorGenerico": "Multijugador",
       "online": "Modo online",
       "crossplay": "Crossplay",
       "hdr": "HDR",

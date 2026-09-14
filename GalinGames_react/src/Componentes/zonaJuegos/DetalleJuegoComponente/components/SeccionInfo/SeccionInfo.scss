@@ -1,0 +1,13 @@
+.seccion-info {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+
+  &__descripcion {
+    margin: 0;
+    color: var(--color-texto);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    white-space: pre-line;
+  }
+}

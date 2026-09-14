@@ -1,0 +1,124 @@
+// Altura estable (Requisito 7.4): fija en todos los anchos, no depende del contenido
+// del div derecho ni de la longitud del nombre del juego.
+$cabecera-juego-alto: 420px;
+
+.cabecera-juego {
+  position: relative;
+  width: 100%;
+  height: $cabecera-juego-alto;
+  background-color: var(--color-fondo-elevado);
+  background-size: cover;
+  background-position: center;
+
+  // Sin imagen wallpaper todavía cargada (Requisito 7.5): degradado del tema en vez de
+  // un hueco vacío o una imagen rota.
+  &--sin-wallpaper {
+    background-image: radial-gradient(ellipse 80% 60% at 80% 0%, var(--color-acento-secundario) 0%, transparent 60%), var(--color-fondo);
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 2rem;
+    padding: 2rem 1.5rem;
+    // Degradado oscuro de abajo hacia arriba: el texto del div derecho necesita
+    // contraste legible sobre una fotografía de fondo variable.
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.15) 60%, transparent 100%);
+  }
+
+  &__portada {
+    flex-shrink: 0;
+    width: 180px;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 2px solid var(--color-acento);
+    box-shadow: var(--sombra-acento);
+  }
+
+  &__derecha {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+    color: #fff;
+  }
+
+  &__nombre {
+    margin: 0 0 0.4rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  }
+
+  &__campo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  &__label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  &__select {
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-acento-borde);
+    background: var(--color-fondo-elevado);
+    color: var(--color-texto);
+    font: inherit;
+  }
+
+  &__formato {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9rem;
+  }
+
+  &__chip {
+    display: inline-block;
+    padding: 0.3rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    &--con-stock {
+      background: rgba(76, 175, 80, 0.2);
+      color: #7be08a;
+      border: 1px solid #4caf50;
+    }
+
+    &--sin-stock {
+      background: rgba(244, 67, 54, 0.2);
+      color: #ff8a80;
+      border: 1px solid #f44336;
+    }
+  }
+
+  &__precio {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 768px) {
+  .cabecera-juego {
+    height: auto;
+    min-height: $cabecera-juego-alto;
+
+    &__overlay {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    &__derecha {
+      align-items: center;
+    }
+  }
+}
