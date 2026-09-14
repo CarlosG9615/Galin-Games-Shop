@@ -225,9 +225,9 @@
     "noEncontrado": "No hemos encontrado este juego.",
     "cabecera": {
       "plataformaLabel": "Plataforma",
+      "formatoLabel": "Formato",
       "formatoDigital": "Digital",
-      "formatoFisico": "Físico",
-      "formatoFisicoYDigital": "Físico y digital"
+      "formatoFisico": "Físico"
     },
     "stock": {
       "conStock": "En stock",
@@ -239,7 +239,9 @@
       "avisarme": "Avisarme cuando haya stock",
       "avisarmeEnviando": "Enviando...",
       "yaSuscrito": "Ya te avisaremos cuando haya stock",
-      "avisarmeError": "No se pudo registrar el aviso. Inténtalo de nuevo."
+      "avisarmeError": "No se pudo registrar el aviso. Inténtalo de nuevo.",
+      "favoritoAgregar": "Añadir a favoritos",
+      "favoritoQuitar": "Quitar de favoritos"
     },
     "especificaciones": {
       "minimas": "Requisitos mínimos",
@@ -255,6 +257,7 @@
       "titulo": "Características",
       "jugadoresIndividual": "Un jugador",
       "jugadoresMultijugador": "Multijugador (hasta {{maximo}})",
+      "jugadoresMultijugadorGenerico": "Multijugador",
       "online": "Modo online",
       "crossplay": "Crossplay",
       "hdr": "HDR",

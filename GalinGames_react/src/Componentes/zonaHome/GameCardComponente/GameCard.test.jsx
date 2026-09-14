@@ -47,10 +47,11 @@ describe('GameCard', () => {
     expect(screen.queryByAltText("Assassin's Creed Black Flag Resynced")).not.toBeInTheDocument()
   })
 
-  it('muestra el texto "<nombre>" - <plataforma>  <precio formateado en EUR>', () => {
+  it('muestra "<nombre> - <plataforma>" y, aparte, el precio formateado en EUR', () => {
     renderGameCard({ plataforma: 'PlayStation', precio: 69.99 })
 
-    expect(screen.getByText(/Assassin's Creed Black Flag Resynced.*PlayStation.*69,99/)).toBeInTheDocument()
+    expect(screen.getByText("Assassin's Creed Black Flag Resynced - PlayStation")).toBeInTheDocument()
+    expect(screen.getByText(/69,99.€/)).toBeInTheDocument()
   })
 
   it('envuelve la tarjeta en un enlace a la Vista de Detalle con la plataforma como query param', () => {

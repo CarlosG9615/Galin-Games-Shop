@@ -30,6 +30,15 @@ de administración completo para gestionar el catálogo. Los controles de
 lógica de qué botón mostrar ya resuelta) pero sin ejecutar ningún pedido
 real.
 
+Queda también documentado, pero deliberadamente **pendiente y bloqueado**
+hasta que existan sus dependencias, el cálculo dinámico de qué juegos son
+"destacados" (Requisito 20): hoy `plataformaDestacada` se fija a mano en
+cada documento (Requisito 2.5); el diseño ya decidido para sustituirlo por
+un ranking real basado en compras y vistas recientes se documenta al final
+de este fichero y de `design.md`, para no perderlo, pero no debe empezar a
+implementarse hasta que exista al menos una feature de Pedidos/Compras
+(hoy sin spec) que pueda emitir el evento de "compra".
+
 **Esta aplicación (cara cliente) no contiene ninguna vía para mutar el
 `stock` de un juego** — ni endpoint HTTP ni script de línea de comandos: es
 exclusivamente de lectura sobre la colección `games`. El stock se modifica
@@ -102,6 +111,15 @@ backend reacciona a esos cambios externos mediante un MongoDB Change Stream
   deliberadamente los campos pesados (`descripcion`, especificaciones,
   características), a diferencia de la proyección completa que devuelve el
   endpoint de detalle (`/:id`).
+- **Evento de interacción**: registro de que un juego ha recibido una
+  "vista" (apertura de su Vista de Detalle) o una "compra" (a emitir por la
+  futura feature de Pedidos), usado como entrada para calcular su
+  popularidad reciente (Requisito 20, pendiente y bloqueado).
+- **Puntuación de popularidad**: valor numérico por juego que combina sus
+  eventos de interacción recientes con decaimiento exponencial (la
+  actividad reciente pesa mucho más que la antigua), usado para decidir
+  dinámicamente qué 6 juegos son "destacados" (Requisito 20, pendiente y
+  bloqueado).
 
 ## Requirements
 
@@ -623,3 +641,63 @@ crecer en líneas de código por cada uno.
    (`/:id`) SHALL devolver el documento completo, de forma que el
    contenido pesado de un juego solo viaje por red cuando realmente se
    necesita, sin requerir una colección separada para conseguirlo.
+
+### Requisito 20: Ranking dinámico de juegos destacados (pendiente — bloqueado)
+
+**User Story:** Como negocio, quiero que los juegos destacados del Home se
+calculen automáticamente según su popularidad reciente (compras y vistas),
+en vez de fijarlos a mano, para que el Home refleje qué está interesando de
+verdad a los usuarios ahora mismo — incluyendo a los que todavía no se han
+registrado — y no solo qué se decidió destacar en el pasado.
+
+**Nota de bloqueo:** este requisito depende de (a) una futura feature de
+Pedidos/Compras que hoy no existe (sin `requirements.md`/`design.md`
+propios todavía) y que es la única que puede confirmar que una compra
+ocurrió de verdad, y de (b) un mecanismo de tareas programadas que hoy no
+existe en `GalinGames_nodejs`. **No debe empezarse a implementar** hasta
+que al menos la feature de Pedidos tenga su propio spec aprobado. Se
+documenta aquí, junto con su diseño ya decidido en `design.md` → "Futuro
+(bloqueado) — Ranking dinámico de destacados", únicamente para no perder el
+trabajo de diseño ya hecho.
+
+#### Criterios de Aceptación
+
+1. WHEN se completa una compra de un juego+plataforma (evento que emitirá
+   la futura feature de Pedidos) THEN el sistema DEBERÁ registrar un
+   evento de interacción de tipo "compra" para ese juego.
+2. WHEN un usuario, autenticado o no, abre la Vista de Detalle de un juego
+   THEN el sistema DEBERÁ registrar un evento de interacción de tipo
+   "vista" para ese juego, sin exigir sesión iniciada.
+3. THE puntuación de popularidad de cada juego SHALL calcularse aplicando
+   un decaimiento exponencial sobre el tiempo transcurrido desde cada
+   evento, de forma que la actividad reciente pese mucho más que la
+   actividad antigua, sin necesidad de conservar un histórico ilimitado de
+   eventos.
+4. THE peso de un evento de "compra" en la fórmula de puntuación SHALL ser
+   significativamente mayor que el de un evento de "vista", de forma que
+   un juego con pocas compras recientes pueda superar a otro con muchas
+   más vistas pero ninguna conversión reciente.
+5. WHEN dos juegos tienen un volumen histórico de ventas muy distinto
+   (p. ej. uno con 20 ventas en la última semana frente a otro con 1000
+   ventas repartidas a lo largo de varios años y sin actividad reciente)
+   THEN el sistema DEBERÁ priorizar en la puntuación al juego con
+   actividad reciente sobre el juego con más ventas históricas pero sin
+   interacción actual — un juego con actividad reciente sostenida y un
+   volumen histórico alto SHALL NOT verse penalizado frente a uno más
+   nuevo con menos ventas totales.
+6. THE sistema SHALL recalcular periódicamente, mediante una tarea
+   programada, qué 6 juegos tienen mayor puntuación y asignarles su
+   `plataformaDestacada`, sustituyendo el criterio manual actual y
+   manteniendo la regla ya existente de variedad de plataformas entre las
+   6 tarjetas (Requisito 2.5).
+7. THE registro del evento de "vista" de un usuario no autenticado SHALL
+   funcionar sin exigir login, usando como mucho un identificador anónimo
+   no personal (p. ej. una cookie de corta duración sin datos
+   identificativos) para poder deduplicar vistas casi seguidas de la misma
+   persona, sin construir un perfil de dicho usuario.
+8. THE mecanismo de registro de eventos SHALL mitigar de forma razonable
+   el abuso (p. ej. llamar en bucle al endpoint de "vista" para inflar
+   artificialmente la puntuación de un juego), sin requerir un sistema
+   antifraude completo.
+9. THE cálculo de la puntuación SHALL implementarse sin depender de una
+   colección de eventos que crezca sin límite ni estrategia de purga.

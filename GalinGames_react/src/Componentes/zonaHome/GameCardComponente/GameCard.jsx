@@ -45,7 +45,10 @@ function GameCard({ id, imagenPortada, nombre, plataforma, precio, videoPreviewU
           />
         )}
       </div>
-      <p className="game-card__texto">{`"${nombre}" - ${plataforma}   ${precioFormateado}`}</p>
+      <div className="game-card__info">
+        <p className="game-card__texto">{`${nombre} - ${plataforma}`}</p>
+        <p className="game-card__precio">{precioFormateado}</p>
+      </div>
     </Link>
   )
 }

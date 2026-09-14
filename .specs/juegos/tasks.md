@@ -143,29 +143,29 @@ respete las dependencias indicadas.
 
 ### Frontend — Vista de Detalle del Juego
 
-- [ ] 24. Crear `GalinGames_react/src/Componentes/zonaJuegos/DetalleJuegoComponente/components/CaracteristicasJuego/CaracteristicasJuego.jsx` (divs de jugadores/online/crossplay/HDR/mandos compatibles, oculta cada div si el dato no está definido), + tests
+- [x] 24. Crear `GalinGames_react/src/Componentes/zonaJuegos/DetalleJuegoComponente/components/CaracteristicasJuego/CaracteristicasJuego.jsx` (divs de jugadores/online/crossplay/HDR/mandos compatibles, oculta cada div si el dato no está definido), + tests
   **Dependencias:** Tarea 16
   **Requisitos:** 8.1, 8.2, 8.3
 
-- [ ] 25. Crear `GalinGames_react/src/Componentes/zonaJuegos/DetalleJuegoComponente/components/EspecificacionesTecnicas/EspecificacionesTecnicas.jsx` (bloques mínimas/recomendadas si `plataforma === 'PC'`, disco+notas en el resto, oculta el bloque si no hay datos para esa combinación), + tests
+- [x] 25. Crear `GalinGames_react/src/Componentes/zonaJuegos/DetalleJuegoComponente/components/EspecificacionesTecnicas/EspecificacionesTecnicas.jsx` (bloques mínimas/recomendadas si `plataforma === 'PC'`, disco+notas en el resto, oculta el bloque si no hay datos para esa combinación), + tests
   **Dependencias:** Tarea 16
   **Requisitos:** 10.1, 10.2, 10.3
 
-- [ ] 26. Crear `GalinGames_react/src/Componentes/zonaJuegos/DetalleJuegoComponente/components/CabeceraJuego/CabeceraJuego.jsx` (wallpaper de ancho completo con fondo de respaldo si falta, altura estable, imagen wallpaper recortada tipo banner ancho/poco alto vía `background-size: cover` + `background-position: center` — las imágenes reales no vienen pre-recortadas a ese formato, Requisito 7.6 —, div portada a la izquierda, div derecho con select de plataforma, chip de stock, precio y control Comprar/Reservar/Avisarme según `estrenado`+`stock`, nunca "Comprar" si no está estrenado, llamada a `gameService.suscribirNotificacion` con redirect a login si no autenticado), + tests
+- [x] 26. Crear `GalinGames_react/src/Componentes/zonaJuegos/DetalleJuegoComponente/components/CabeceraJuego/CabeceraJuego.jsx` (wallpaper de ancho completo con fondo de respaldo si falta, altura estable, imagen wallpaper recortada tipo banner ancho/poco alto vía `background-size: cover` + `background-position: center` — las imágenes reales no vienen pre-recortadas a ese formato, Requisito 7.6 —, div portada a la izquierda, div derecho con select de plataforma, chip de stock, precio y control Comprar/Reservar/Avisarme según `estrenado`+`stock`, nunca "Comprar" si no está estrenado, llamada a `gameService.suscribirNotificacion` con redirect a login si no autenticado), + tests
   **Dependencias:** Tareas 15, 16
   **Requisitos:** 7.1, 7.2, 7.4, 7.5, 7.6, 9.1, 9.2, 11.3, 11.4, 12.1, 12.2, 12.3, 12.4, 12.5, 13.1, 13.2, 13.3, 16.3
 
-- [ ] 27. Crear `GalinGames_react/src/Componentes/zonaJuegos/DetalleJuegoComponente/components/SeccionInfo/SeccionInfo.jsx` (contenedor bajo la cabecera, sobre fondo normal: pinta el texto de `juego.descripcion` recibido del backend tal cual, sin ningún texto de juego hardcodeado en el componente, y agrupa `EspecificacionesTecnicas` + `CaracteristicasJuego`), + tests
+- [x] 27. Crear `GalinGames_react/src/Componentes/zonaJuegos/DetalleJuegoComponente/components/SeccionInfo/SeccionInfo.jsx` (contenedor bajo la cabecera, sobre fondo normal: pinta el texto de `juego.descripcion` recibido del backend tal cual, sin ningún texto de juego hardcodeado en el componente, y agrupa `EspecificacionesTecnicas` + `CaracteristicasJuego`), + tests
   **Dependencias:** Tareas 24, 25
   **Requisitos:** 7.3, 19.2, 19.3
 
-- [ ] 28. Crear `GalinGames_react/src/Componentes/zonaJuegos/DetalleJuegoComponente/DetalleJuego.jsx` (lee `useParams().id` + `useSearchParams().get('plataforma')`, pide `gameService.getJuegoPorId` una vez, estado `plataformaSeleccionada` que cambia sin refetch, estado "juego no encontrado" traducible, renderiza `CabeceraJuego` + `SeccionInfo`), + tests
+- [x] 28. Crear `GalinGames_react/src/Componentes/zonaJuegos/DetalleJuegoComponente/DetalleJuego.jsx` (lee `useParams().id` + `useSearchParams().get('plataforma')`, pide `gameService.getJuegoPorId` una vez, estado `plataformaSeleccionada` que cambia sin refetch, estado "juego no encontrado" traducible, renderiza `CabeceraJuego` + `SeccionInfo`), + tests
   **Dependencias:** Tareas 15, 26, 27
   **Requisitos:** 5.3, 9.3
 
 ### Frontend — Routing
 
-- [ ] 29. Modificar `GalinGames_react/src/router/AppRouter.jsx`: añadir `<Route path="/juegos/:plataforma" element={<VistaPlataforma />} />` y `<Route path="/juegos/detalle/:id" element={<DetalleJuego />} />` (rutas públicas), + tests
+- [x] 29. Modificar `GalinGames_react/src/router/AppRouter.jsx`: añadir `<Route path="/juegos/:plataforma" element={<VistaPlataforma />} />` y `<Route path="/juegos/detalle/:id" element={<DetalleJuego />} />` (rutas públicas), + tests
   **Dependencias:** Tareas 23, 28
   **Requisitos:** 1.4, 6.1, 7.1
 
@@ -257,8 +257,50 @@ flowchart TD
 | 17. Internacionalización | 16 |
 | 18. Datos reales de los 6 juegos, insertados manualmente | 11, 12, 13 |
 | 19. Todo el contenido del juego proviene de MongoDB | 1, 7, 12, 27 |
+| 20. Ranking dinámico de juegos destacados | **Pendiente y bloqueado** — 30-35, ver sección "Futuro (bloqueado)" |
 
-Los 19 requisitos de `requirements.md` y todos los componentes de
+Los 19 requisitos ejecutables de `requirements.md` (todos salvo el
+Requisito 20, pendiente y bloqueado) y todos los componentes de
 `design.md` (modelos, servicios, controlador, rutas, scripts de datos,
 componentes React, i18n, wiring de `server.js`) quedan cubiertos por al
 menos una tarea.
+
+## Futuro (bloqueado) — Ranking dinámico de destacados
+
+**Ninguna tarea de esta sección debe ejecutarse todavía.** Cubren el
+Requisito 20 y el diseño de `design.md` → "Futuro (bloqueado) — Ranking
+dinámico de destacados". Dependen de que exista, con su propio
+`requirements.md`/`design.md` aprobados, al menos una feature de
+Pedidos/Compras (hoy no existe en `.specs/`) capaz de emitir el evento de
+"compra" — sin ella, `registrarEvento(gameId, 'compra')` no tiene quién lo
+invoque. `/spec-execute` no debería tocar esta sección hasta que esa
+dependencia quede resuelta y así se indique explícitamente.
+
+- [ ] 30. Crear `GalinGames_nodejs/src/models/GamePopularidad.js` (`gameId` ref `Game` único, `puntuacion` Number default 0, `actualizadaEn` Date default `Date.now`), + tests
+  **Dependencias:** ninguna (puede crearse en cualquier momento, pero no tiene consumidores hasta la Tarea 31)
+  **Requisitos:** 20.3, 20.9
+
+- [ ] 31. Crear `GalinGames_nodejs/src/services/gamePopularidadService.js` (`registrarEvento(gameId, tipo)`: aplica el decaimiento acumulado desde `actualizadaEn` y suma el peso del evento — compra ≫ vista —, persiste la nueva `puntuacion`/`actualizadaEn`; `calcularPuntuacionActual(popularidad)`: aplica el mismo decaimiento en lectura sin persistir, para poder leer el ranking sin esperar al job programado), + tests
+  **Dependencias:** Tarea 30
+  **Requisitos:** 20.3, 20.4, 20.5, 20.9
+
+- [ ] 32. Añadir `POST /api/games/:id/vista` (público, sin `requireAuth`) en `gameController.js`/`game.routes.js`: llama a `gamePopularidadService.registrarEvento(id, 'vista')`, con deduplicación por identificador anónimo de corta duración (cookie no-httpOnly sin datos personales) dentro de una ventana corta para mitigar abuso, + tests
+  **Dependencias:** Tarea 31
+  **Requisitos:** 20.2, 20.7, 20.8
+
+- [ ] 33. Documentar y exponer `gamePopularidadService.registrarEvento(gameId, 'compra')` como el punto de integración que la futura feature de Pedidos deberá invocar al confirmar una compra (esta tarea NO crea ningún endpoint de compra ni ninguna lógica de pedidos: es solo el "gancho" del lado de `juegos`)
+  **Dependencias:** Tarea 31; **bloqueada** hasta que exista `.specs/pedidos/` (o equivalente) con su propio `requirements.md`/`design.md` aprobados
+  **Requisitos:** 20.1
+
+- [ ] 34. Crear `GalinGames_nodejs/src/services/destacadosScheduler.js`: tarea programada (evaluar en su momento una librería de cron para Node, p. ej. `node-cron`, hoy no instalada) que cada N minutos recalcula la puntuación en lectura de todos los juegos, toma el top 6, aplica la regla de variedad de plataformas ya existente (Requisito 2.5) y actualiza `plataformaDestacada` en `Game` (quitándolo de los juegos que dejen de estar en el top 6), + tests. Se invoca desde `server.js` al arrancar, dentro de un `try/catch` no fatal, igual que `gameStockWatcher.js`
+  **Dependencias:** Tarea 31
+  **Requisitos:** 20.6
+
+- [ ] 35. Frontend: añadir `gameService.registrarVista(gameId)` (`POST /api/games/:id/vista`) y llamarlo desde `DetalleJuego.jsx` al montar la Vista de Detalle, sin bloquear el renderizado ni mostrar error si la llamada falla, + tests
+  **Dependencias:** Tarea 32; Tarea 28 (`DetalleJuego.jsx`) ya implementada
+  **Requisitos:** 20.2
+
+**Nota de migración:** al activar la Tarea 34, `plataformaDestacada` deja
+de fijarse a mano en MongoDB (Requisito 18) y pasa a gestionarla
+`destacadosScheduler.js`; no hace falta ningún cambio de schema, el campo
+ya existe desde la Tarea 1 (Requisito 14).
