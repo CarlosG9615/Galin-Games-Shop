@@ -117,11 +117,11 @@ respete las dependencias indicadas.
 
 ### Frontend — Navbar
 
-- [ ] 19. Crear `GalinGames_react/src/Componentes/compGlobales/NavbarComponente/PlataformasDropdown.jsx` (mismo esqueleto que `LanguageToggle.jsx`: `aria-haspopup`, `aria-expanded`, `role="menu"`, cierre por click-fuera/Escape, 4 `<Link role="menuitem">` a `/juegos/pc|playstation|xbox|nintendo` con icono de `PlataformasIconos.jsx`), + tests
+- [x] 19. Crear `GalinGames_react/src/Componentes/compGlobales/NavbarComponente/PlataformasDropdown.jsx` (mismo esqueleto que `LanguageToggle.jsx`: `aria-haspopup`, `aria-expanded`, `role="menu"`, cierre por click-fuera/Escape, 4 `<Link role="menuitem">` a `/juegos/pc|playstation|xbox|nintendo` con icono de `PlataformasIconos.jsx`), + tests
   **Dependencias:** Tareas 16, 17
   **Requisitos:** 1.2, 1.3, 1.4
 
-- [ ] 20. Modificar `GalinGames_react/src/Componentes/compGlobales/NavbarComponente/Navbar.jsx`: quitar `'navbar.linkJuegos'` de `ENLACES_PROXIMAMENTE` y montar `PlataformasDropdown` en su lugar, + tests
+- [x] 20. Modificar `GalinGames_react/src/Componentes/compGlobales/NavbarComponente/Navbar.jsx`: quitar `'navbar.linkJuegos'` de `ENLACES_PROXIMAMENTE` y montar `PlataformasDropdown` en su lugar, + tests
   **Dependencias:** Tarea 19
   **Requisitos:** 1.1
 

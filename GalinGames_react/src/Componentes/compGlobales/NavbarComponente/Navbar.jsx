@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../../hooks/useAuth'
 import ThemeToggle from './ThemeToggle'
 import LanguageToggle from './LanguageToggle'
+import PlataformasDropdown from './PlataformasDropdown'
 import { IconoBusqueda, IconoUsuario, IconoCarrito } from './NavbarIconos'
 import './Navbar.scss'
 
-const ENLACES_PROXIMAMENTE = ['navbar.linkJuegos', 'navbar.linkNovedades', 'navbar.linkComunidad']
+const ENLACES_PROXIMAMENTE = ['navbar.linkNovedades', 'navbar.linkComunidad']
 
 function Navbar() {
   const { t } = useTranslation()
@@ -86,6 +87,9 @@ function Navbar() {
           <ul id="navbar-categorias" className={`navbar__enlaces ${categoriasAbiertas ? 'navbar__enlaces--desplegado' : ''}`}>
             <li>
               <Link to="/" className="navbar__link" onClick={cerrarMenu}>{t('navbar.linkInicio')}</Link>
+            </li>
+            <li>
+              <PlataformasDropdown onNavigate={cerrarMenu} />
             </li>
             {ENLACES_PROXIMAMENTE.map((clave) => (
               <li key={clave}>
