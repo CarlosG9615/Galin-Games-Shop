@@ -137,7 +137,7 @@ respete las dependencias indicadas.
 
 ### Frontend — Vista de Plataforma
 
-- [ ] 23. Crear `GalinGames_react/src/Componentes/zonaJuegos/VistaPlataformaComponente/VistaPlataforma.jsx` (lee `useParams().plataforma`, pide `gameService.getJuegosPorPlataforma`, título + subtítulo, `Breadcrumb`, reutiliza `GameCard` en grid, estado vacío/error), + tests
+- [x] 23. Crear `GalinGames_react/src/Componentes/zonaJuegos/VistaPlataformaComponente/VistaPlataforma.jsx` (lee `useParams().plataforma`, pide `gameService.getJuegosPorPlataforma`, título + subtítulo, `Breadcrumb`, reutiliza `GameCard` en grid, estado vacío/error), + tests
   **Dependencias:** Tareas 15, 16, 18, 21
   **Requisitos:** 6.1, 6.2, 6.3, 6.4, 6.5
 

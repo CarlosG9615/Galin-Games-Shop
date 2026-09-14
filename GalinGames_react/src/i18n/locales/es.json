@@ -216,6 +216,7 @@
       "nintendo": { "titulo": "Nintendo", "subtitulo": "El catálogo completo para tu Nintendo." }
     },
     "breadcrumb": {
+      "ariaLabel": "Ruta de navegación",
       "inicio": "Inicio",
       "juegos": "Juegos"
     },
