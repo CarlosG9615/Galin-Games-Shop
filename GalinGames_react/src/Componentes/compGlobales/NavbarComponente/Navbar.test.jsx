@@ -101,16 +101,31 @@ describe('Navbar', () => {
     expect(logo).toHaveAttribute('src', '/logo2.png')
   })
 
-  it('los enlaces "Juegos", "Novedades" y "Comunidad" no son elementos navegables', async () => {
+  it('los enlaces "Novedades" y "Comunidad" no son elementos navegables', async () => {
     renderNavbar()
     await screen.findByLabelText('Iniciar sesión')
 
-    for (const texto of ['Juegos', 'Novedades', 'Comunidad']) {
+    for (const texto of ['Novedades', 'Comunidad']) {
       const elemento = screen.getByText(texto)
       expect(elemento.tagName).not.toBe('A')
       expect(elemento.tagName).not.toBe('BUTTON')
       expect(elemento).toHaveAttribute('aria-disabled', 'true')
     }
+  })
+
+  it('"Juegos" abre el dropdown de plataformas con sus 4 opciones', async () => {
+    const user = userEvent.setup()
+    renderNavbar()
+    await screen.findByLabelText('Iniciar sesión')
+
+    const botonJuegos = screen.getByRole('button', { name: 'Juegos' })
+    await user.click(botonJuegos)
+
+    expect(botonJuegos).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('menuitem', { name: 'PC' })).toHaveAttribute('href', '/juegos/pc')
+    expect(screen.getByRole('menuitem', { name: 'PlayStation' })).toHaveAttribute('href', '/juegos/playstation')
+    expect(screen.getByRole('menuitem', { name: 'Xbox' })).toHaveAttribute('href', '/juegos/xbox')
+    expect(screen.getByRole('menuitem', { name: 'Nintendo' })).toHaveAttribute('href', '/juegos/nintendo')
   })
 
   it('el LanguageToggle está presente y permite cambiar de idioma desde el Navbar', async () => {

@@ -36,7 +36,7 @@ describe('Breadcrumb', () => {
     expect(screen.getByRole('navigation', { name: 'Ruta de navegación' })).toBeInTheDocument()
   })
 
-  it('un item intermedio sin `to` se pinta como texto, no como enlace', () => {
+  it('un item intermedio sin `to` se pinta como texto, no como enlace ni como la página actual', () => {
     renderBreadcrumb([
       { label: 'Inicio', to: '/' },
       { label: 'Sin ruta' },
@@ -44,6 +44,8 @@ describe('Breadcrumb', () => {
     ])
 
     expect(screen.queryByRole('link', { name: 'Sin ruta' })).not.toBeInTheDocument()
-    expect(screen.getByText('Sin ruta')).toBeInTheDocument()
+    const sinRuta = screen.getByText('Sin ruta')
+    expect(sinRuta).toBeInTheDocument()
+    expect(sinRuta).not.toHaveAttribute('aria-current')
   })
 })
