@@ -257,8 +257,50 @@ flowchart TD
 | 17. Internacionalización | 16 |
 | 18. Datos reales de los 6 juegos, insertados manualmente | 11, 12, 13 |
 | 19. Todo el contenido del juego proviene de MongoDB | 1, 7, 12, 27 |
+| 20. Ranking dinámico de juegos destacados | **Pendiente y bloqueado** — 30-35, ver sección "Futuro (bloqueado)" |
 
-Los 19 requisitos de `requirements.md` y todos los componentes de
+Los 19 requisitos ejecutables de `requirements.md` (todos salvo el
+Requisito 20, pendiente y bloqueado) y todos los componentes de
 `design.md` (modelos, servicios, controlador, rutas, scripts de datos,
 componentes React, i18n, wiring de `server.js`) quedan cubiertos por al
 menos una tarea.
+
+## Futuro (bloqueado) — Ranking dinámico de destacados
+
+**Ninguna tarea de esta sección debe ejecutarse todavía.** Cubren el
+Requisito 20 y el diseño de `design.md` → "Futuro (bloqueado) — Ranking
+dinámico de destacados". Dependen de que exista, con su propio
+`requirements.md`/`design.md` aprobados, al menos una feature de
+Pedidos/Compras (hoy no existe en `.specs/`) capaz de emitir el evento de
+"compra" — sin ella, `registrarEvento(gameId, 'compra')` no tiene quién lo
+invoque. `/spec-execute` no debería tocar esta sección hasta que esa
+dependencia quede resuelta y así se indique explícitamente.
+
+- [ ] 30. Crear `GalinGames_nodejs/src/models/GamePopularidad.js` (`gameId` ref `Game` único, `puntuacion` Number default 0, `actualizadaEn` Date default `Date.now`), + tests
+  **Dependencias:** ninguna (puede crearse en cualquier momento, pero no tiene consumidores hasta la Tarea 31)
+  **Requisitos:** 20.3, 20.9
+
+- [ ] 31. Crear `GalinGames_nodejs/src/services/gamePopularidadService.js` (`registrarEvento(gameId, tipo)`: aplica el decaimiento acumulado desde `actualizadaEn` y suma el peso del evento — compra ≫ vista —, persiste la nueva `puntuacion`/`actualizadaEn`; `calcularPuntuacionActual(popularidad)`: aplica el mismo decaimiento en lectura sin persistir, para poder leer el ranking sin esperar al job programado), + tests
+  **Dependencias:** Tarea 30
+  **Requisitos:** 20.3, 20.4, 20.5, 20.9
+
+- [ ] 32. Añadir `POST /api/games/:id/vista` (público, sin `requireAuth`) en `gameController.js`/`game.routes.js`: llama a `gamePopularidadService.registrarEvento(id, 'vista')`, con deduplicación por identificador anónimo de corta duración (cookie no-httpOnly sin datos personales) dentro de una ventana corta para mitigar abuso, + tests
+  **Dependencias:** Tarea 31
+  **Requisitos:** 20.2, 20.7, 20.8
+
+- [ ] 33. Documentar y exponer `gamePopularidadService.registrarEvento(gameId, 'compra')` como el punto de integración que la futura feature de Pedidos deberá invocar al confirmar una compra (esta tarea NO crea ningún endpoint de compra ni ninguna lógica de pedidos: es solo el "gancho" del lado de `juegos`)
+  **Dependencias:** Tarea 31; **bloqueada** hasta que exista `.specs/pedidos/` (o equivalente) con su propio `requirements.md`/`design.md` aprobados
+  **Requisitos:** 20.1
+
+- [ ] 34. Crear `GalinGames_nodejs/src/services/destacadosScheduler.js`: tarea programada (evaluar en su momento una librería de cron para Node, p. ej. `node-cron`, hoy no instalada) que cada N minutos recalcula la puntuación en lectura de todos los juegos, toma el top 6, aplica la regla de variedad de plataformas ya existente (Requisito 2.5) y actualiza `plataformaDestacada` en `Game` (quitándolo de los juegos que dejen de estar en el top 6), + tests. Se invoca desde `server.js` al arrancar, dentro de un `try/catch` no fatal, igual que `gameStockWatcher.js`
+  **Dependencias:** Tarea 31
+  **Requisitos:** 20.6
+
+- [ ] 35. Frontend: añadir `gameService.registrarVista(gameId)` (`POST /api/games/:id/vista`) y llamarlo desde `DetalleJuego.jsx` al montar la Vista de Detalle, sin bloquear el renderizado ni mostrar error si la llamada falla, + tests
+  **Dependencias:** Tarea 32; Tarea 28 (`DetalleJuego.jsx`) ya implementada
+  **Requisitos:** 20.2
+
+**Nota de migración:** al activar la Tarea 34, `plataformaDestacada` deja
+de fijarse a mano en MongoDB (Requisito 18) y pasa a gestionarla
+`destacadosScheduler.js`; no hace falta ningún cambio de schema, el campo
+ya existe desde la Tarea 1 (Requisito 14).

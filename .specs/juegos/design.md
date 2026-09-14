@@ -460,6 +460,114 @@ traducible (`juegos.errorCarga`) cuando `ok === false`.
 | Botones "Comprar"/"Reservar" sin `onClick` funcional (o navegando a una ruta que aún no existe) | Implementar un flujo mínimo de "pedido simulado" para que el botón haga algo | Fuera de alcance explícito de `requirements.md` (Introduction); añadir un flujo simulado sería trabajo que se rehará por completo en la spec de pedidos | 12.5 |
 | Un único `Game` con proyección de campos por endpoint (`.select()`) | Colección `GameDetails` aparte (descripción/especificaciones/características), referenciada por `gameId` y consultada con un `$lookup`/segunda query solo en la Vista de Detalle | Mongo no transmite por red los campos excluidos de un `.select()`, así que el mismo objetivo (no cargar contenido pesado en los listados) se consigue sin la complejidad operativa de mantener dos colecciones sincronizadas (un `Game` sin su `GameDetails`, o viceversa, sería un estado inconsistente a vigilar). Si el catálogo llegara a decenas de miles de documentos con contenido verdaderamente pesado (no es el caso de texto de specs/sinopsis), se podría reconsiderar entonces | 19.1, 19.5 |
 
+## Futuro (bloqueado) — Ranking dinámico de destacados
+
+Diseño ya decidido para el Requisito 20 (`requirements.md`), documentado
+para no perderlo pero **deliberadamente no implementable todavía**: exige
+que exista antes una feature de Pedidos/Compras (hoy sin spec) capaz de
+emitir el evento de "compra", y un mecanismo de tareas programadas que hoy
+no existe en `GalinGames_nodejs`. Ninguna tarea de esta sección debe
+ejecutarse hasta que esa dependencia tenga su propio `requirements.md`/
+`design.md` aprobados.
+
+### Arquitectura
+
+```mermaid
+flowchart LR
+    DetalleJuego["DetalleJuego.jsx\n(al montar)"] -->|"POST /:id/vista"| gameController
+    FuturaPedidos["(futuro) servicio de Pedidos\nal confirmar una compra"] -.->|"registrarEvento(gameId, 'compra')"| gamePopularidadService
+    gameController -->|"registrarEvento(gameId, 'vista')"| gamePopularidadService["gamePopularidadService.js"]
+    gamePopularidadService --> GamePopularidad[("GamePopularidad")]
+    destacadosScheduler["destacadosScheduler.js\n(tarea programada)"] -->|"lee puntuación"| GamePopularidad
+    destacadosScheduler -->|"actualiza plataformaDestacada"| GameModel[("Game")]
+```
+
+La futura feature de Pedidos no forma parte de este repo todavía: el
+recuadro punteado representa el único punto de integración que deberá
+implementar (llamar a `gamePopularidadService.registrarEvento(gameId,
+'compra')` al confirmar una compra), sin que `juegos` necesite saber nada
+más de `Pedidos`.
+
+### Por qué NO un log de eventos sin límite
+
+La forma "obvia" de modelar esto sería una colección `GameInteraction` con
+un documento por evento (`{ gameId, tipo, creadoEn }`) y un job que la
+agregase periódicamente. Se descarta como diseño principal (Requisito
+20.9): en una tienda con tráfico real esa colección crece sin límite si no
+se purga, y agregarla en cada recálculo es cada vez más caro. En su lugar:
+
+- `GamePopularidad` guarda **una puntuación ya agregada** por juego
+  (`puntuacion`, `actualizadaEn`), no eventos individuales.
+- Cada evento (vista o compra) recalcula la puntuación en el momento,
+  aplicando primero el decaimiento acumulado desde `actualizadaEn` y
+  sumando después el peso del nuevo evento — igual que el algoritmo
+  "hot" de Reddit/Hacker News, pero sin guardar el histórico de votos/
+  eventos que ellos sí conservan aparte.
+- Como un juego sin ningún evento nuevo nunca dispara un recálculo, la
+  puntuación también se recalcula **en lectura** (sin persistir el
+  resultado) tanto al leer el ranking bajo demanda como en cada ejecución
+  de `destacadosScheduler.js`, para que los juegos que dejan de recibir
+  interacción "se enfríen" en el ranking aunque nadie interactúe con
+  ellos.
+
+### Data Model
+
+`GalinGames_nodejs/src/models/GamePopularidad.js` (nuevo):
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `gameId` | ObjectId, ref `Game`, required, único | un documento por juego |
+| `puntuacion` | Number, default 0 | última puntuación calculada y persistida |
+| `actualizadaEn` | Date, default `Date.now` | momento del último evento aplicado; base para el decaimiento en lectura |
+
+### Fórmula de puntuación
+
+```
+decaimiento(Δt) = e^(-λ · Δt_horas)
+puntuación_nueva = puntuación_anterior · decaimiento(tiempo desde actualizadaEn) + peso_evento
+```
+
+Con `peso_compra >> peso_vista` (p. ej. 10:1, constantes en
+`gamePopularidadService.js`, sin necesidad de panel de administración para
+ajustarlas) y `λ` elegido para una semivida de un par de días (p. ej. λ tal
+que la puntuación se reduzca a la mitad cada ~48-72h sin actividad nueva).
+Con esta fórmula, un juego con pocas ventas muy recientes puede superar a
+otro con miles de ventas históricas pero sin actividad actual (Requisito
+20.5), porque el histórico decae y solo la actividad reciente pesa.
+
+### Servicios y endpoints nuevos
+
+```js
+// gamePopularidadService.js
+async function registrarEvento(gameId, tipo)          // tipo: 'vista' | 'compra'
+function calcularPuntuacionActual(popularidad)         // aplica el decaimiento en lectura, sin persistir
+```
+
+`POST /api/games/:id/vista` (público, sin `requireAuth`, Requisito 20.2):
+llama a `registrarEvento(id, 'vista')`. Para mitigar abuso (Requisito
+20.8) sin un sistema antifraude completo, se deduplica por un identificador
+anónimo de corta duración (cookie no-httpOnly sin datos personales,
+Requisito 20.7): una "vista" del mismo identificador para el mismo juego
+dentro de una ventana corta (p. ej. 30 min) no vuelve a puntuar.
+
+`destacadosScheduler.js` (tarea programada, librería a decidir en su
+momento — p. ej. `node-cron`, hoy no instalada): cada N minutos recalcula
+la puntuación en lectura de todos los juegos, toma el top 6, aplica la
+regla de variedad de plataformas ya existente (Requisito 2.5) y actualiza
+`plataformaDestacada` en `Game` — reutiliza el campo tal cual (ya existe
+desde el Requisito 14/tarea 1), solo cambia quién lo escribe: deja de
+fijarse a mano y pasa a escribirlo esta tarea. Se invoca desde `server.js`
+al arrancar, igual que `gameStockWatcher.js`.
+
+### Design Decisions
+
+| Decisión | Alternativas consideradas | Por qué se elige | Requisitos |
+|---|---|---|---|
+| Puntuación agregada con decaimiento exponencial (`GamePopularidad.puntuacion`), recalculada en escritura y en lectura | (1) Log de eventos `GameInteraction` agregado por un job; (2) contador simple de "ventas totales" (más comprado de toda la vida); (3) contador de "ventas último N días" sin decaimiento continuo | (1) crece sin límite y es más caro de agregar; (2) no resuelve el caso del enunciado (un clásico sin actividad seguiría destacando); (3) con una ventana fija y sin decaimiento continuo, un juego puede "caerse" bruscamente del ranking en cuanto un evento sale de la ventana, en vez de enfriarse gradualmente | 20.3, 20.5, 20.9 |
+| Peso de "compra" muy superior al de "vista" | Pesar ambos por igual | Miles de vistas sin ninguna conversión no deberían destacar un juego sobre otro con pocas ventas reales; las vistas sí deben contar para capturar interés temprano en un juego recién publicado, pero como señal secundaria | 20.4 |
+| Deduplicación de "vista" por cookie anónima de corta duración, sin login ni perfil de usuario | (1) Exigir sesión iniciada para contar la vista; (2) no deduplicar en absoluto | (1) excluiría a los usuarios no registrados, que el Requisito 20.2 exige poder contar; (2) permitiría inflar trivialmente la puntuación recargando la página | 20.2, 20.7, 20.8 |
+| Recalcular `plataformaDestacada` con una tarea programada, no en cada petición a `/destacados` | Calcular el top 6 en caliente en cada petición al endpoint | `/destacados` es el endpoint más visitado de la app (se pide en cada carga del Home); recalcular el ranking completo del catálogo en cada petición no escala, mientras que leer un campo ya resuelto sí | 20.6 |
+
 ## Cobertura de Requisitos
 
 | Requisito | Cubierto por |
@@ -483,6 +591,9 @@ traducible (`juegos.errorCarga`) cuando `ok === false`.
 | 17. Internacionalización | claves nuevas bajo el namespace `juegos` en `es.json`/`en.json` |
 | 18. Datos reales de los 6 juegos, insertados manualmente | migración manual vía mongosh/Compass (imágenes en base64), documentada en `tasks.md` |
 | 19. Todo el contenido del juego proviene de MongoDB | `Game.descripcion`, proyección reducida vs. completa en `gameController.js`, ausencia de contenido de juego en `es.json`/`en.json` |
+| 20. Ranking dinámico de juegos destacados | **Pendiente y bloqueado** — diseño documentado en "Futuro (bloqueado) — Ranking dinámico de destacados"; no implementado hasta que exista una feature de Pedidos/Compras |
 
-Todos los requisitos de `requirements.md` quedan cubiertos; no se detectan
-huecos.
+Todos los requisitos de `requirements.md` quedan cubiertos salvo el
+Requisito 20, deliberadamente pendiente y bloqueado (ver sección "Futuro
+(bloqueado)" más arriba); no se detectan huecos sobre el alcance actual de
+la feature.
