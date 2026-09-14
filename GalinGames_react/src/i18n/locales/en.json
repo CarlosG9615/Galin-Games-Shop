@@ -200,5 +200,64 @@
     "pedidos": {
       "empty": "You don't have any orders yet"
     }
+  },
+  "juegos": {
+    "dropdown": {
+      "menuLabel": "Platforms",
+      "pc": "PC",
+      "playstation": "PlayStation",
+      "xbox": "Xbox",
+      "nintendo": "Nintendo"
+    },
+    "plataforma": {
+      "pc": { "titulo": "PC", "subtitulo": "The best games for your computer." },
+      "playstation": { "titulo": "PlayStation", "subtitulo": "The full catalog for your PlayStation." },
+      "xbox": { "titulo": "Xbox", "subtitulo": "The full catalog for your Xbox." },
+      "nintendo": { "titulo": "Nintendo", "subtitulo": "The full catalog for your Nintendo." }
+    },
+    "breadcrumb": {
+      "inicio": "Home",
+      "juegos": "Games"
+    },
+    "vacio": "There are no games available for this platform yet.",
+    "errorCarga": "The games couldn't be loaded. Please try again.",
+    "noEncontrado": "We couldn't find this game.",
+    "cabecera": {
+      "plataformaLabel": "Platform",
+      "formatoDigital": "Digital",
+      "formatoFisico": "Physical",
+      "formatoFisicoYDigital": "Physical and digital"
+    },
+    "stock": {
+      "conStock": "In stock",
+      "sinStock": "Out of stock"
+    },
+    "acciones": {
+      "comprar": "Buy",
+      "reservar": "Pre-order",
+      "avisarme": "Notify me when in stock",
+      "avisarmeEnviando": "Sending...",
+      "yaSuscrito": "We'll notify you when it's back in stock",
+      "avisarmeError": "The notification couldn't be registered. Please try again."
+    },
+    "especificaciones": {
+      "minimas": "Minimum requirements",
+      "recomendadas": "Recommended requirements",
+      "cpu": "Processor",
+      "ram": "RAM",
+      "gpu": "Graphics card",
+      "almacenamiento": "Storage",
+      "sistemaOperativo": "Operating system",
+      "notas": "Notes"
+    },
+    "caracteristicas": {
+      "titulo": "Features",
+      "jugadoresIndividual": "Single player",
+      "jugadoresMultijugador": "Multiplayer (up to {{maximo}})",
+      "online": "Online mode",
+      "crossplay": "Crossplay",
+      "hdr": "HDR",
+      "mandosCompatibles": "Compatible controllers"
+    }
   }
 }

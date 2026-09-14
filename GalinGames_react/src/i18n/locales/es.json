@@ -200,5 +200,64 @@
     "pedidos": {
       "empty": "Aún no tienes ningún pedido registrado"
     }
+  },
+  "juegos": {
+    "dropdown": {
+      "menuLabel": "Plataformas",
+      "pc": "PC",
+      "playstation": "PlayStation",
+      "xbox": "Xbox",
+      "nintendo": "Nintendo"
+    },
+    "plataforma": {
+      "pc": { "titulo": "PC", "subtitulo": "Los mejores juegos para tu ordenador." },
+      "playstation": { "titulo": "PlayStation", "subtitulo": "El catálogo completo para tu PlayStation." },
+      "xbox": { "titulo": "Xbox", "subtitulo": "El catálogo completo para tu Xbox." },
+      "nintendo": { "titulo": "Nintendo", "subtitulo": "El catálogo completo para tu Nintendo." }
+    },
+    "breadcrumb": {
+      "inicio": "Inicio",
+      "juegos": "Juegos"
+    },
+    "vacio": "Todavía no hay juegos disponibles para esta plataforma.",
+    "errorCarga": "No se pudieron cargar los juegos. Inténtalo de nuevo.",
+    "noEncontrado": "No hemos encontrado este juego.",
+    "cabecera": {
+      "plataformaLabel": "Plataforma",
+      "formatoDigital": "Digital",
+      "formatoFisico": "Físico",
+      "formatoFisicoYDigital": "Físico y digital"
+    },
+    "stock": {
+      "conStock": "En stock",
+      "sinStock": "Sin stock"
+    },
+    "acciones": {
+      "comprar": "Comprar",
+      "reservar": "Reservar",
+      "avisarme": "Avisarme cuando haya stock",
+      "avisarmeEnviando": "Enviando...",
+      "yaSuscrito": "Ya te avisaremos cuando haya stock",
+      "avisarmeError": "No se pudo registrar el aviso. Inténtalo de nuevo."
+    },
+    "especificaciones": {
+      "minimas": "Requisitos mínimos",
+      "recomendadas": "Requisitos recomendados",
+      "cpu": "Procesador",
+      "ram": "Memoria RAM",
+      "gpu": "Tarjeta gráfica",
+      "almacenamiento": "Almacenamiento",
+      "sistemaOperativo": "Sistema operativo",
+      "notas": "Notas"
+    },
+    "caracteristicas": {
+      "titulo": "Características",
+      "jugadoresIndividual": "Un jugador",
+      "jugadoresMultijugador": "Multijugador (hasta {{maximo}})",
+      "online": "Modo online",
+      "crossplay": "Crossplay",
+      "hdr": "HDR",
+      "mandosCompatibles": "Mandos compatibles"
+    }
   }
 }
