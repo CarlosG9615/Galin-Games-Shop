@@ -165,7 +165,7 @@ respete las dependencias indicadas.
 
 ### Frontend — Routing
 
-- [ ] 29. Modificar `GalinGames_react/src/router/AppRouter.jsx`: añadir `<Route path="/juegos/:plataforma" element={<VistaPlataforma />} />` y `<Route path="/juegos/detalle/:id" element={<DetalleJuego />} />` (rutas públicas), + tests
+- [x] 29. Modificar `GalinGames_react/src/router/AppRouter.jsx`: añadir `<Route path="/juegos/:plataforma" element={<VistaPlataforma />} />` y `<Route path="/juegos/detalle/:id" element={<DetalleJuego />} />` (rutas públicas), + tests
   **Dependencias:** Tareas 23, 28
   **Requisitos:** 1.4, 6.1, 7.1
 

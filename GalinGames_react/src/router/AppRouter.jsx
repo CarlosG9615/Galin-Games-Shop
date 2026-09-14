@@ -7,6 +7,8 @@ import Registro from '../Componentes/zonaCliente/RegistroComponente/Registro'
 import Home from '../Componentes/zonaHome/HomeComponente/Home'
 import ErrorPage from '../Componentes/compGlobales/ErrorPageComponente/ErrorPage'
 import MiCuenta from '../Componentes/zonaCliente/MiCuentaComponente/MiCuenta'
+import VistaPlataforma from '../Componentes/zonaJuegos/VistaPlataformaComponente/VistaPlataforma'
+import DetalleJuego from '../Componentes/zonaJuegos/DetalleJuegoComponente/DetalleJuego'
 
 function AppRouter() {
   const { t } = useTranslation()
@@ -21,6 +23,8 @@ function AppRouter() {
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Registro />} />
       <Route path="/" element={<Home />} />
+      <Route path="/juegos/:plataforma" element={<VistaPlataforma />} />
+      <Route path="/juegos/detalle/:id" element={<DetalleJuego />} />
       <Route path="/mi-cuenta" element={<Navigate to="/mi-cuenta/perfil" replace />} />
       <Route
         path="/mi-cuenta/:seccion"
