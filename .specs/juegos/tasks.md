@@ -99,19 +99,19 @@ respete las dependencias indicadas.
 
 ### Frontend — Infraestructura
 
-- [ ] 15. Crear `GalinGames_react/src/servicios/gameService.js` (`getJuegosDestacados`, `getJuegosPorPlataforma`, `getJuegoPorId`, `suscribirNotificacion`, sobre `httpClient.js`), + tests
+- [x] 15. Crear `GalinGames_react/src/servicios/gameService.js` (`getJuegosDestacados`, `getJuegosPorPlataforma`, `getJuegoPorId`, `suscribirNotificacion`, sobre `httpClient.js`), + tests
   **Dependencias:** ninguna
   **Requisitos:** — (soporte interno de 2, 6, 7, 13)
 
-- [ ] 16. Añadir el namespace `juegos` a `GalinGames_react/src/i18n/locales/es.json` y `en.json` (dropdown de plataformas, títulos/subtítulos de la Vista de Plataforma, breadcrumb, cabecera, Sección INFO, características, chip de stock, botones Comprar/Reservar/Avisarme, mensajes de estado vacío/error/no encontrado)
+- [x] 16. Añadir el namespace `juegos` a `GalinGames_react/src/i18n/locales/es.json` y `en.json` (dropdown de plataformas, títulos/subtítulos de la Vista de Plataforma, breadcrumb, cabecera, Sección INFO, características, chip de stock, botones Comprar/Reservar/Avisarme, mensajes de estado vacío/error/no encontrado)
   **Dependencias:** ninguna
   **Requisitos:** 17.1, 17.2, 17.3
 
-- [ ] 17. Crear `GalinGames_react/src/Componentes/compGlobales/NavbarComponente/PlataformasIconos.jsx` (SVG inline de PC, PlayStation, Xbox, Nintendo, mismo patrón que `NavbarIconos.jsx`)
+- [x] 17. Crear `GalinGames_react/src/Componentes/compGlobales/NavbarComponente/PlataformasIconos.jsx` (SVG inline de PC, PlayStation, Xbox, Nintendo, mismo patrón que `NavbarIconos.jsx`)
   **Dependencias:** ninguna
   **Requisitos:** 1.5
 
-- [ ] 18. Crear `GalinGames_react/src/Componentes/compGlobales/BreadcrumbComponente/Breadcrumb.jsx` (genérico, recibe una lista de `{ label, to? }`), + tests
+- [x] 18. Crear `GalinGames_react/src/Componentes/compGlobales/BreadcrumbComponente/Breadcrumb.jsx` (genérico, recibe una lista de `{ label, to? }`), + tests
   **Dependencias:** ninguna
   **Requisitos:** 6.2
 
