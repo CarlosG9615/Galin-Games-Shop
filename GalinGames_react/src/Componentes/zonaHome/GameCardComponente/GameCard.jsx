@@ -1,25 +1,52 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { useLanguage } from '../../../hooks/useLanguage'
 import './GameCard.scss'
 
-function GameCard({ src, alt }) {
+function soportaHoverConRaton() {
+  return typeof window !== 'undefined'
+    && typeof window.matchMedia === 'function'
+    && window.matchMedia('(hover: hover) and (pointer: fine)').matches
+}
+
+function GameCard({ id, imagenPortada, nombre, plataforma, precio, videoPreviewUrl }) {
+  const { language } = useLanguage()
   const [error, setError] = useState(false)
+  const [hover, setHover] = useState(false)
+
+  const precioFormateado = new Intl.NumberFormat(language === 'en' ? 'en-US' : 'es-ES', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(precio)
+
+  const mostrarVideo = hover && Boolean(videoPreviewUrl)
 
   return (
-    <div className="game-card">
-      {error ? (
-        <div className="game-card__fallback" role="img" aria-label={alt}>
-          {alt}
-        </div>
-      ) : (
-        <img
-          className="game-card__imagen"
-          src={src}
-          alt={alt}
-          loading="lazy"
-          onError={() => setError(true)}
-        />
-      )}
-    </div>
+    <Link
+      to={`/juegos/detalle/${id}?plataforma=${encodeURIComponent(plataforma)}`}
+      className="game-card"
+      onMouseEnter={() => { if (soportaHoverConRaton()) setHover(true) }}
+      onMouseLeave={() => setHover(false)}
+    >
+      <div className="game-card__media">
+        {error ? (
+          <div className="game-card__fallback" role="img" aria-label={nombre}>
+            {nombre}
+          </div>
+        ) : mostrarVideo ? (
+          <video className="game-card__video" src={videoPreviewUrl} autoPlay loop muted playsInline />
+        ) : (
+          <img
+            className="game-card__imagen"
+            src={imagenPortada}
+            alt={nombre}
+            loading="lazy"
+            onError={() => setError(true)}
+          />
+        )}
+      </div>
+      <p className="game-card__texto">{`"${nombre}" - ${plataforma}   ${precioFormateado}`}</p>
+    </Link>
   )
 }
 

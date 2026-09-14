@@ -127,11 +127,11 @@ respete las dependencias indicadas.
 
 ### Frontend — Home
 
-- [ ] 21. Modificar `GalinGames_react/src/Componentes/zonaHome/GameCardComponente/GameCard.jsx`: props nuevas (`id`, `nombre`, `plataforma`, `precio`, `videoPreviewUrl`), estado `hover` con guardia `matchMedia('(hover: hover) and (pointer: fine)')`, texto `"${nombre}" - ${plataforma}   ${precioFormateado}` (`Intl.NumberFormat`), envoltura `<Link to="/juegos/detalle/:id?plataforma=...">`, + tests
+- [x] 21. Modificar `GalinGames_react/src/Componentes/zonaHome/GameCardComponente/GameCard.jsx`: props nuevas (`id`, `nombre`, `plataforma`, `precio`, `videoPreviewUrl`), estado `hover` con guardia `matchMedia('(hover: hover) and (pointer: fine)')`, texto `"${nombre}" - ${plataforma}   ${precioFormateado}` (`Intl.NumberFormat`), envoltura `<Link to="/juegos/detalle/:id?plataforma=...">`, + tests
   **Dependencias:** Tareas 15, 16
   **Requisitos:** 3.1, 3.2, 3.3, 3.4, 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.2
 
-- [ ] 22. Modificar `GalinGames_react/src/Componentes/zonaHome/GamesGridComponente/GamesGrid.jsx`: sustituir el array estático `JUEGOS` por `gameService.getJuegosDestacados()` en `useEffect`, con estados `loading`/`error`, + tests
+- [x] 22. Modificar `GalinGames_react/src/Componentes/zonaHome/GamesGridComponente/GamesGrid.jsx`: sustituir el array estático `JUEGOS` por `gameService.getJuegosDestacados()` en `useEffect`, con estados `loading`/`error`, + tests
   **Dependencias:** Tareas 15, 21
   **Requisitos:** 2.1, 2.2, 2.3, 2.4
 
