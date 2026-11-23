@@ -9,10 +9,17 @@ Aplicación web para la gestión de compra de videojuegos **físicos y digitales
 
 ## Metodología: Spec Driven Development
 
-El proyecto se desarrolla siguiendo la técnica **Spec Driven Development (SDD)**, que establece que antes de escribir cualquier línea de código se deben definir formalmente las especificaciones de cada funcionalidad. El proceso se divide en tres fases ordenadas:
+El proyecto sigue **Spec Driven Development (SDD)**: antes de implementar una funcionalidad, se definen formalmente sus especificaciones. El flujo tiene tres fases:
 
-1. **Requirements** — se recogen y documentan los requisitos funcionales y no funcionales de la característica.
-2. **Design** — se diseña la arquitectura, los componentes y el flujo de datos necesarios para cumplir esos requisitos.
-3. **Tasks** — se desglosan las tareas concretas de implementación derivadas del diseño.
+1. **Requirements** — el agente recoge y documenta los requisitos funcionales y no funcionales.
+2. **Design** — el agente propone la arquitectura, los componentes y el flujo de datos para cumplirlos. El usuario revisa y aprueba el documento.
+3. **Tasks** — el agente desglosa el diseño en tareas pequeñas, verificables y con dependencias explícitas.
 
-Solo tras completar cada fase se avanza a la siguiente, garantizando que la implementación siempre esté respaldada por una especificación clara y consensuada.
+El agente se ocupa de la estructuración y el diseño; el objetivo es que el usuario practique la implementación:
+
+- Las tareas de `tasks.md` se etiquetan como `[PRÁCTICA]` o `[AGENTE]`. Si no tienen etiqueta, se consideran `[PRÁCTICA]`.
+- Por defecto, el usuario realiza las tareas de código, tests, integración y verificación manual. El agente no las implementa: puede explicar conceptos, dar pistas progresivas y revisar el código cuando se lo pidan.
+- El agente puede ejecutar tareas de documentación/spec y las tareas `[AGENTE]`. El usuario puede delegar explícitamente una tarea `[PRÁCTICA]` concreta cuando quiera.
+- Las tareas se realizan de una en una y respetando sus dependencias. Para cada feature, se aprueban los requisitos y el diseño antes de empezar a implementar.
+
+Las reglas operativas completas están en [CLAUDE.md](./CLAUDE.md).
