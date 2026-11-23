@@ -1,0 +1,18 @@
+.seccion-info {
+  max-width: 1400px;
+  margin: 0 auto;
+  // padding-top ampliado (a revisar visualmente): los paneles de CabeceraJuego
+  // sobresalen sobre esta sección (mitad wallpaper, mitad aquí — CabeceraJuego.scss →
+  // &__panel), así que hace falta hueco de sobra para que no tapen el texto de
+  // descripción, y más aún para que quede una separación clara antes del bloque de
+  // características.
+  padding: 10rem 1.5rem 2.5rem;
+
+  &__descripcion {
+    margin: 0;
+    color: var(--color-texto);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    white-space: pre-line;
+  }
+}

@@ -1,27 +1,55 @@
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import GameCard from '../GameCardComponente/GameCard'
+import { gameService } from '../../../servicios/gameService'
 import './GamesGrid.scss'
-
-const JUEGOS = [
-  { src: '/assassins.jpg', alt: "Assassin's Creed Black Flag Resynced" },
-  { src: '/blooddownwalker.jpg', alt: 'Blood Down Walker' },
-  { src: '/dragonball.jpg', alt: 'Dragon Ball' },
-  { src: '/fc27.jpg', alt: 'FC 27' },
-  { src: '/gta.jpg', alt: 'GTA' },
-  { src: '/wolverine.jpg', alt: "Marvel's Wolverine" },
-]
 
 function GamesGrid() {
   const { t } = useTranslation()
+  const [juegos, setJuegos] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    let cancelado = false
+
+    async function cargar() {
+      const result = await gameService.getJuegosDestacados()
+      if (cancelado) return
+      if (result.ok) {
+        setJuegos(result.data)
+      } else {
+        setError(true)
+      }
+      setLoading(false)
+    }
+
+    cargar()
+    return () => { cancelado = true }
+  }, [])
 
   return (
     <section className="games-grid" aria-labelledby="games-grid-titulo">
       <h2 id="games-grid-titulo" className="games-grid__titulo">{t('gamesGrid.title')}</h2>
-      <div className="games-grid__lista">
-        {JUEGOS.map(({ src, alt }) => (
-          <GameCard key={src} src={src} alt={alt} />
-        ))}
-      </div>
+      {loading ? (
+        <p className="texto-tema" role="status">{t('common.loading')}</p>
+      ) : error ? (
+        <p className="texto-tema" role="alert">{t('juegos.errorCarga')}</p>
+      ) : (
+        <div className="games-grid__lista">
+          {juegos.map((juego) => (
+            <GameCard
+              key={juego.id}
+              id={juego.id}
+              imagenPortada={juego.imagenPortada}
+              nombre={juego.nombre}
+              plataforma={juego.plataforma}
+              precio={juego.precio}
+              videoPreviewUrl={juego.videoPreviewUrl}
+            />
+          ))}
+        </div>
+      )}
     </section>
   )
 }

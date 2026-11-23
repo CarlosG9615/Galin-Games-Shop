@@ -1,0 +1,46 @@
+@use '../../../styles/mixins' as *;
+
+.breadcrumb {
+  margin: 0 0 1.5rem;
+
+  &__lista {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.9rem;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  &__link,
+  &__texto {
+    color: var(--color-texto-tenue);
+    text-decoration: none;
+  }
+
+  &__link {
+    @include transicion-suave(color 0.2s ease);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-acento);
+    }
+  }
+
+  &__actual {
+    color: var(--color-texto);
+    font-weight: 600;
+  }
+
+  &__separador {
+    color: var(--color-texto-tenue);
+  }
+}

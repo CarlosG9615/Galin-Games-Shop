@@ -1,0 +1,56 @@
+@use '../../../styles/mixins' as *;
+
+// Mismo lenguaje visual que Navbar.scss (.navbar__dropdown/.navbar__dropdown-link) y
+// LanguageToggle.scss: botón trigger + desplegable con blur. Se duplican los valores
+// (mismo criterio ya usado en LanguageToggle.scss) para no acoplar este componente a
+// la implementación interna de Navbar.jsx.
+.plataformas-dropdown {
+  position: relative;
+
+  &__boton {
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  &__menu {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    margin: 0;
+    padding: 0.5rem 0;
+    list-style: none;
+    background: var(--color-fondo-elevado);
+    border: 1px solid var(--color-acento-borde);
+    border-radius: 12px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 10;
+  }
+
+  &__opcion {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.65rem 1.5rem;
+    color: var(--color-texto);
+    text-decoration: none;
+    font: inherit;
+    font-size: 1rem;
+    white-space: nowrap;
+
+    @include transicion-suave(background-color 0.15s ease, color 0.15s ease);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--color-fondo);
+      color: var(--color-acento);
+    }
+  }
+}
