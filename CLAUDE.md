@@ -19,7 +19,13 @@ Toda feature nueva vive en `.specs/<nombre-feature>/`, con tres documentos gener
 Reglas del flujo:
 
 - **No se genera código sin que existan antes `requirements.md` y `design.md` aprobados** por el usuario para esa feature.
-- Las tasks de `tasks.md` se ejecutan **de una en una**: se marca `[x]` al terminar cada una y se muestra el diff correspondiente antes de pasar a la siguiente.
+- El agente se encarga de estructurar la feature: redacta `requirements.md`, propone `design.md` y desglosa `tasks.md`. Debe presentar cada documento para aprobación antes de avanzar a la siguiente fase.
+- El propósito por defecto es que el usuario practique la implementación. Toda tarea que implique escribir o modificar código, tests, configuración ejecutable, integración o verificación manual se considera **`[PRÁCTICA]`** y la realiza el usuario.
+- El agente puede ejecutar tareas de documentación/spec (por ejemplo, crear o actualizar requisitos, diseño y plan) y tareas marcadas explícitamente como **`[AGENTE]`**. Al generar o sincronizar `tasks.md`, cada tarea pendiente debe llevar una de esas etiquetas; no se deben asignar al agente tareas de implementación solo por ser mecánicas o pequeñas.
+- Si una tarea no tiene etiqueta (incluidas las tareas de specs ya existentes), se considera **`[PRÁCTICA]`**. No reclasificar ni ejecutar esas tareas sin que el usuario lo pida expresamente.
+- Las tareas se realizan de una en una y respetando sus dependencias. `/spec-execute` solo puede implementar una tarea `[AGENTE]` que esté lista; si la siguiente tarea lista es `[PRÁCTICA]`, debe detenerse, indicar al usuario qué debe implementar y ofrecer ayuda mediante explicación, pistas o revisión, sin escribir el código ni marcar la tarea como completada.
+- El usuario puede delegar una tarea `[PRÁCTICA]` concreta de forma explícita. Esa delegación solo aplica a la tarea indicada; no cambia el responsable del resto del plan.
+- El usuario marca una tarea `[PRÁCTICA]` como completada cuando confirma que la terminó. El agente puede ayudar a revisar el resultado y explicar fallos, pero no debe sustituir la implementación por una solución completa salvo petición explícita.
 - Si el diseño cambia a mitad de implementación: primero se actualiza `design.md`, y después se regeneran **solo** las tasks afectadas en `tasks.md`, sin tocar las tareas ya marcadas como completadas.
 
 ## Regla de seguridad — Spec-Driven Development
@@ -38,8 +44,8 @@ requirements.md, design.md y tasks.md ya generados:
 
 - `/spec-requirements <descripción de la feature>` — genera `.specs/<feature>/requirements.md`
 - `/spec-design <feature>` — genera `.specs/<feature>/design.md` a partir de `requirements.md`
-- `/spec-tasks <feature>` — genera `.specs/<feature>/tasks.md` a partir de `requirements.md` + `design.md`
-- `/spec-execute <feature>` — ejecuta la siguiente tarea pendiente de `tasks.md` y marca su checkbox
+- `/spec-tasks <feature>` — genera `.specs/<feature>/tasks.md` a partir de `requirements.md` + `design.md`, indicando `[PRÁCTICA]` o `[AGENTE]` en cada tarea pendiente
+- `/spec-execute <feature>` — ejecuta solo la siguiente tarea lista `[AGENTE]`; si corresponde una tarea `[PRÁCTICA]`, la deja para el usuario y ofrece orientación sin implementarla
 - `/spec-sync <feature>` — tras un cambio en `design.md`, actualiza `tasks.md` preservando las tareas ya completadas
 
 ## Identificadores MongoDB (ObjectId)
